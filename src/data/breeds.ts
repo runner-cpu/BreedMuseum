@@ -55,7 +55,7 @@ import { extraBreeds12 } from './extraBreeds12';
 import { extraBreeds13 } from './extraBreeds13';
 import { extraBreeds14 } from './extraBreeds14';
 
-export const breeds: Breed[] = [
+const rawBreeds: Breed[] = [
   {
     id: 'dongbei-min-pig',
     name: '东北民猪',
@@ -1931,3 +1931,46 @@ export const breeds: Breed[] = [
   ...extraBreeds13,
   ...extraBreeds14,
 ];
+
+/**
+ * Resolve historical ID collisions at the dataset boundary. Keeping the
+ * source modules untouched makes the editorial provenance reviewable while
+ * guaranteeing that every consumer receives one stable identity per record.
+ */
+function normalizeBreedIdentities(items: readonly Breed[]): Breed[] {
+  const mergedVariants = new Set([
+    '互助八眉猪',
+    '平武黄牛',
+    '徐闻黄牛',
+    '雷州黄牛',
+    '福安黄牛',
+    '赣西黄牛',
+    '锦江黄牛',
+    '广丰黄牛',
+  ]);
+  const homophoneRenames = new Map([
+    ['锡尼河马', 'xinihe-horse'],
+    ['淮猪', 'huaihe-pig'],
+    ['福州黄牛', 'fuzhou-yellow-cattle'],
+  ]);
+  const seenIds = new Set<string>();
+  const normalized: Breed[] = [];
+
+  for (const breed of items) {
+    if (mergedVariants.has(breed.name)) continue;
+
+    if (seenIds.has(breed.id)) {
+      const renamedId = homophoneRenames.get(breed.name);
+      if (!renamedId) continue;
+      normalized.push({ ...breed, id: renamedId });
+      continue;
+    }
+
+    seenIds.add(breed.id);
+    normalized.push(breed);
+  }
+
+  return normalized;
+}
+
+export const breeds: Breed[] = normalizeBreedIdentities(rawBreeds);
