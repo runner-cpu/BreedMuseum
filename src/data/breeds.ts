@@ -54,6 +54,7 @@ import { extraBreeds11 } from './extraBreeds11';
 import { extraBreeds12 } from './extraBreeds12';
 import { extraBreeds13 } from './extraBreeds13';
 import { extraBreeds14 } from './extraBreeds14';
+import { extraBreeds15 } from './extraBreeds15';
 
 const rawBreeds: Breed[] = [
   {
@@ -1930,6 +1931,7 @@ const rawBreeds: Breed[] = [
   ...extraBreeds12,
   ...extraBreeds13,
   ...extraBreeds14,
+  ...extraBreeds15,
 ];
 
 /**
@@ -1953,21 +1955,30 @@ function normalizeBreedIdentities(items: readonly Breed[]): Breed[] {
     ['淮猪', 'huaihe-pig'],
     ['福州黄牛', 'fuzhou-yellow-cattle'],
   ]);
+  const canonicalNameRenames = new Map([
+    ['青海驴', '青海毛驴'],
+    ['准噶尔双峰驼', '新疆准噶尔双峰驼'],
+    ['山麻鸭', '龙岩山麻鸭'],
+    ['驯鹿', '敖鲁古雅驯鹿'],
+  ]);
   const seenIds = new Set<string>();
   const normalized: Breed[] = [];
 
   for (const breed of items) {
     if (mergedVariants.has(breed.name)) continue;
 
-    if (seenIds.has(breed.id)) {
-      const renamedId = homophoneRenames.get(breed.name);
+    const canonicalName = canonicalNameRenames.get(breed.name);
+    const normalizedBreed = canonicalName ? { ...breed, name: canonicalName } : breed;
+
+    if (seenIds.has(normalizedBreed.id)) {
+      const renamedId = homophoneRenames.get(normalizedBreed.name);
       if (!renamedId) continue;
-      normalized.push({ ...breed, id: renamedId });
+      normalized.push({ ...normalizedBreed, id: renamedId });
       continue;
     }
 
-    seenIds.add(breed.id);
-    normalized.push(breed);
+    seenIds.add(normalizedBreed.id);
+    normalized.push(normalizedBreed);
   }
 
   return normalized;
