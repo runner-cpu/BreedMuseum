@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="中国地方畜禽品种数字博物馆馆藏印章标志">
+  <title>中国地方畜禽品种数字博物馆馆藏印章标志</title>
+  <desc>墨绿色印章中包含屋檐、双角与叶脉图形</desc>
+  <rect width="64" height="64" rx="14" fill="#173B2C"/>
+  <rect x="4.5" y="4.5" width="55" height="55" rx="10" fill="none" stroke="#C79A45" stroke-width="1.5" opacity=".85"/>
+  <path d="M12 25.5 32 11l20 14.5-4 5.5-16-11.2L16 31l-4-5.5Z" fill="#F4EFE3"/>
+  <path d="M18 31c6.4.2 10.4 3.6 14 10 3.6-6.4 7.6-9.8 14-10-1.9 9.5-6.5 16.2-14 21-7.5-4.8-12.1-11.5-14-21Z" fill="none" stroke="#C79A45" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 40v12M32 43 25 37M32 46l7-7" fill="none" stroke="#F4EFE3" stroke-width="2.2" stroke-linecap="round"/>
+</svg>
