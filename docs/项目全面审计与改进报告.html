@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b2c">
+  <meta name="description" content="中国地方畜禽品种数字博物馆质量升级的全面审计、改进成果、验证证据与后续路线图。">
+  <title>全面审计与改进报告｜中国地方畜禽品种数字博物馆</title>
+  <link rel="icon" href="../public/brand/favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #173b2c;
+      --ink-2: #245842;
+      --ink-soft: #dce9e1;
+      --paper: #f4efe3;
+      --paper-2: #fbf8f0;
+      --paper-3: #e8dfcf;
+      --gold: #c79a45;
+      --gold-soft: #ead6ad;
+      --terracotta: #a5523c;
+      --text: #1f2924;
+      --muted: #66736c;
+      --line: rgba(23, 59, 44, 0.16);
+      --shadow: 0 22px 60px rgba(44, 39, 27, 0.11);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 4%, rgba(199, 154, 69, 0.14), transparent 27rem),
+        radial-gradient(circle at 92% 11%, rgba(23, 59, 44, 0.12), transparent 29rem),
+        var(--paper);
+      font-family: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(23, 59, 44, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 59, 44, 0.025) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    a { color: inherit; }
+    button, summary { font: inherit; }
+    img, svg { display: block; max-width: 100%; }
+
+    :focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 4px;
+      border-radius: 6px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 16px;
+      color: white;
+      background: var(--ink);
+      border-radius: 999px;
+      transform: translateY(-160%);
+      transition: transform 160ms ease;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .reading-progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      z-index: 80;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #f3d28a);
+    }
+
+    .shell {
+      width: min(calc(100% - 32px), var(--max));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(244, 239, 227, 0.16);
+      background: rgba(23, 59, 44, 0.94);
+      color: white;
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      min-height: 68px;
+    }
+
+    .brand {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+
+    .brand svg { width: 38px; height: 38px; }
+
+    .brand-copy { line-height: 1.25; }
+    .brand-copy strong { display: block; font-size: 14px; letter-spacing: 0.08em; }
+    .brand-copy span { display: block; margin-top: 2px; color: var(--gold-soft); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
+
+    .nav {
+      display: flex;
+      flex: 1;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 8px 0;
+      scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar { display: none; }
+
+    .nav a {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 150ms ease, background 150ms ease;
+    }
+
+    .nav a:hover { color: white; background: rgba(255, 255, 255, 0.09); }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(54px, 8vw, 104px) 0 62px;
+      background: var(--ink);
+      color: white;
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      content: "";
+      border: 1px solid rgba(199, 154, 69, 0.35);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::before { width: 440px; height: 440px; right: -180px; top: -210px; }
+    .hero::after { width: 220px; height: 220px; left: -95px; bottom: -155px; }
+
+    .hero-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: clamp(36px, 7vw, 92px);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      color: var(--gold-soft);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before { width: 28px; height: 1px; content: ""; background: currentColor; }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 820px;
+      margin-bottom: 25px;
+      font-family: "STSong", "Songti SC", "Noto Serif SC", serif;
+      font-size: clamp(40px, 6.3vw, 82px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    .hero-lead {
+      max-width: 720px;
+      margin-bottom: 30px;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: clamp(16px, 2vw, 20px);
+    }
+
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+    }
+
+    .hero-visual { display: grid; place-items: center; }
+
+    .seal-stat {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(100%, 330px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(199, 154, 69, 0.56);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, rgba(199, 154, 69, 0.08) 0 46%, transparent 47%),
+        repeating-radial-gradient(circle at center, transparent 0 27px, rgba(255, 255, 255, 0.06) 28px 29px);
+    }
+
+    .seal-stat::before {
+      position: absolute;
+      inset: 17px;
+      content: "";
+      border: 1px dashed rgba(199, 154, 69, 0.43);
+      border-radius: 50%;
+    }
+
+    .seal-core { position: relative; text-align: center; }
+    .seal-core strong { display: block; color: var(--paper); font-family: Georgia, serif; font-size: clamp(74px, 11vw, 118px); font-weight: 400; line-height: 0.9; letter-spacing: -0.07em; }
+    .seal-core span { display: block; margin-top: 12px; color: var(--gold-soft); font-size: 12px; letter-spacing: 0.32em; text-indent: 0.32em; }
+    .seal-notes { position: absolute; inset: auto 9% 12%; display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.58); font-size: 11px; }
+
+    main section { padding: clamp(66px, 8vw, 106px) 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(280px, 0.28fr);
+      gap: 38px;
+      align-items: end;
+      margin-bottom: 38px;
+    }
+
+    .kicker { margin-bottom: 12px; color: var(--terracotta); font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+
+    h2 {
+      margin-bottom: 0;
+      color: var(--ink);
+      font-family: "STSong", "Songti SC", "Noto Serif SC", serif;
+      font-size: clamp(31px, 4.5vw, 54px);
+      line-height: 1.16;
+      letter-spacing: -0.035em;
+    }
+
+    .section-intro { margin-bottom: 0; color: var(--muted); font-size: 15px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card {
+      min-height: 190px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(251, 248, 240, 0.78);
+      box-shadow: 0 12px 34px rgba(45, 37, 25, 0.055);
+    }
+
+    .kpi-card.featured { color: white; background: var(--ink); border-color: var(--ink); }
+    .kpi-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+    .featured .kpi-label { color: var(--gold-soft); }
+    .kpi-value { display: block; margin: 16px 0 10px; color: var(--ink); font-family: Georgia, serif; font-size: 45px; font-weight: 400; line-height: 1; letter-spacing: -0.05em; }
+    .featured .kpi-value { color: white; }
+    .kpi-delta { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .featured .kpi-delta { color: rgba(255, 255, 255, 0.68); }
+    .delta-up { color: var(--ink-2); font-weight: 800; }
+    .featured .delta-up { color: var(--gold-soft); }
+
+    .scope-section { background: rgba(251, 248, 240, 0.7); border-block: 1px solid var(--line); }
+
+    .scope-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.94fr) minmax(320px, 1.06fr);
+      gap: clamp(34px, 6vw, 76px);
+      align-items: center;
+    }
+
+    .scope-copy .lead { color: var(--text); font-size: 20px; line-height: 1.75; }
+
+    .scope-list { display: grid; gap: 13px; margin: 28px 0 0; padding: 0; list-style: none; }
+    .scope-list li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; color: var(--muted); font-size: 14px; }
+    .scope-list svg { width: 20px; margin-top: 3px; color: var(--gold); }
+
+    .scope-board {
+      padding: clamp(24px, 4vw, 42px);
+      border-radius: var(--radius-lg);
+      color: white;
+      background: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .scope-board-header { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 28px; }
+    .scope-board-header strong { font-family: Georgia, serif; font-size: 48px; font-weight: 400; line-height: 1; }
+    .scope-board-header span { color: rgba(255, 255, 255, 0.63); font-size: 12px; text-align: right; }
+    .scope-bar { display: grid; grid-template-columns: 271fr 12fr 15fr; overflow: hidden; height: 20px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); }
+    .scope-bar span:nth-child(1) { background: var(--gold); }
+    .scope-bar span:nth-child(2) { background: #90a98f; }
+    .scope-bar span:nth-child(3) { background: #bc765f; }
+    .scope-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 23px; }
+    .scope-legend-item { border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 13px; }
+    .scope-legend-item strong { display: block; font-family: Georgia, serif; font-size: 24px; font-weight: 400; }
+    .scope-legend-item span { color: rgba(255, 255, 255, 0.58); font-size: 11px; }
+    .scope-footnote { margin: 27px 0 0; padding: 17px 18px; border: 1px solid rgba(199, 154, 69, 0.32); border-radius: 12px; color: rgba(255, 255, 255, 0.7); background: rgba(199, 154, 69, 0.07); font-size: 12px; }
+
+    .audit-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 28px;
+    }
+
+    .filter-button {
+      min-height: 44px;
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--paper-2);
+      cursor: pointer;
+      transition: transform 150ms ease, color 150ms ease, background 150ms ease;
+    }
+
+    .filter-button:hover { transform: translateY(-1px); }
+    .filter-button[aria-pressed="true"] { color: white; background: var(--ink); border-color: var(--ink); }
+
+    .audit-count { margin-left: auto; align-self: center; color: var(--muted); font-size: 13px; }
+
+    .audit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+
+    .audit-card {
+      overflow: clip;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(251, 248, 240, 0.9);
+      box-shadow: 0 10px 30px rgba(45, 37, 25, 0.04);
+    }
+
+    .audit-card[hidden] { display: none; }
+
+    .audit-card summary {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      min-height: 88px;
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .audit-card summary::-webkit-details-marker { display: none; }
+
+    .audit-number {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: var(--ink);
+      background: var(--ink-soft);
+      font-family: Georgia, serif;
+      font-size: 18px;
+    }
+
+    .audit-title { display: block; color: var(--ink); font-size: 16px; font-weight: 800; line-height: 1.3; }
+    .audit-category { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; }
+    .audit-chevron { width: 28px; height: 28px; padding: 7px; border-radius: 50%; color: var(--ink); background: rgba(23, 59, 44, 0.07); transition: transform 170ms ease; }
+    details[open] .audit-chevron { transform: rotate(180deg); }
+
+    .audit-body { display: grid; gap: 0; padding: 0 18px 18px 80px; }
+    .audit-row { padding: 14px 0; border-top: 1px solid var(--line); }
+    .audit-row b { display: block; margin-bottom: 5px; color: var(--terracotta); font-size: 11px; letter-spacing: 0.11em; }
+    .audit-row p { margin: 0; color: var(--muted); font-size: 13px; }
+    .audit-row.improved b { color: var(--ink-2); }
+
+    .impact-section { color: white; background: var(--ink); }
+    .impact-section h2 { color: white; }
+    .impact-section .kicker { color: var(--gold-soft); }
+    .impact-section .section-intro { color: rgba(255, 255, 255, 0.64); }
+
+    .impact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .impact-card { position: relative; overflow: hidden; min-height: 300px; padding: clamp(25px, 4vw, 39px); border: 1px solid rgba(255, 255, 255, 0.13); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.045); }
+    .impact-card::after { position: absolute; width: 150px; height: 150px; right: -45px; bottom: -70px; content: ""; border: 1px solid rgba(199, 154, 69, 0.28); border-radius: 50%; }
+    .impact-index { color: var(--gold); font-family: Georgia, serif; font-size: 14px; }
+    .impact-card h3 { margin: 46px 0 17px; font-family: "STSong", "Songti SC", serif; font-size: 29px; font-weight: 700; }
+    .impact-card ul { margin: 0; padding: 0; list-style: none; }
+    .impact-card li { position: relative; margin-top: 11px; padding-left: 18px; color: rgba(255, 255, 255, 0.68); font-size: 13px; }
+    .impact-card li::before { position: absolute; left: 0; top: 0.75em; width: 6px; height: 1px; content: ""; background: var(--gold); }
+
+    .brand-gallery { display: grid; grid-template-columns: 1.2fr 1.8fr 1fr 1fr; gap: 12px; }
+    .asset-card { display: grid; min-height: 220px; margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--paper-2); }
+    .asset-preview { display: grid; place-items: center; min-height: 130px; padding: 18px; border-radius: 13px; background: var(--paper-3); }
+    .asset-preview.dark { background: var(--ink); }
+    .asset-preview img { max-width: 100%; max-height: 94px; }
+    .asset-card figcaption { align-self: end; margin-top: 18px; color: var(--muted); font-size: 12px; }
+    .asset-card figcaption strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 14px; }
+
+    .roadmap-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .roadmap-card { min-height: 310px; padding: 26px; border-top: 4px solid var(--paper-3); border-radius: 0 0 var(--radius-md) var(--radius-md); background: rgba(251, 248, 240, 0.84); }
+    .roadmap-card[data-priority="P0"] { border-color: var(--ink-2); }
+    .roadmap-card[data-priority="P1"] { border-color: var(--terracotta); }
+    .roadmap-card[data-priority="P2"] { border-color: var(--gold); }
+    .roadmap-card[data-priority="P3"] { border-color: #83967f; }
+    .priority { display: inline-flex; align-items: center; min-width: 42px; min-height: 28px; justify-content: center; border-radius: 999px; color: white; background: var(--ink); font-family: Georgia, serif; font-size: 12px; }
+    .roadmap-card h3 { margin: 24px 0 14px; color: var(--ink); font-size: 19px; }
+    .roadmap-card p, .roadmap-card li { color: var(--muted); font-size: 13px; }
+    .roadmap-card ul { margin: 0; padding-left: 18px; }
+    .roadmap-card li + li { margin-top: 9px; }
+    .clear-status { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); font-weight: 800; }
+    .clear-status::before { width: 9px; height: 9px; content: ""; border-radius: 50%; background: #4e8e67; box-shadow: 0 0 0 5px rgba(78, 142, 103, 0.14); }
+
+    .evidence-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr); gap: 18px; align-items: start; }
+    .evidence-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--paper-2); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 15px 18px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--ink); background: var(--ink-soft); font-size: 11px; letter-spacing: 0.06em; }
+    tr:last-child td { border-bottom: 0; }
+    code { color: var(--ink); font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace; font-size: 0.92em; }
+    .pass { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); font-weight: 800; }
+    .pass::before { width: 8px; height: 8px; content: ""; border-radius: 50%; background: #4e8e67; }
+
+    .evidence-note { padding: 27px; border-radius: var(--radius-md); color: white; background: var(--ink); }
+    .evidence-note strong { display: block; margin-bottom: 12px; color: var(--gold-soft); font-size: 12px; letter-spacing: 0.11em; }
+    .evidence-note p { margin-bottom: 14px; color: rgba(255, 255, 255, 0.7); font-size: 13px; }
+    .evidence-note p:last-child { margin-bottom: 0; }
+
+    .backup-panel { display: grid; grid-template-columns: 0.28fr 0.72fr; gap: 32px; padding: clamp(28px, 5vw, 48px); border: 1px solid rgba(199, 154, 69, 0.34); border-radius: var(--radius-lg); background: linear-gradient(130deg, rgba(199, 154, 69, 0.13), rgba(251, 248, 240, 0.72)); }
+    .backup-seal { display: grid; place-items: center; width: 120px; height: 120px; border: 1px solid var(--gold); border-radius: 50%; color: var(--ink); font-family: Georgia, serif; text-align: center; }
+    .backup-seal strong { display: block; font-size: 27px; line-height: 1; }
+    .backup-seal span { display: block; margin-top: 8px; font-size: 10px; letter-spacing: 0.12em; }
+    .backup-panel h3 { margin-bottom: 10px; color: var(--ink); font-size: 24px; }
+    .backup-panel p { color: var(--muted); font-size: 14px; }
+    .backup-paths { display: grid; gap: 7px; margin-top: 19px; }
+    .backup-paths code { overflow-wrap: anywhere; padding: 9px 11px; border-radius: 8px; background: rgba(23, 59, 44, 0.07); }
+
+    .report-footer { padding: 40px 0 52px; color: rgba(255, 255, 255, 0.66); background: #10291f; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 26px; align-items: end; }
+    .footer-title { margin-bottom: 7px; color: white; font-family: "STSong", "Songti SC", serif; font-size: 22px; }
+    .footer-copy { margin: 0; font-size: 12px; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    .footer-links a { min-height: 42px; padding: 9px 13px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; font-size: 12px; text-decoration: none; }
+    .footer-links a:hover { color: white; border-color: var(--gold); }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 980px) {
+      .hero-grid, .scope-grid, .section-head, .evidence-layout { grid-template-columns: 1fr; }
+      .hero-visual { justify-items: start; }
+      .seal-stat { width: 285px; }
+      .section-head { gap: 14px; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .brand-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .roadmap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .backup-panel { grid-template-columns: 150px minmax(0, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .shell { width: min(calc(100% - 24px), var(--max)); }
+      .topbar-inner { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 10px; }
+      .brand-copy strong { font-size: 13px; }
+      .nav { width: 100%; }
+      .hero { padding-top: 56px; }
+      .hero-grid { gap: 42px; }
+      h1 { font-size: clamp(40px, 14vw, 62px); }
+      .hero-lead { font-size: 16px; }
+      .kpi-grid, .audit-grid, .impact-grid, .roadmap-grid { grid-template-columns: 1fr; }
+      .kpi-card { min-height: 160px; }
+      .scope-board-header { align-items: start; flex-direction: column; }
+      .scope-board-header span { text-align: left; }
+      .scope-legend { grid-template-columns: 1fr; }
+      .audit-toolbar { position: sticky; top: 117px; z-index: 12; margin-inline: -12px; padding: 10px 12px; background: rgba(244, 239, 227, 0.94); backdrop-filter: blur(12px); }
+      .audit-count { width: 100%; margin-left: 4px; }
+      .audit-card summary { grid-template-columns: 44px minmax(0, 1fr) auto; padding-inline: 14px; }
+      .audit-body { padding-left: 72px; padding-right: 14px; }
+      .brand-gallery { grid-template-columns: 1fr; }
+      .asset-card { min-height: 190px; }
+      .backup-panel { grid-template-columns: 1fr; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+      .footer-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 420px) {
+      .seal-stat { width: 260px; }
+      .audit-card summary { grid-template-columns: 38px minmax(0, 1fr) 24px; gap: 10px; }
+      .audit-number { width: 38px; height: 38px; }
+      .audit-body { padding-left: 62px; }
+      th, td { padding-inline: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: white; color: black; font-size: 10pt; }
+      body::before, .topbar, .reading-progress, .audit-toolbar, .footer-links { display: none !important; }
+      .shell { width: 100%; }
+      .hero { padding: 20mm 0 14mm; color: black; background: white; border-bottom: 2px solid var(--ink); }
+      .hero-grid, .section-head, .scope-grid, .evidence-layout, .backup-panel { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .hero-lead, .meta-pill { color: #444; }
+      h1 { font-size: 34pt; }
+      main section { padding: 12mm 0; }
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+      .kpi-card { min-height: 0; box-shadow: none; break-inside: avoid; }
+      .kpi-card.featured, .scope-board, .impact-section, .evidence-note { color: black; background: white; }
+      .featured .kpi-value, .impact-section h2 { color: var(--ink); }
+      .audit-grid { display: block; }
+      .audit-card { margin-bottom: 4mm; box-shadow: none; break-inside: avoid; }
+      .audit-card[hidden] { display: block; }
+      .audit-card summary { min-height: 0; }
+      .audit-chevron { display: none; }
+      .audit-body { display: grid !important; }
+      .impact-grid, .brand-gallery, .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
+      .impact-card { min-height: 0; color: black; background: white; }
+      .impact-card h3, .impact-card li { color: black; }
+      .report-footer { color: #444; background: white; border-top: 1px solid #bbb; }
+      .footer-title { color: black; }
+      a { text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <div class="reading-progress" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="返回报告顶部">
+        <svg viewBox="0 0 64 64" role="img" aria-label="数字博物馆馆藏印章">
+          <rect width="64" height="64" rx="14" fill="#173b2c"/>
+          <rect x="4.5" y="4.5" width="55" height="55" rx="10" fill="none" stroke="#c79a45" stroke-width="1.5"/>
+          <path d="M12 25.5 32 11l20 14.5-4 5.5-16-11.2L16 31l-4-5.5Z" fill="#f4efe3"/>
+          <path d="M18 31c6.4.2 10.4 3.6 14 10 3.6-6.4 7.6-9.8 14-10-1.9 9.5-6.5 16.2-14 21-7.5-4.8-12.1-11.5-14-21Z" fill="none" stroke="#c79a45" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 40v12M32 43 25 37M32 46l7-7" fill="none" stroke="#f4efe3" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="brand-copy"><strong>中国地方畜禽品种数字博物馆</strong><span>Quality Review</span></span>
+      </a>
+      <nav class="nav" aria-label="报告章节">
+        <a href="#overview">成果概览</a>
+        <a href="#scope">数据边界</a>
+        <a href="#audit">40 项审计</a>
+        <a href="#improvements">改进成果</a>
+        <a href="#roadmap">后续路线</a>
+        <a href="#evidence">验证证据</a>
+      </nav>
+    </div>
+  </header>
+
+  <div id="top" class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Quality Upgrade · 2026.09.28</p>
+        <h1>全面审计<br>与改进报告</h1>
+        <p class="hero-lead">从数据可信度、产品体验、视觉品牌、移动端、无障碍、性能、安全到交付流程，对项目进行 40 个角度的系统复盘，并完成可验证的质量升级。</p>
+        <div class="hero-meta" aria-label="报告元信息">
+          <span class="meta-pill">分支：quality-upgrade</span>
+          <span class="meta-pill">馆藏：701 条唯一记录</span>
+          <span class="meta-pill">状态：待预览确认，尚未推送</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="升级后馆藏记录 701 条">
+        <div class="seal-stat">
+          <div class="seal-core"><strong>701</strong><span>唯一馆藏记录</span></div>
+          <div class="seal-notes"><span>271 名录匹配</span><span>0 审计问题</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <section id="overview" aria-labelledby="overview-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">Before → After</p><h2 id="overview-title">一次可量化的质量跃迁</h2></div>
+          <p class="section-intro">不只增加数据，而是同步解决重复记录、品牌割裂、无后端白屏、移动端拥挤、缺少测试与文档漂移等结构性问题。</p>
+        </div>
+        <div class="kpi-grid">
+          <article class="kpi-card featured"><span class="kpi-label">运行时馆藏</span><strong class="kpi-value">701</strong><p class="kpi-delta"><span class="delta-up">687 → 701</span><br>新增 23 条候选并完成重复归一，净增 14 条。</p></article>
+          <article class="kpi-card"><span class="kpi-label">国家级名录匹配</span><strong class="kpi-value">271</strong><p class="kpi-delta"><span class="delta-up">畜禽范围全覆盖</span><br>明确区分馆藏总量与权威名录口径。</p></article>
+          <article class="kpi-card"><span class="kpi-label">数据审计问题</span><strong class="kpi-value">0</strong><p class="kpi-delta"><span class="delta-up">ID 与规范中文名全局唯一</span><br>范围、枚举、来源与名录匹配自动检查。</p></article>
+          <article class="kpi-card"><span class="kpi-label">自动化验证</span><strong class="kpi-value">71</strong><p class="kpi-delta"><span class="delta-up">48 单元/组件 + 23 E2E</span><br>另有 1 项桌面条件不适用测试跳过。</p></article>
+          <article class="kpi-card"><span class="kpi-label">生产入口 JS</span><strong class="kpi-value">42 KB</strong><p class="kpi-delta"><span class="delta-up">gzip：754 KB → 42 KB</span><br>路由懒加载并拆分 PDF、图表与 AI 重依赖。</p></article>
+          <article class="kpi-card"><span class="kpi-label">无后端运行</span><strong class="kpi-value">6</strong><p class="kpi-delta"><span class="delta-up">公开主路由可用</span><br>AI 页面显示清晰的“服务未配置”状态。</p></article>
+          <article class="kpi-card"><span class="kpi-label">原创品牌资产</span><strong class="kpi-value">4 SVG</strong><p class="kpi-delta"><span class="delta-up">统一替换临时与模板图标</span><br>印章、字标、favicon 与图片占位图。</p></article>
+          <article class="kpi-card"><span class="kpi-label">生产依赖安全</span><strong class="kpi-value">0</strong><p class="kpi-delta"><span class="delta-up">无已知漏洞</span><br>通过 npm 官方审计端点复核。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="scope" class="scope-section" aria-labelledby="scope-title">
+      <div class="shell scope-grid">
+        <div class="scope-copy">
+          <p class="kicker">Data Boundary</p>
+          <h2 id="scope-title">先把“701”与“271”说清楚</h2>
+          <p class="lead">馆藏 701 条不等于 701 个国家级保护品种。项目以农业农村部第 940 号公告为权威基线，当前完整匹配其中 271 个畜禽名称。</p>
+          <ul class="scope-list">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>馆藏同时包含国家级保护品种、地方整理记录和待进一步核验记录。</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>新增记录没有可复用图片时使用原创 SVG 占位图，不虚构摄影者、许可证或版权状态。</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>五项雷达值属于站内编辑性展示指标，不代表官方遗传评估或生产性能结论。</span></li>
+          </ul>
+        </div>
+        <div class="scope-board" aria-label="国家级保护名录 298 个品种的构成">
+          <div class="scope-board-header"><strong>298</strong><span>农业农村部第 940 号公告<br>国家级畜禽遗传资源保护名录</span></div>
+          <div class="scope-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="scope-legend">
+            <div class="scope-legend-item"><strong>271</strong><span>畜禽 · 本轮完整匹配</span></div>
+            <div class="scope-legend-item"><strong>12</strong><span>蜂 · 暂未纳入</span></div>
+            <div class="scope-legend-item"><strong>15</strong><span>蚕 · 暂未纳入</span></div>
+          </div>
+          <p class="scope-footnote">蜂与蚕的指标模型不适配当前五维畜禽雷达模型。此次明确排除，待建立专属属性模型后再纳入，避免“为追求数量而制造错误”。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="audit" aria-labelledby="audit-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">40 Audit Angles</p><h2 id="audit-title">从五个维度拆解项目不足</h2></div>
+          <p class="section-intro">选择分类筛选，点击卡片查看“原有不足—本轮改进—剩余风险”的完整链路。打印时将自动展开全部内容。</p>
+        </div>
+        <div class="audit-toolbar" role="group" aria-label="筛选审计角度">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">全部</button>
+          <button class="filter-button" type="button" data-filter="product" aria-pressed="false">产品与功能</button>
+          <button class="filter-button" type="button" data-filter="data" aria-pressed="false">数据与内容</button>
+          <button class="filter-button" type="button" data-filter="design" aria-pressed="false">视觉与可达性</button>
+          <button class="filter-button" type="button" data-filter="engineering" aria-pressed="false">工程质量</button>
+          <button class="filter-button" type="button" data-filter="governance" aria-pressed="false">安全与治理</button>
+          <span class="audit-count" aria-live="polite">显示 40 / 40 项</span>
+        </div>
+
+        <div class="audit-grid">
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">01</span><span><span class="audit-title">产品定位</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>功能说明仍混有已移除的登录、收藏能力。</p></div><div class="audit-row improved"><b>本轮改进</b><p>README、PRD、网站说明书统一为公开科普站定位。</p></div><div class="audit-row"><b>剩余风险</b><p>后续新增账户功能时需重新做隐私与权限设计。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">02</span><span><span class="audit-title">范围边界</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>站内馆藏数与国家级名录数容易混淆。</p></div><div class="audit-row improved"><b>本轮改进</b><p>页面、手册与数据源区分“馆藏 701”与“名录匹配 271”。</p></div><div class="audit-row"><b>剩余风险</b><p>面向公众仍需持续强化口径说明。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">03</span><span><span class="audit-title">数据覆盖</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>权威名录存在缺项。</p></div><div class="audit-row improved"><b>本轮改进</b><p>新增 23 个经核对候选记录，净馆藏增至 701。</p></div><div class="audit-row"><b>剩余风险</b><p>蜂、蚕待建立新指标模型后再纳入。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">04</span><span><span class="audit-title">数据唯一性</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>11 组重复 ID 可能造成 React key 冲突和详情错配。</p></div><div class="audit-row improved"><b>本轮改进</b><p>归一化 ID、中文名与兼容入口，自动审计唯一性。</p></div><div class="audit-row"><b>剩余风险</b><p>分享链接的旧 ID 映射需长期保留。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">05</span><span><span class="audit-title">规范名称</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>简称、旧称和规范名混用。</p></div><div class="audit-row improved"><b>本轮改进</b><p>增加 officialName、aliases 与规范搜索。</p></div><div class="audit-row"><b>剩余风险</b><p>少数地方俗名仍需逐条文献核对。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">06</span><span><span class="audit-title">数据来源</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>记录来源分散，用户无法判断可信度。</p></div><div class="audit-row improved"><b>本轮改进</b><p>建立来源目录、核对日期、保护状态和详情来源区块。</p></div><div class="audit-row"><b>剩余风险</b><p>历史 600+ 条叙述仍需逐条补充来源。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">07</span><span><span class="audit-title">数据验证</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>缺少坐标、枚举、雷达值和来源自动检查。</p></div><div class="audit-row improved"><b>本轮改进</b><p>breedAudit 覆盖唯一性、范围、枚举、来源和名录匹配。</p></div><div class="audit-row"><b>剩余风险</b><p>应在新增数据流程中强制执行审计。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">08</span><span><span class="audit-title">分类体系</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>类别统计依赖手写数字，容易漂移。</p></div><div class="audit-row improved"><b>本轮改进</b><p>运行时计算 11 类统计并同步文档。</p></div><div class="audit-row"><b>剩余风险</b><p>“其他”类仍较宽，未来可细分鹿、鸽等二级类。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">09</span><span><span class="audit-title">地理数据</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>地图点位容易被误解为精确分布边界。</p></div><div class="audit-row improved"><b>本轮改进</b><p>页面增加“示意主要产区”说明。</p></div><div class="audit-row"><b>剩余风险</b><p>需要更权威的县级或保护场数据才能提高精度。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">10</span><span><span class="audit-title">濒危信息</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>原有等级可能被误认为官方结论。</p></div><div class="audit-row improved"><b>本轮改进</b><p>增加“待核验”状态与编辑性免责声明。</p></div><div class="audit-row"><b>剩余风险</b><p>历史等级应逐条与权威调查报告复核。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">11</span><span><span class="audit-title">图片完整性</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>外链失败后卡片留白，来源和版权不清。</p></div><div class="audit-row improved"><b>本轮改进</b><p>统一 BreedImage 容错与原创 breed-placeholder.svg。</p></div><div class="audit-row"><b>剩余风险</b><p>外链稳定性与可复用权利仍是长期风险。</p></div></div></details>
+          <details class="audit-card" data-category="data"><summary><span class="audit-number">12</span><span><span class="audit-title">搜索准确性</span><span class="audit-category">数据与内容</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>只搜索当前名称，旧称难以命中。</p></div><div class="audit-row improved"><b>本轮改进</b><p>规范名、别名和英文名参与搜索，并由 E2E 验证。</p></div><div class="audit-row"><b>剩余风险</b><p>可继续加入拼音首字母与模糊纠错。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">13</span><span><span class="audit-title">功能正确性</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>缺少回归测试，重复 ID 会打开错误详情。</p></div><div class="audit-row improved"><b>本轮改进</b><p>搜索、详情、对比、数据源均有单元与 E2E 覆盖。</p></div><div class="audit-row"><b>剩余风险</b><p>AI 外部服务仍依赖供应商可用性。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">14</span><span><span class="audit-title">无后端降级</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>Supabase 缺失时静态页面可能白屏。</p></div><div class="audit-row improved"><b>本轮改进</b><p>后端配置改为可选，公开路由无配置可运行。</p></div><div class="audit-row"><b>剩余风险</b><p>未来恢复账户功能时，需要明确功能级依赖边界。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">15</span><span><span class="audit-title">路由与 404</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>未知地址静默回首页。</p></div><div class="audit-row improved"><b>本轮改进</b><p>增加真实 404 页面并保留错误 URL。</p></div><div class="audit-row"><b>剩余风险</b><p>Hash 路由对传统 SEO 仍有限制。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">16</span><span><span class="audit-title">信息架构</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>桌面功能丰富但移动导航拥挤。</p></div><div class="audit-row improved"><b>本轮改进</b><p>桌面导航与移动抽屉分离，六个目的地完整可达。</p></div><div class="audit-row"><b>剩余风险</b><p>未来增加栏目时需避免菜单继续膨胀。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">17</span><span><span class="audit-title">首页体验</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>视觉强，但搜索和行动路径不够统一。</p></div><div class="audit-row improved"><b>本轮改进</b><p>品牌、搜索、地图背景与主行动统一。</p></div><div class="audit-row"><b>剩余风险</b><p>首屏仍需加载共享数据，弱网体验可继续优化。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">18</span><span><span class="audit-title">百科体验</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>筛选密集，移动端控制项容易挤压。</p></div><div class="audit-row improved"><b>本轮改进</b><p>侧栏与筛选抽屉、44px 触控目标、虚拟列表和图片占位。</p></div><div class="audit-row"><b>剩余风险</b><p>可增加筛选条件摘要和一键清除反馈。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">19</span><span><span class="audit-title">地图体验</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>移动端地图和详情面板相互争夺空间。</p></div><div class="audit-row improved"><b>本轮改进</b><p>390px 下独立筛选入口、可触控点位与响应式详情。</p></div><div class="audit-row"><b>剩余风险</b><p>小屏地图仍适合探索，而非精确空间分析。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">20</span><span><span class="audit-title">数据看板</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>图表对键盘与读屏用户不友好。</p></div><div class="audit-row improved"><b>本轮改进</b><p>增加可读表格摘要、CSV/PNG 导出与清晰标题。</p></div><div class="audit-row"><b>剩余风险</b><p>PNG 导出依赖浏览器 SVG 支持，失败时回退 CSV。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">21</span><span><span class="audit-title">对比功能</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>选择状态和信息密度缺少小屏约束。</p></div><div class="audit-row improved"><b>本轮改进</b><p>加入响应式对比卡和空状态提示。</p></div><div class="audit-row"><b>剩余风险</b><p>可进一步加入差异高亮和分享参数。</p></div></div></details>
+          <details class="audit-card" data-category="product"><summary><span class="audit-number">22</span><span><span class="audit-title">AI 功能</span><span class="audit-category">产品与功能</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>未配置时错误不清楚，媒体操作可能暴露失败细节。</p></div><div class="audit-row improved"><b>本轮改进</b><p>明确“服务未配置”状态，公开站功能不受影响。</p></div><div class="audit-row"><b>剩余风险</b><p>上传内容受第三方条款与保留策略影响，应补充隐私说明。</p></div></div></details>
+          <details class="audit-card" data-category="design"><summary><span class="audit-number">23</span><span><span class="audit-title">视觉品牌</span><span class="audit-category">视觉与可达性</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>临时单字标和 TailAdmin 遗留资产不统一。</p></div><div class="audit-row improved"><b>本轮改进</b><p>原创馆藏印章、横版字标、favicon 与图片占位四套 SVG。</p></div><div class="audit-row"><b>剩余风险</b><p>SVG 中文文字依赖系统字体，极端环境可能存在字形差异。</p></div></div></details>
+          <details class="audit-card" data-category="design"><summary><span class="audit-number">24</span><span><span class="audit-title">深色模式</span><span class="audit-category">视觉与可达性</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>局部组件颜色与主题不一致。</p></div><div class="audit-row improved"><b>本轮改进</b><p>统一墨绿、宣纸、金色 token，并测试深色主题。</p></div><div class="audit-row"><b>剩余风险</b><p>仍应定期做对比度自动扫描。</p></div></div></details>
+          <details class="audit-card" data-category="design"><summary><span class="audit-number">25</span><span><span class="audit-title">移动端</span><span class="audit-category">视觉与可达性</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>顶栏截断、触控目标偏小，页面可能横向溢出。</p></div><div class="audit-row improved"><b>本轮改进</b><p>390×844 E2E、44px 控件、移动菜单和筛选抽屉。</p></div><div class="audit-row"><b>剩余风险</b><p>超窄设备与横屏尚未单独设项目。</p></div></div></details>
+          <details class="audit-card" data-category="design"><summary><span class="audit-number">26</span><span><span class="audit-title">无障碍</span><span class="audit-category">视觉与可达性</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>H1、跳转主内容、焦点和动态图偏好不完整。</p></div><div class="audit-row improved"><b>本轮改进</b><p>语义标题、ARIA、状态播报、键盘关闭与减少动画偏好。</p></div><div class="audit-row"><b>剩余风险</b><p>未接入 axe 等规则集，建议后续加入自动扫描。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">27</span><span><span class="audit-title">性能</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>AI、PDF、图表和数据随首屏进入，主包过大。</p></div><div class="audit-row improved"><b>本轮改进</b><p>路由懒加载、重依赖异步块，入口 gzip 降至 42 KB。</p></div><div class="audit-row"><b>剩余风险</b><p>breeds 数据块约 696 KB，可按分类或搜索时机继续拆分。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">28</span><span><span class="audit-title">可靠性</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>图片失败、渲染异常、离线状态缺乏恢复路径。</p></div><div class="audit-row improved"><b>本轮改进</b><p>图片回退、错误边界、重试/回首页及非阻塞离线提示。</p></div><div class="audit-row"><b>剩余风险</b><p>外部图片和 AI 服务仍可能高延迟。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">29</span><span><span class="audit-title">错误处理</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>生产界面可能泄露异常文本。</p></div><div class="audit-row improved"><b>本轮改进</b><p>用户界面使用安全文案，开发环境保留诊断。</p></div><div class="audit-row"><b>剩余风险</b><p>个别媒体工具仍使用控制台错误，需避免记录敏感载荷。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">30</span><span><span class="audit-title">安全配置</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>真实生产环境文件被版本控制，客户端初始化过早。</p></div><div class="audit-row improved"><b>本轮改进</b><p>删除跟踪的 .env.production，仅保留空值 .env.example，按需创建客户端。</p></div><div class="audit-row"><b>剩余风险</b><p>已进入历史的配置需在维护窗口评估轮换与历史清理。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">31</span><span><span class="audit-title">依赖供应链</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>缺少安全审计记录，镜像源不支持 audit API。</p></div><div class="audit-row improved"><b>本轮改进</b><p>使用 npm 官方审计端点检查生产依赖，当前无已知漏洞。</p></div><div class="audit-row"><b>剩余风险</b><p>多个依赖存在大版本更新，不应无验证批量升级。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">32</span><span><span class="audit-title">隐私</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>AI 图片、语音或文本流向不透明。</p></div><div class="audit-row improved"><b>本轮改进</b><p>静态功能与 AI 服务解耦，未配置时不发送请求。</p></div><div class="audit-row"><b>剩余风险</b><p>上线 AI 前应补充供应商、用途、保留期和删除方式。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">33</span><span><span class="audit-title">SEO</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>标题和描述未实际接入，404 语义不正确。</p></div><div class="audit-row improved"><b>本轮改进</b><p>各主路由接入标题、描述和规范 404。</p></div><div class="audit-row"><b>剩余风险</b><p>CSR + Hash 路由限制爬虫深层索引，长期可考虑预渲染。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">34</span><span><span class="audit-title">国际化</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>中英文切换存在，但部分错误文案硬编码。</p></div><div class="audit-row improved"><b>本轮改进</b><p>全局设置和主要导航统一，保留中文内容主体。</p></div><div class="audit-row"><b>剩余风险</b><p>数据正文尚非双语，完整国际化成本较高。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">35</span><span><span class="audit-title">可维护性</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>数据散落在 15 个增量文件，AI 页面超过千行。</p></div><div class="audit-row improved"><b>本轮改进</b><p>数据审计和元数据层降低修改风险，AI 未配置状态已拆组件。</p></div><div class="audit-row"><b>剩余风险</b><p>下一阶段应拆分 AI 的识图、语音、对话与导出模块。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">36</span><span><span class="audit-title">测试</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>零测试，回归依赖人工浏览。</p></div><div class="audit-row improved"><b>本轮改进</b><p>Vitest + Testing Library + Playwright 双视口，48 项单元/组件与 24 个 E2E 用例。</p></div><div class="audit-row"><b>剩余风险</b><p>建议加入 CI、覆盖率趋势和无障碍扫描。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">37</span><span><span class="audit-title">构建</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>ESM 配置警告，重依赖难定位。</p></div><div class="audit-row improved"><b>本轮改进</b><p>Vite 配置修正，manifest 和包体预算脚本落地。</p></div><div class="audit-row"><b>剩余风险</b><p>Vite 仍提示单个数据块超过 500 KB。</p></div></div></details>
+          <details class="audit-card" data-category="engineering"><summary><span class="audit-number">38</span><span><span class="audit-title">部署</span><span class="audit-category">工程质量</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>缺少无配置构建验证。</p></div><div class="audit-row improved"><b>本轮改进</b><p>build:e2e 使用独立模式，GitHub Pages Hash 路由可用。</p></div><div class="audit-row"><b>剩余风险</b><p>部署缓存策略和 CDN 图片代理仍未定义。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">39</span><span><span class="audit-title">文档</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>README、说明书、数据手册的数字和功能描述漂移。</p></div><div class="audit-row improved"><b>本轮改进</b><p>docs:sync 从运行时数据生成统一统计，Markdown 为源。</p></div><div class="audit-row"><b>剩余风险</b><p>PDF 需在 Markdown 更新后重新生成并纳入发布门禁。</p></div></div></details>
+          <details class="audit-card" data-category="governance"><summary><span class="audit-number">40</span><span><span class="audit-title">运维流程</span><span class="audit-category">安全与治理</span></span><svg class="audit-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></summary><div class="audit-body"><div class="audit-row"><b>原有不足</b><p>缺少一条可复现的发布检查命令。</p></div><div class="audit-row improved"><b>本轮改进</b><p>check / check:all 串联类型、lint、测试、审计、构建、预算和 E2E。</p></div><div class="audit-row"><b>剩余风险</b><p>网络安全审计需使用支持 audit API 的 registry。</p></div></div></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="improvements" class="impact-section" aria-labelledby="improvements-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">Implemented</p><h2 id="improvements-title">已经落地，而非停留在建议</h2></div>
+          <p class="section-intro">本轮改动覆盖数据底座、品牌体验、工程质量和安全治理四条主线，并已通过全链路验证。</p>
+        </div>
+        <div class="impact-grid">
+          <article class="impact-card"><span class="impact-index">01 / Data Foundation</span><h3>数据与内容</h3><ul><li>扩充并归一为 701 条唯一馆藏记录</li><li>完整匹配 271 个国家级保护名录畜禽名称</li><li>加入规范名、别名、来源、保护状态和核对日期</li><li>建立数据审计与文档同步工具</li></ul></article>
+          <article class="impact-card"><span class="impact-index">02 / Brand & Experience</span><h3>品牌与体验</h3><ul><li>新增馆藏印章、横版字标、favicon、图片占位图</li><li>替换临时文字标识和旧模板品牌资产</li><li>重构移动导航、筛选、地图和 44px 触控目标</li><li>补齐 404、离线、错误边界和图片回退状态</li></ul></article>
+          <article class="impact-card"><span class="impact-index">03 / Engineering</span><h3>工程质量</h3><ul><li>路由懒加载并拆分 PDF、图表和 AI 重依赖</li><li>新增 Vitest、Testing Library 与 Playwright 双视口测试</li><li>加入包体预算、构建清单与一键发布前检查</li><li>重生成网站说明书与品种数据手册 PDF</li></ul></article>
+          <article class="impact-card"><span class="impact-index">04 / Trust & Safety</span><h3>安全与治理</h3><ul><li>后端配置改为可选，静态公开路由独立可用</li><li>停止跟踪真实生产环境文件，保留空值示例</li><li>生产依赖通过 npm 官方端点安全审计</li><li>明确数据口径、编辑性指标和图片版权边界</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="brand-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">Original SVG System</p><h2 id="brand-title">项目图标已统一为原创 SVG</h2></div>
+          <p class="section-intro">所有资产均为矢量文件，可在高分屏、浏览器标签、导航栏和图片加载失败场景中保持清晰。</p>
+        </div>
+        <div class="brand-gallery">
+          <figure class="asset-card"><div class="asset-preview dark"><img src="../public/brand/museum-mark.svg" alt="墨绿色方形馆藏印章图标"></div><figcaption><strong>馆藏印章</strong>museum-mark.svg</figcaption></figure>
+          <figure class="asset-card"><div class="asset-preview"><img src="../public/brand/museum-wordmark.svg" alt="中国地方畜禽品种数字博物馆横版字标"></div><figcaption><strong>横版字标</strong>museum-wordmark.svg</figcaption></figure>
+          <figure class="asset-card"><div class="asset-preview dark"><img src="../public/brand/favicon.svg" alt="浏览器标签页图标"></div><figcaption><strong>浏览器图标</strong>favicon.svg</figcaption></figure>
+          <figure class="asset-card"><div class="asset-preview"><img src="../public/brand/breed-placeholder.svg" alt="畜禽品种图片加载失败时的矢量占位图"></div><figcaption><strong>图片占位</strong>breed-placeholder.svg</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="scope-section" aria-labelledby="roadmap-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">Residual Roadmap</p><h2 id="roadmap-title">剩余问题与优先级</h2></div>
+          <p class="section-intro">当前没有阻断上线的问题；剩余事项主要涉及隐私、历史图片授权、持续性能优化与长期数据模型扩展。</p>
+        </div>
+        <div class="roadmap-grid">
+          <article class="roadmap-card" data-priority="P0"><span class="priority">P0</span><h3>阻断上线</h3><p class="clear-status">当前未发现</p><p>全链路检查通过，没有已知功能、数据、安全或构建阻断项。</p></article>
+          <article class="roadmap-card" data-priority="P1"><span class="priority">P1</span><h3>上线前确认</h3><ul><li>为 AI 图片、语音和文本处理补齐正式隐私说明</li><li>逐条复核历史图片授权与可复用权利</li><li>评估历史环境凭据轮换和 Git 历史清理</li></ul></article>
+          <article class="roadmap-card" data-priority="P2"><span class="priority">P2</span><h3>下一迭代</h3><ul><li>继续拆分约 696 KB 的 breeds 数据块</li><li>拆分千行级 AI 页面模块</li><li>接入 axe / Lighthouse CI 与覆盖率趋势</li><li>为历史记录逐条补齐叙述与图片来源</li></ul></article>
+          <article class="roadmap-card" data-priority="P3"><span class="priority">P3</span><h3>长期建议</h3><ul><li>为蜂、蚕设计独立属性模型后纳入馆藏</li><li>评估预渲染或静态生成，改善深层 SEO</li><li>引入更精细空间数据、拼音搜索与差异高亮</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" aria-labelledby="evidence-title">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="kicker">Verification Evidence</p><h2 id="evidence-title">每个结论都有可复现证据</h2></div>
+          <p class="section-intro">以下结果均于 2026-09-28 在 Windows / Chromium 环境重新执行，不使用提高阈值等方式掩盖现存警告。</p>
+        </div>
+        <div class="evidence-layout">
+          <div class="evidence-table-wrap">
+            <table>
+              <thead><tr><th scope="col">命令 / 检查</th><th scope="col">结果</th></tr></thead>
+              <tbody>
+                <tr><td><code>pnpm.cmd typecheck</code></td><td><span class="pass">通过</span></td></tr>
+                <tr><td><code>pnpm.cmd lint</code></td><td><span class="pass">通过</span></td></tr>
+                <tr><td><code>pnpm.cmd test</code></td><td><span class="pass">16 个文件，48 项测试通过</span></td></tr>
+                <tr><td><code>pnpm.cmd docs:check</code></td><td><span class="pass">701 条、701 唯一 ID、0 问题、无文档漂移</span></td></tr>
+                <tr><td><code>pnpm.cmd check:all</code></td><td><span class="pass">类型、lint、测试、数据、构建、预算、E2E 全链路通过</span></td></tr>
+                <tr><td><code>pnpm.cmd audit --prod --registry=https://registry.npmjs.org</code></td><td><span class="pass">无已知生产依赖漏洞</span></td></tr>
+                <tr><td>Playwright 桌面 + 390px</td><td><span class="pass">23 通过、1 条件跳过，无路由级横向溢出</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <aside class="evidence-note">
+            <strong>保留的性能提示</strong>
+            <p><code style="color:#ead6ad">breeds</code> 数据块约 695.94 KB，gzip 183.35 KB，仍超过 Vite 默认 500 KB 提示阈值。</p>
+            <p>该块承载 701 条静态馆藏数据，不影响入口预算，但已列入 P2 优化项。当前没有通过提高阈值来隐藏警告。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="backup-title">
+      <div class="shell">
+        <div class="backup-panel">
+          <div class="backup-seal" aria-hidden="true"><div><strong>SHA</strong><span>VERIFIED</span></div></div>
+          <div>
+            <p class="kicker">Backup & Rollback</p>
+            <h3 id="backup-title">修改前版本已完成双重备份并验证</h3>
+            <p>源码 ZIP 解压验证包含 890 个文件；源码包与 Git bundle 的 SHA-256 均与清单一致，bundle 完整性验证通过。需要时可恢复未提交工作状态或完整 Git 分支历史。</p>
+            <div class="backup-paths" aria-label="备份文件路径">
+              <code>D:\Programming\Objects\BreedMuseum-backups\BreedMuseum-quality-upgrade-source-20260928-192031.zip</code>
+              <code>D:\Programming\Objects\BreedMuseum-backups\BreedMuseum-quality-upgrade-history-20260928-192031.bundle</code>
+              <code>D:\Programming\Objects\BreedMuseum-backups\BreedMuseum-quality-upgrade-backup-20260928-192031.sha256</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="report-footer">
+    <div class="shell footer-inner">
+      <div><p class="footer-title">中国地方畜禽品种数字博物馆</p><p class="footer-copy">质量升级预览报告 · quality-upgrade 分支 · 2026-09-28 · 尚未推送 GitHub</p></div>
+      <div class="footer-links"><a href="项目全面审计与改进报告.md">查看 Markdown 原报告</a><a href="#top">返回顶部</a></div>
+    </div>
+  </footer>
+
+  <script>
+    const filterButtons = Array.from(document.querySelectorAll("[data-filter]"));
+    const auditCards = Array.from(document.querySelectorAll(".audit-card"));
+    const auditCount = document.querySelector(".audit-count");
+    const progress = document.querySelector(".reading-progress");
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        filterButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        let visible = 0;
+        auditCards.forEach((card) => {
+          const matches = filter === "all" || card.dataset.category === filter;
+          card.hidden = !matches;
+          if (matches) visible += 1;
+        });
+        auditCount.textContent = "显示 " + visible + " / 40 项";
+      });
+    });
+
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const value = max > 0 ? Math.min(100, Math.max(0, (window.scrollY / max) * 100)) : 0;
+      progress.style.width = value + "%";
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+  </script>
+</body>
+</html>
