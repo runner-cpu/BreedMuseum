@@ -2,6 +2,14 @@
 
 面向公众、动物科学学生与畜牧从业者的开放科普站。项目提供品种地图、百科检索、数据看板、品种对比与可选 AI 助手，并明确区分“本站收录”“国家级保护名录”和“尚待核验的编辑资料”。
 
+## 在线访问
+
+- [公开网站](https://runner-cpu.github.io/BreedMuseum/)
+- [全面审计与改进报告（HTML）](https://runner-cpu.github.io/BreedMuseum/audit/)
+- [GitHub 源码仓库](https://github.com/runner-cpu/BreedMuseum)
+
+公开站点由 gh-pages 分支托管，使用 HashRouter，因此百科、地图、看板、对比和 AI 页面均可在普通静态托管环境中打开。AI 服务未配置时不会影响公共科普内容。
+
 <!-- data-summary:start -->
 统计日期：2026-09-28；口径：运行时归一化后的 breeds 数组。
 
@@ -42,6 +50,15 @@
 - 后端未配置时仍可浏览全部公共内容，AI 页面会说明“AI 服务尚未配置”。
 - 未知路径保留原 URL 并显示真实 404 页面。
 
+## 本轮质量升级
+
+- 馆藏数据由 687 条整理为 701 条全局唯一记录，匹配第 940 号公告中的 271 个畜禽名称。
+- 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则。
+- 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
+- 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
+- 建立 48 项单元/组件测试、桌面与 390px 移动端 E2E、文档同步和包体预算检查。
+- 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
+
 ## 数据与证据边界
 
 - 第 940 号公告仅用于核对畜禽名称及其国家级保护名录成员身份，不用于推导濒危等级、雷达分值、体貌、性能或故事。
@@ -72,8 +89,10 @@ Supabase、Sentry 与 AI 相关环境变量均为可选项。不要把任何真�
 | pnpm data:audit | 数据完整性与来源契约测试 |
 | pnpm docs:sync | 从运行时数据同步统计和图片索引 |
 | pnpm docs:check | 检查文档是否与运行时数据一致 |
+| pnpm test:pages | 验证公开审计报告与 Pages 附加资产打包逻辑 |
 | python tasks/md_to_pdf.py 输入.md 输出.pdf | 重新生成 PDF 手册（需 requirements-docs.txt） |
 | pnpm build | 生产构建 |
+| pnpm build:pages | 生产构建并把审计报告、品牌资源和 .nojekyll 放入 dist |
 | pnpm bundle:check | 校验入口与关键异步包预算 |
 | pnpm build:e2e | 构建无后端配置的 E2E 产物 |
 | pnpm e2e | 运行桌面与移动端 Playwright |
@@ -82,7 +101,7 @@ Supabase、Sentry 与 AI 相关环境变量均为可选项。不要把任何真�
 
 ## 路由与部署
 
-项目使用 HashRouter，静态托管不需要服务端回退配置。部署时应保留 dist 内的相对资源路径。GitHub Pages、对象存储或普通静态服务器均可使用；如配置可选后端，应通过部署平台密钥管理注入环境变量。
+项目使用 HashRouter，静态托管不需要服务端回退配置。GitHub Pages 发布前运行 pnpm build:pages，再将 dist 的完整内容发布到 gh-pages 分支根目录。该命令会同时生成公开审计报告入口 /audit/、所需 SVG 资源和 .nojekyll。详细步骤、验证方法与回滚流程见[部署与维护指南](docs/部署与维护指南.md)。如配置可选后端，应通过部署平台密钥管理注入环境变量。
 
 ## 目录概览
 
@@ -96,6 +115,8 @@ Supabase、Sentry 与 AI 相关环境变量均为可选项。不要把任何真�
 ## 相关文档
 
 - [项目全面审计与改进报告](docs/项目全面审计与改进报告.md)
+- [项目全面审计与改进报告（本地 HTML）](docs/项目全面审计与改进报告.html)
+- [部署与维护指南](docs/部署与维护指南.md)
 - [网站说明书](docs/网站说明书.md)
 - [品种数据手册](docs/品种数据手册.md)
 - [设计规范](docs/DESIGN.md)

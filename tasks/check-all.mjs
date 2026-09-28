@@ -3,6 +3,7 @@ const tasks = [
   ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.check.json', '--noEmit'],
   ['node_modules/@biomejs/biome/bin/biome', 'lint'],
   ['node_modules/vitest/vitest.mjs', 'run'],
+  ['--test', 'tasks/__tests__/prepare-pages.node-test.mjs'],
   ['tasks/sync-data-docs.mjs', '--check'],
   ['node_modules/vite/bin/vite.js', 'build'],
   ['tasks/check-bundle-size.mjs'],
