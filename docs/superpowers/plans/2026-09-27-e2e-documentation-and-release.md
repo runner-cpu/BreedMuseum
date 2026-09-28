@@ -15,7 +15,7 @@
 - Console errors, unhandled promise rejections and duplicate React key warnings fail E2E.
 - Verify that every main route is reachable, unknown routes show 404 and mobile pages have no document-level horizontal overflow.
 - The final audit covers product, data, UX, visual design, mobile, accessibility, performance, reliability, security/privacy, SEO, internationalization, maintainability, testing, dependencies, deployment, documentation and content rights.
-- README and manuals must not describe removed login/favorite features or retain stale totals such as 568, 592, 628 or 687.
+- README and manuals must not describe removed login/favorite features or present stale totals such as 568, 592, 628 or 687 as current; 687 may appear only as a clearly labelled pre-upgrade baseline.
 - Markdown is authoritative; regenerate both website and breed-data PDFs after their Markdown sources are final.
 - Dependency findings are classified by exploitability and production reachability; do not force unsafe major upgrades merely to print zero advisories.
 - Do not expose the contents of any local environment file in output, reports or test artifacts.

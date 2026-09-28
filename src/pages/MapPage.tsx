@@ -1,154 +1,75 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { ChinaMap } from '@/components/ChinaMap';
 import BreedDetail from '@/components/BreedDetail';
-import { breeds } from '@/data/breeds';
+import { breeds, type Breed } from '@/data/breeds';
+import { matchesBreedQuery } from '@/data/breedSearch';
 import { useMuseum, getBreedById } from '@/contexts/MuseumContext';
 import { useSettings } from '@/contexts/AppSettings';
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
-const MapPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const { t } = useSettings();
-  const {
-    selectedCategory,
-    selectedProvince,
-    setSelectedProvince,
-    selectedBreedId,
-    setSelectedBreedId,
-    setSelectedCategory,
-    searchValue,
-    triggerPulse,
-    pulseId,
-    toggleCompare,
-    isInCompare,
-  } = useMuseum();
-
-  const [loading, setLoading] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
-  const debounceRef = useRef<number | null>(null);
-
-  // 从百科页跳转携带的品种ID（URL 参数），强制刷新地图视图
-  const breedIdParam = searchParams.get('breed_id');
+export default function MapPage() {
+  const [params, setParams] = useSearchParams();
+  const { t, language } = useSettings();
+  const { selectedCategory, selectedProvince, setSelectedProvince, selectedBreedId, setSelectedBreedId,
+    setSelectedCategory, searchValue, setSearchValue, triggerPulse, pulseId, toggleCompare, isInCompare } = useMuseum();
+  const desktop = useMediaQuery('(min-width: 1024px)');
+  const [detailOpen, setDetailOpen] = useState(false);
+  const breedIdParam = params.get('breed_id');
+  const queryParam = params.get('search');
+  const zh = language === 'zh';
   useEffect(() => {
-    if (breedIdParam) {
-      const breed = getBreedById(breedIdParam);
-      if (breed) {
-        setSelectedCategory(breed.category);
-        setSelectedBreedId(breedIdParam);
-        setSelectedProvince(breed.province);
-        // 强制刷新地图组件，清除之前的选中与高亮
-        setMapKey((k) => k + 1);
-        // 地图完全加载后再触发定位高亮与脉冲动画（5秒）
-        const t = window.setTimeout(() => triggerPulse(breedIdParam), 400);
-        return () => window.clearTimeout(t);
-      }
+    if (queryParam !== null) {
+      setSelectedCategory(null); setSelectedProvince(null); setSelectedBreedId(null); setSearchValue(queryParam);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [breedIdParam]);
-
-  const filteredBreeds = useMemo(() => {
-    return breeds.filter((b) => {
-      const matchCat = selectedCategory ? b.category === selectedCategory : true;
-      const matchProv = selectedProvince ? b.province === selectedProvince : true;
-      const matchSearch = searchValue
-        ? b.name.toLowerCase().includes(searchValue.toLowerCase())
-        : true;
-      return matchCat && matchProv && matchSearch;
-    });
-  }, [selectedCategory, selectedProvince, searchValue]);
-
-  const selectedBreed = useMemo(
-    () => breeds.find((b) => b.id === selectedBreedId) ?? filteredBreeds[0] ?? null,
-    [selectedBreedId, filteredBreeds],
-  );
-
-  const handleProvinceClick = useCallback((province: string) => {
-    setSelectedProvince(province === selectedProvince ? null : province);
-  }, [selectedProvince, setSelectedProvince]);
-
-  // 点击地图空白区域：清除当前品种与省份高亮
-  const handleClearSelection = useCallback(() => {
-    setSelectedBreedId(null);
-    setSelectedProvince(null);
-  }, [setSelectedBreedId, setSelectedProvince]);
-
-  // 点击品种点：防抖处理（1秒内多次点击只执行最后一次）
-  const handleBreedClick = useCallback(
-    (breed: (typeof breeds)[number]) => {
-      if (debounceRef.current) window.clearTimeout(debounceRef.current);
-      debounceRef.current = window.setTimeout(() => {
-        setSelectedCategory(breed.category);
-        setSelectedBreedId(breed.id);
-        setSelectedProvince(null);
-        setLoading(true);
-        window.setTimeout(() => setLoading(false), 250);
-      }, 150);
-    },
-    [setSelectedCategory, setSelectedBreedId, setSelectedProvince],
-  );
-
-  const handleToggleCompare = useCallback(() => {
+  }, [queryParam, setSelectedCategory, setSelectedProvince, setSelectedBreedId, setSearchValue]);
+  useEffect(() => {
+    const breed = getBreedById(breedIdParam);
+    if (breed) {
+      setSelectedCategory(breed.category); setSelectedProvince(null); setSelectedBreedId(breed.id);
+      triggerPulse(breed.id); setDetailOpen(true);
+    }
+  }, [breedIdParam, setSelectedCategory, setSelectedProvince, setSelectedBreedId, triggerPulse]);
+  const filtered = useMemo(() => breeds.filter(b =>
+    (!selectedCategory || b.category === selectedCategory) && (!selectedProvince || b.province === selectedProvince) && matchesBreedQuery(b, searchValue)
+  ), [selectedCategory, selectedProvince, searchValue]);
+  const selectedBreed = filtered.find(b => b.id === selectedBreedId) ?? filtered[0] ?? null;
+  const selectBreed = useCallback((breed: Breed) => { setSelectedBreedId(breed.id); setDetailOpen(true); }, [setSelectedBreedId]);
+  const reset = () => { setSelectedCategory(null); setSelectedProvince(null); setSelectedBreedId(null); setSearchValue(''); setParams({}); };
+  const handleToggleCompare = () => {
     if (!selectedBreed) return;
+    const alreadySelected = isInCompare(selectedBreed.id);
     const added = toggleCompare(selectedBreed.id);
-    if (!added && !isInCompare(selectedBreed.id)) {
-      toast.warning(t('detail.compareFull'));
-    }
-  }, [selectedBreed, toggleCompare, isInCompare]);
-
-  return (
-    <div className="flex flex-col lg:flex-row h-full min-h-0">
-      <div className="flex-1 min-w-0 flex flex-col p-3 md:p-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="flex-1 min-h-0 rounded-xl border border-border bg-card/50 shadow-card p-3 flex flex-col"
-        >
-          <div className="flex items-center justify-between mb-2 px-1">
-            <h2 className="text-base md:text-lg font-serif font-semibold text-foreground border-l-4 border-primary pl-3">
-              {t('map.title')}
-            </h2>
-            <span className="text-xs text-muted-foreground">
-              {selectedProvince ? `${selectedProvince} · ` : ''}
-              {selectedCategory ? `${selectedCategory}${t('detail.categorySuffix')} · ` : ''}
-              {filteredBreeds.length} {t('map.breedUnit')}
-            </span>
-          </div>
-          <div className="flex-1 min-h-0">
-            <ChinaMap
-              key={mapKey}
-              breeds={filteredBreeds}
-              selectedProvince={selectedProvince}
-              selectedBreed={selectedBreed}
-              pulseId={pulseId}
-              onProvinceClick={handleProvinceClick}
-              onBreedClick={handleBreedClick}
-              onClearSelection={handleClearSelection}
-            />
-          </div>
-        </motion.div>
+    if (!alreadySelected && !added) toast.warning(t('detail.compareFull'));
+  };
+  const detail = <BreedDetail breed={selectedBreed} onToggleCompare={handleToggleCompare} isInCompare={selectedBreed ? isInCompare(selectedBreed.id) : false} />;
+  return <div className="flex min-h-full flex-col lg:h-full lg:flex-row">
+    <section className="min-w-0 flex-1 p-3 md:p-5 flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="font-serif text-xl font-semibold">{t('map.title')}</h1>
+        <span role="status" aria-live="polite" className="text-sm text-muted-foreground">{filtered.length} {t('map.breedUnit')}{selectedProvince ? ' · ' + selectedProvince : ''}</span>
       </div>
-
-      <div className="w-full lg:w-[360px] shrink-0 p-3 md:p-4 lg:pl-0">
-        <motion.div
-          key={selectedBreed?.id ?? 'empty'}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="h-full rounded-xl border border-border bg-card shadow-card overflow-hidden"
-        >
-          <BreedDetail
-            breed={selectedBreed}
-            loading={loading}
-            onToggleCompare={handleToggleCompare}
-            isInCompare={selectedBreed ? isInCompare(selectedBreed.id) : false}
-          />
-        </motion.div>
+      <div className="min-h-[320px] h-[45vh] lg:h-auto lg:flex-1 rounded-xl border border-border/40 bg-card p-2">
+        <ChinaMap breeds={filtered} selectedProvince={selectedProvince} selectedBreed={selectedBreed} pulseId={pulseId}
+          onProvinceClick={province => setSelectedProvince(province === selectedProvince ? null : province)}
+          onBreedClick={selectBreed} onClearSelection={() => { setSelectedBreedId(null); setSelectedProvince(null); }} />
       </div>
-    </div>
-  );
-};
-
-export default MapPage;
+      <div className="flex flex-wrap gap-2" aria-label={zh ? '品种搜索结果' : 'Breed results'}>
+        {filtered.slice(0, 8).map(breed => <button type="button" key={breed.id} onClick={() => selectBreed(breed)} aria-pressed={selectedBreed?.id === breed.id}
+          className="min-h-11 rounded-lg border border-border/40 bg-card px-3 text-sm hover:bg-secondary">{breed.name}</button>)}
+        {filtered.length === 0 && <p className="py-4 text-muted-foreground">{zh ? '未找到符合条件的品种。' : 'No matching breeds.'}</p>}
+        {(searchValue || selectedCategory || selectedProvince) && <button type="button" onClick={reset} className="min-h-11 rounded-lg px-3 text-sm text-primary underline underline-offset-4">{zh ? '清除筛选' : 'Clear filters'}</button>}
+      </div>
+      <p className="text-xs text-muted-foreground">{zh ? '地图点位用于示意主要产区，并非精确分布边界。' : 'Points indicate approximate origin areas, not distribution boundaries.'}</p>
+    </section>
+    {desktop && <aside aria-label={zh ? '品种详情' : 'Breed detail'} className="hidden lg:block lg:w-[350px] xl:w-[390px] shrink-0 border-l border-border/30 bg-card overflow-hidden">{detail}</aside>}
+    <Sheet open={detailOpen && !desktop} onOpenChange={setDetailOpen}>
+      <SheetContent side="bottom" className="h-[85dvh] rounded-t-2xl p-0 flex flex-col gap-0 lg:hidden">
+        <div className="shrink-0 border-b px-5 py-3 pr-16"><SheetTitle>{selectedBreed?.name ?? (zh ? '品种详情' : 'Breed detail')}</SheetTitle><SheetDescription>{zh ? '向下浏览品种特征与数据来源。' : 'Read the breed profile and sources.'}</SheetDescription></div>
+        <div className="min-h-0 flex-1">{detail}</div>
+      </SheetContent>
+    </Sheet>
+  </div>;
+}

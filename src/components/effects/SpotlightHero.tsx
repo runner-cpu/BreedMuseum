@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Search } from 'lucide-react';
 import { provincePaths, mapViewBox } from '@/data/chinaMap';
 import { Button } from '@/components/ui/button';
@@ -41,25 +41,26 @@ const SpotlightHero = ({
   onExplore,
   onSearch,
 }: SpotlightHeroProps) => {
+  const reduceMotion = useReducedMotion();
   const [pos, setPos] = useState({ x: '50%', y: '50%' });
   const [q, setQ] = useState('');
   const ref = useRef<HTMLDivElement>(null);
 
   const onMove = useCallback((e: React.MouseEvent) => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || reduceMotion) return;
     const r = el.getBoundingClientRect();
     setPos({ x: `${e.clientX - r.left}px`, y: `${e.clientY - r.top}px` });
-  }, []);
+  }, [reduceMotion]);
 
   return (
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative h-[calc(100dvh-3.5rem)] min-h-[520px] w-full overflow-hidden bg-[#0a0a1a]"
+      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-museum-ink"
     >
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
         <svg
           viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
           className="w-full h-full opacity-70"
@@ -73,6 +74,7 @@ const SpotlightHero = ({
 
       {/* 聚光图：彩色填充地图，随光标揭示 */}
       <div
+        aria-hidden="true"
         className="spotlight-reveal absolute inset-0 flex items-center justify-center"
         style={{ '--mx': pos.x, '--my': pos.y } as React.CSSProperties}
       >
@@ -123,15 +125,17 @@ const SpotlightHero = ({
         >
           <Search className="w-4 h-4 text-white/50 shrink-0" />
           <input
+            type="search"
+            aria-label="搜索馆藏品种"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={searchPh}
-            className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/40 outline-none px-1"
+            className="h-11 flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/40 outline-none px-1"
           />
           <Button
             type="submit"
             size="sm"
-            className="bg-[#d4a853] text-[#1a3a2a] hover:bg-[#d4a853]/90 rounded-full shrink-0"
+            className="min-h-11 bg-[#d4a853] text-[#1a3a2a] hover:bg-[#d4a853]/90 rounded-full shrink-0"
           >
             {searchBtn}
           </Button>
@@ -167,7 +171,7 @@ const SpotlightHero = ({
       </div>
 
       {/* 底部右侧描述 */}
-      <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 max-w-xs text-right">
+      <div className="hidden md:block absolute bottom-6 right-6 md:bottom-10 md:right-10 max-w-xs text-right">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

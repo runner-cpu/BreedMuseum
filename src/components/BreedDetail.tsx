@@ -1,11 +1,14 @@
-import React from 'react';
-import { MapPin, Tag, AlertTriangle, ScrollText, GitCompare, Share2 } from 'lucide-react';
+import React, { useId } from 'react';
+import { AccessibleChartSummary } from '@/components/common/AccessibleChartSummary';
+import { MapPin, Tag, AlertTriangle, ScrollText, GitCompare, Share2, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import type { Breed } from '@/data/breeds';
 import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useSettings } from '@/contexts/AppSettings';
+import { getBreedMetadata, getBreedSource } from '@/data/breedMetadata';
+import { BreedImage } from '@/components/common/BreedImage';
 
 interface BreedDetailProps {
   breed: Breed | null;
@@ -21,6 +24,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   isInCompare = false,
 }) => {
   const { t } = useSettings();
+  const provenanceId = useId();
 
   if (loading) {
     return (
@@ -65,6 +69,17 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
     { dimension: t('detail.dim.labor'), value: breed.radar.labor },
     { dimension: t('detail.dim.adaptability'), value: breed.radar.adaptability },
   ];
+  const hasRadarData = Object.values(breed.radar).every((value) => value !== null);
+  const metadata = getBreedMetadata(breed);
+  const sourceRecords = metadata.sourceIds
+    .map((sourceId) => getBreedSource(sourceId))
+    .filter((source): source is NonNullable<typeof source> => Boolean(source));
+  const protectionLabel =
+    metadata.protectionStatus === 'national-list'
+      ? '国家级保护名录'
+      : metadata.protectionStatus === 'not-on-national-list'
+        ? '未列入本轮国家级名录'
+        : '保护状态待进一步核验';
 
   const catColor = categoryColors[breed.category] ?? 'hsl(var(--primary))';
   const endColor = endangeredColors[breed.endangered] ?? 'hsl(var(--muted-foreground))';
@@ -82,14 +97,11 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted shrink-0">
-        <img
+        <BreedImage
           src={breed.image}
           alt={breed.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
+          className="absolute inset-0 h-full w-full"
+          imgClassName="object-cover"
         />
         <div className="absolute top-2 right-2 flex gap-1.5">
           <span
@@ -131,7 +143,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
             <button
               type="button"
               onClick={onToggleCompare}
-              className={`flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-md text-sm font-medium border transition-colors ${
+              className={`flex-1 inline-flex items-center justify-center gap-1.5 min-h-11 rounded-md text-sm font-medium border transition-colors ${
                 isInCompare
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-card text-foreground border-border hover:bg-accent'
@@ -144,12 +156,18 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
           <button
             type="button"
             onClick={handleShare}
-            className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-sm font-medium bg-card text-foreground border border-border hover:bg-accent transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 min-h-11 px-3 rounded-md text-sm font-medium bg-card text-foreground border border-border hover:bg-accent transition-colors"
           >
             <Share2 className="w-4 h-4" />
             分享
           </button>
         </div>
+
+        {metadata.metricBasis === 'not-available' && (
+          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-foreground">
+            以下体貌、生产性能、产区点位与文化故事为编辑资料，待逐项核验。
+          </p>
+        )}
 
         <div>
           <h4 className="text-sm font-semibold text-foreground border-l-2 border-primary pl-2 mb-1.5">体貌特征</h4>
@@ -158,23 +176,32 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
 
         <div>
           <h4 className="text-sm font-semibold text-foreground border-l-2 border-primary pl-2 mb-2">生产性能</h4>
-          <div className="w-full h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-                <PolarGrid stroke="hsl(var(--border))" />
-                <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar
-                  name="性能"
-                  dataKey="value"
-                  stroke={catColor}
-                  fill={catColor}
-                  fillOpacity={0.3}
-                  strokeWidth={2}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
+          {hasRadarData ? (
+            <>
+              <div className="w-full h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
+                    <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar
+                      name="性能"
+                      dataKey="value"
+                      stroke={catColor}
+                      fill={catColor}
+                      fillOpacity={0.3}
+                      strokeWidth={2}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+              <AccessibleChartSummary caption="编辑归一化指标（0–100）" columns={["维度", "分值"]} rows={radarData.map(d => [d.dimension, d.value ?? '待补充'])} />
+            </>
+          ) : (
+            <div className="rounded-md border border-dashed border-border bg-muted/40 px-3 py-6 text-center text-sm text-muted-foreground">
+              性能指标待补充
+            </div>
+          )}
           <p className="text-sm text-muted-foreground leading-relaxed text-pretty mt-1">{breed.performance}</p>
         </div>
 
@@ -182,6 +209,56 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
           <h4 className="text-sm font-semibold text-foreground border-l-2 border-primary pl-2 mb-1.5">文化故事</h4>
           <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{breed.story}</p>
         </div>
+
+        <section aria-labelledby={provenanceId} className="rounded-lg border border-border/70 bg-muted/30 p-3">
+          <h4
+            id={provenanceId}
+            className="text-sm font-semibold text-foreground border-l-2 border-primary pl-2 mb-2 flex items-center gap-1.5"
+          >
+            <ShieldCheck className="w-4 h-4 text-primary" aria-hidden="true" />
+            数据来源与核验
+          </h4>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs leading-relaxed">
+            <dt className="text-muted-foreground">{metadata.protectionStatus === 'national-list' ? '官方名称' : '馆藏名称'}</dt>
+            <dd className="text-foreground">{metadata.officialName}</dd>
+            <dt className="text-muted-foreground">保护状态</dt>
+            <dd className="text-foreground">{protectionLabel}</dd>
+            <dt className="text-muted-foreground">核验日期</dt>
+            <dd className="text-foreground">{metadata.verifiedAt}</dd>
+            <dt className="text-muted-foreground">指标口径</dt>
+            <dd className="text-foreground">
+              {metadata.metricBasis === 'not-available'
+                ? '指标尚无可核验数据'
+                : '编辑归一化指标（0–100）'}
+            </dd>
+            <dt className="text-muted-foreground">图片状态</dt>
+            <dd className="text-foreground">
+              {metadata.imageRights === 'project-svg' ? '项目 SVG 占位图' : '图片来源待核验'}
+            </dd>
+          </dl>
+          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">公告仅用于核对品种名称和保护名录。体貌、产区点位、文化故事及濒危标签为编辑资料，尚未完成逐项权威核验；雷达分值不是实测数据。</p>
+          <ul className="mt-2 space-y-1 text-xs text-muted-foreground" aria-label="数据来源列表">
+            {sourceRecords.map((source) => (
+              <li key={source.id} className="flex items-start gap-1.5">
+                <span aria-hidden="true">·</span>
+                {source.url ? (
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {source.title}
+                    <ExternalLink className="w-3 h-3 shrink-0" aria-hidden="true" />
+                    <span className="sr-only">（新窗口打开）</span>
+                  </a>
+                ) : (
+                  <span>{source.title}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </div>
   );

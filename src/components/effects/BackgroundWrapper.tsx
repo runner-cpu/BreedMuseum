@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import GalaxyBackground from './GalaxyBackground';
 
 interface BackgroundWrapperProps {
   children: ReactNode;
@@ -14,10 +13,8 @@ interface BackgroundWrapperProps {
  */
 const BackgroundWrapper = ({ children, className = '', density = 3 }: BackgroundWrapperProps) => {
   return (
-    <div className={`relative bg-[#0a0a1a] ${className}`}>
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <GalaxyBackground density={density} />
-      </div>
+    <div className={`relative bg-museum-ink ${className}`}>
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(#C79A45 0.6px, transparent 0.6px)', backgroundSize: '20px 20px' }} />
       <div className="relative z-10">{children}</div>
     </div>
   );

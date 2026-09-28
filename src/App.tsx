@@ -1,7 +1,6 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { WifiOff } from 'lucide-react';
-import IntersectObserver from '@/components/common/IntersectObserver';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Toaster } from '@/components/ui/sonner';
 import Layout from '@/components/layouts/Layout';
@@ -10,6 +9,9 @@ import { SettingsProvider, useSettings } from '@/contexts/AppSettings';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 import { routes } from './routes';
+import { RouteView } from '@/components/routing/RouteView';
+import NotFound from '@/pages/NotFound';
+import { MotionConfig } from 'motion/react';
 
 /** 断网提示横幅 */
 const OfflineBanner: React.FC = () => {
@@ -17,7 +19,7 @@ const OfflineBanner: React.FC = () => {
   const { t } = useSettings();
   if (isOnline) return null;
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] bg-destructive text-destructive-foreground text-center text-xs py-2 px-4 flex items-center justify-center gap-1.5">
+    <div role="status" aria-label="当前处于离线状态" aria-live="polite" className="bg-destructive text-destructive-foreground text-center text-xs py-2 px-4 flex items-center justify-center gap-1.5">
       <WifiOff className="w-3.5 h-3.5" />
       {t('common.offline')}
     </div>
@@ -25,6 +27,7 @@ const OfflineBanner: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
+  const { pathname } = useLocation();
   const { selectedCategory, setSelectedCategory, searchValue, setSearchValue } = useMuseum();
 
   return (
@@ -35,16 +38,16 @@ const AppContent: React.FC = () => {
       onSearchChange={setSearchValue}
     >
       <OfflineBanner />
-      <ErrorBoundary>
+      <ErrorBoundary key={pathname}>
       <Routes>
         {routes.map((route, index) => (
           <Route
             key={index}
             path={route.path}
-            element={route.element}
+            element={<RouteView route={route} />}
           />
         ))}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       </ErrorBoundary>
     </Layout>
@@ -55,11 +58,12 @@ const App: React.FC = () => {
   return (
     <Router>
       <SettingsProvider>
+        <MotionConfig reducedMotion="user">
         <MuseumProvider>
-          <IntersectObserver />
           <AppContent />
           <Toaster />
         </MuseumProvider>
+        </MotionConfig>
       </SettingsProvider>
     </Router>
   );

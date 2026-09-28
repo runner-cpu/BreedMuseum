@@ -1,11 +1,11 @@
-export type EndangeredLevel = '普通' | '易危' | '濒危' | '极危';
+export type EndangeredLevel = '普通' | '易危' | '濒危' | '极危' | '待核验';
 
 export interface PerformanceData {
-  meat: number;
-  milk: number;
-  reproduction: number;
-  labor: number;
-  adaptability: number;
+  meat: number | null;
+  milk: number | null;
+  reproduction: number | null;
+  labor: number | null;
+  adaptability: number | null;
 }
 
 export interface Breed {
@@ -28,7 +28,7 @@ export type BreedCategory = '猪' | '牛' | '羊' | '鸡' | '鸭' | '马' | '骆
 
 export const categories: BreedCategory[] = ['猪', '牛', '羊', '鸡', '鸭', '马', '骆驼', '兔', '鹅', '鸽', '其他'];
 
-export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '极危'];
+export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '极危', '待核验'];
 
 export const provinces = [
   '黑龙江', '吉林', '辽宁', '内蒙古', '北京', '天津', '河北', '山西',

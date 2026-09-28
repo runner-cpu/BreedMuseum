@@ -5,23 +5,9 @@
 
 /* 国风古韵：宣纸底色与墨绿主调，营造中国农业与传统文化质感 */
 
-@font-face {
-  font-family: 'Source Han Serif CN';
-  src: url('https://resource-static.bj.bcebos.com/fonts-skill/SourceHanSerifCN-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Source Han Serif CN';
-  src: url('https://resource-static.bj.bcebos.com/fonts-skill/SourceHanSerifCN-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-display: swap;
-}
-
 @layer base {
   :root {
-    --radius: 0.25rem;
+    --radius: 0.75rem;
     /* 米白宣纸底 */
     --background: 42 37% 94%;
     --foreground: 0 0% 17%;
@@ -30,7 +16,7 @@
     --popover: 42 37% 96%;
     --popover-foreground: 0 0% 17%;
     /* 墨绿主色 */
-    --primary: 91 56% 20%;
+    --primary: 155 44% 16%;
     --primary-foreground: 42 37% 94%;
     --secondary: 42 30% 88%;
     --secondary-foreground: 0 0% 17%;
@@ -41,9 +27,9 @@
     --accent-foreground: 42 37% 94%;
     --destructive: 7 67% 46%;
     /* 古棕褐边框 */
-    --border: 30 30% 42%;
-    --input: 30 30% 42%;
-    --ring: 91 56% 20%;
+    --border: 36 19% 76%;
+    --input: 36 19% 65%;
+    --ring: 155 44% 26%;
     --chart-1: 91 56% 20%;
     --chart-2: 120 16% 42%;
     --chart-3: 7 67% 46%;
@@ -69,45 +55,45 @@
   }
 
   .dark {
-    /* 深色模式：深蓝夜色背景 #1a1a2e / 卡片 #1a2340 / 文字 #e8e8e8（WCAG AA 对比度优化） */
-    --background: 240 27% 14%;
+    /* 深色模式沿用墨绿与暖纸色，保持品牌一致。 */
+    --background: 155 25% 10%;
     --foreground: 0 0% 92%;
-    --card: 224 44% 18%;
+    --card: 155 22% 14%;
     --card-foreground: 0 0% 92%;
-    --popover: 224 44% 18%;
+    --popover: 155 22% 14%;
     --popover-foreground: 0 0% 92%;
     --primary: 91 42% 46%;
-    --primary-foreground: 240 27% 14%;
-    --secondary: 224 30% 24%;
+    --primary-foreground: 155 25% 10%;
+    --secondary: 155 18% 22%;
     --secondary-foreground: 0 0% 92%;
-    --muted: 224 25% 24%;
+    --muted: 155 18% 22%;
     --muted-foreground: 0 0% 74%;
     --accent: 120 22% 52%;
     --accent-foreground: 0 0% 96%;
     --destructive: 7 67% 55%;
     --destructive-foreground: 0 0% 96%;
-    --border: 224 25% 34%;
-    --input: 224 25% 34%;
+    --border: 155 14% 36%;
+    --input: 155 14% 36%;
     --ring: 91 42% 46%;
     --chart-1: 91 42% 46%;
     --chart-2: 120 22% 52%;
     --chart-3: 7 67% 55%;
     --chart-4: 224 40% 55%;
     --chart-5: 30 60% 55%;
-    --sidebar-background: 224 40% 18%;
+    --sidebar-background: 155 22% 14%;
     --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 91 42% 46%;
-    --sidebar-primary-foreground: 240 27% 14%;
-    --sidebar-accent: 224 30% 26%;
+    --sidebar-primary-foreground: 155 25% 10%;
+    --sidebar-accent: 155 18% 22%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 224 25% 34%;
+    --sidebar-border: 155 14% 36%;
     --sidebar-ring: 91 42% 46%;
     --success: 120 22% 52%;
     --warning: 30 60% 55%;
     --info: 120 22% 52%;
     --gradient-primary: linear-gradient(135deg, hsl(91 42% 46%), hsl(120 22% 52%));
-    --gradient-card: linear-gradient(180deg, hsl(224 48% 16%), hsl(224 40% 20%));
-    --gradient-background: radial-gradient(ellipse at top, hsl(224 48% 16%), hsl(240 27% 14%));
+    --gradient-card: linear-gradient(180deg, hsl(155 22% 14%), hsl(155 22% 18%));
+    --gradient-background: radial-gradient(ellipse at top, hsl(155 22% 14%), hsl(155 25% 10%));
     --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.3);
     --shadow-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
   }
@@ -119,7 +105,8 @@
   }
 
   html {
-    font-family: 'Source Han Serif CN', 'Noto Serif SC', 'SimSun', 'STSong', serif;
+    font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-variant-numeric: tabular-nums;
   }
 
   body {
@@ -129,7 +116,21 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
+    text-wrap: balance;
   }
+  :focus-visible { outline: 3px solid #A77722; outline-offset: 3px; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+}
+
+.skip-link { position: fixed; top: .5rem; left: .5rem; z-index: 100; padding: .75rem 1rem; color: #173B2C; background: #F4EFE3; border: 2px solid #C79A45; border-radius: .5rem; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+@media (pointer: coarse) {
+  button, input, [role="combobox"] { min-height: 44px; }
+  button[aria-label] { min-width: 44px; }
 }
 
 @layer components {

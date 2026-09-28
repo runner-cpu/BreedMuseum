@@ -1,71 +1,4 @@
-import ky, {
-  type KyResponse,
-  type AfterResponseHook,
-  type NormalizedOptions,
-} from 'ky';
-import { createParser, type EventSourceParser } from 'eventsource-parser';
-
-export interface SSEOptions {
-  onData: (data: string) => void;
-  onEvent?: (event: unknown) => void;
-  onCompleted?: (error?: Error) => void;
-  onAborted?: () => void;
-}
-
-export function createSSEHook(options: SSEOptions): AfterResponseHook {
-  const hook: AfterResponseHook = async (
-    request: Request,
-    _options: NormalizedOptions,
-    response: KyResponse
-  ) => {
-    if (!response.ok || !response.body) return;
-
-    let completed = false;
-    const finish = (error?: Error): void => {
-      if (completed) return;
-      completed = true;
-      options.onCompleted?.(error);
-    };
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf8');
-    const parser: EventSourceParser = createParser({
-      onEvent: (event) => {
-        if (!event.data) return;
-        options.onEvent?.(event);
-        for (const chunk of event.data.split('\n')) {
-          options.onData(chunk);
-        }
-      },
-    });
-
-    const read = (): void => {
-      reader
-        .read()
-        .then((result) => {
-          if (result.done) {
-            finish();
-            return;
-          }
-          parser.feed(decoder.decode(result.value, { stream: true }));
-          read();
-        })
-        .catch((error) => {
-          if (request.signal.aborted) {
-            options.onAborted?.();
-            return;
-          }
-          finish(error as Error);
-        });
-    };
-
-    read();
-    return response;
-  };
-
-  return hook;
-}
-
+import { createParser } from 'eventsource-parser';
 export interface StreamRequestOptions {
   functionUrl: string;
   requestBody: unknown;
@@ -74,59 +7,45 @@ export interface StreamRequestOptions {
   onComplete: () => void;
   onError: (error: Error) => void;
   signal?: AbortSignal;
+  timeoutMs?: number;
 }
-
+/** Resolves only after the response stream finishes; never retries a billable request. */
 export async function sendStreamRequest(options: StreamRequestOptions): Promise<void> {
-  const {
-    functionUrl,
-    requestBody,
-    supabaseAnonKey,
-    onData,
-    onComplete,
-    onError,
-    signal,
-  } = options;
-
-  const sseHook = createSSEHook({
-    onData,
-    onCompleted: (error?: Error) => {
-      if (error) onError(error);
-      else onComplete();
-    },
-    onAborted: () => {},
-  });
-
+  if (options.signal?.aborted) return;
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  options.signal?.addEventListener('abort', abort, { once: true });
+  let timedOut = false;
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, options.timeoutMs ?? 120_000);
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   try {
-    await ky.post(functionUrl, {
-      json: requestBody,
-      headers: {
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
-        'Content-Type': 'application/json',
-      },
-      signal,
-      timeout: false,
-      hooks: { afterResponse: [sseHook] },
+    const response = await fetch(options.functionUrl, {
+      method: 'POST', body: JSON.stringify(options.requestBody), signal: controller.signal,
+      headers: { Authorization: 'Bearer ' + options.supabaseAnonKey, apikey: options.supabaseAnonKey, 'Content-Type': 'application/json', Accept: 'text/event-stream' },
     });
-  } catch (error) {
-    if (signal?.aborted) return;
-    const err = error as Error & { response?: Response };
-    if (err.response) {
-      try {
-        const bodyText = await err.response.text();
-        let errorMsg = bodyText;
-        try {
-          const parsed = JSON.parse(bodyText);
-          if (parsed.error) errorMsg = parsed.error;
-        } catch {
-          // not json
-        }
-        onError(new Error(errorMsg || `请求错误 (${err.response.status})`));
-        return;
-      } catch {
-        // ignore
-      }
+    if (!response.ok) throw new Error('服务暂时无法响应（HTTP ' + response.status + '），请稍后重试。');
+    if (!response.body) throw new Error('服务返回了空响应，请重试。');
+    const type = response.headers.get('content-type') ?? '';
+    if (!type.includes('text/event-stream')) throw new Error('服务响应格式异常，请重试。');
+    reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    const parser = createParser({ onEvent: event => { if (event.data) options.onData(event.data); } });
+    while (true) {
+      const { done, value } = await reader.read();
+      if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+      if (done) break;
+      parser.feed(decoder.decode(value, { stream: true }));
     }
-    onError(err);
+    parser.feed(decoder.decode());
+    parser.reset({ consume: true });
+    options.onComplete();
+  } catch (error) {
+    if (options.signal?.aborted) return;
+    options.onError(timedOut ? new Error('请求超时，请检查网络后重试。') : error instanceof Error && error.message.startsWith('服务') ? error : new Error('网络连接中断，请重试。'));
+  } finally {
+    clearTimeout(timeout);
+    options.signal?.removeEventListener('abort', abort);
+    await reader?.cancel().catch(() => undefined);
+    reader?.releaseLock();
   }
 }

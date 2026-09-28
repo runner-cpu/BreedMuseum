@@ -1,47 +1,33 @@
-import HomePage from './pages/HomePage';
-import MapPage from './pages/MapPage';
-import DashboardPage from './pages/DashboardPage';
-import EncyclopediaPage from './pages/EncyclopediaPage';
-import AIAssistantPage from './pages/AIAssistantPage';
-import ComparePage from './pages/ComparePage';
-import type { ReactNode } from 'react';
-
+import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
+interface MetaText { title: string; description: string }
 export interface RouteConfig {
-  name: string;
   path: string;
-  element: ReactNode;
-  visible?: boolean;
+  Component: LazyExoticComponent<ComponentType>;
+  meta: { zh: MetaText; en: MetaText };
 }
-
 export const routes: RouteConfig[] = [
-  {
-    name: '首页',
-    path: '/',
-    element: <HomePage />,
-  },
-  {
-    name: '品种地图',
-    path: '/map',
-    element: <MapPage />,
-  },
-  {
-    name: '数据看板',
-    path: '/dashboard',
-    element: <DashboardPage />,
-  },
-  {
-    name: '品种百科',
-    path: '/encyclopedia',
-    element: <EncyclopediaPage />,
-  },
-  {
-    name: 'AI助手',
-    path: '/ai',
-    element: <AIAssistantPage />,
-  },
-  {
-    name: '品种对比',
-    path: '/compare',
-    element: <ComparePage />,
-  },
+  { path: '/', Component: lazy(() => import('./pages/HomePage')), meta: {
+    zh: { title: '中国地方畜禽品种数字博物馆', description: '探索中国地方畜禽品种的地理分布、文化故事与遗传资源保护信息。' },
+    en: { title: 'China Local Livestock Breed Digital Museum', description: 'Explore Chinese livestock breeds, distribution and conservation records. Breed narratives are in Chinese.' },
+  } },
+  { path: '/map', Component: lazy(() => import('./pages/MapPage')), meta: {
+    zh: { title: '品种分布地图', description: '按省份、畜种或名称查找地方品种，阅读品种详情与数据来源。' },
+    en: { title: 'Breed Distribution Map', description: 'Find Chinese breeds by province, category, name and aliases.' },
+  } },
+  { path: '/dashboard', Component: lazy(() => import('./pages/DashboardPage')), meta: {
+    zh: { title: '畜禽品种数据看板', description: '查看站内收录品种的类别、省份和编辑分级统计，以及可读数据表。' },
+    en: { title: 'Breed Data Dashboard', description: 'View category and province statistics derived from the museum collection.' },
+  } },
+  { path: '/encyclopedia', Component: lazy(() => import('./pages/EncyclopediaPage')), meta: {
+    zh: { title: '畜禽品种百科', description: '搜索地方畜禽品种的规范名、别名与英文名，按类别和省份筛选资料。' },
+    en: { title: 'Breed Encyclopedia', description: 'Search breed names and aliases. Descriptive breed records are currently available in Chinese.' },
+  } },
+  { path: '/ai', Component: lazy(() => import('./pages/AIAssistantPage')), meta: {
+    zh: { title: 'AI 品种助手', description: '辅助了解畜禽品种。AI 服务依部署配置启用，回答与识别结果仅供参考。' },
+    en: { title: 'AI Breed Assistant', description: 'An optional educational assistant. AI answers and recognition require independent verification.' },
+  } },
+  { path: '/compare', Component: lazy(() => import('./pages/ComparePage')), meta: {
+    zh: { title: '品种对比', description: '并列比较最多四个畜禽品种的产地、体貌、生产特征和编辑归一化指标。' },
+    en: { title: 'Breed Comparison', description: 'Compare up to four breeds and their editorial educational profiles.' },
+  } },
 ];

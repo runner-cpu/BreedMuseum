@@ -21,11 +21,15 @@ import { categoryColors } from '@/lib/categoryIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { useSettings } from '@/contexts/AppSettings';
 import { Button } from '@/components/ui/button';
+import { AccessibleChartSummary } from '@/components/common/AccessibleChartSummary';
+import { getBreedMetadata } from '@/data/breedMetadata';
+import { downloadCsv } from '@/lib/export';
 
 // 将图表 SVG 导出为 PNG
-function exportSvgToPng(container: HTMLElement | null, filename: string) {
+function exportSvgToPng(container: HTMLElement | null, filename: string): Promise<void> {
+  return new Promise((resolve, reject) => {
   const svg = container?.querySelector('svg');
-  if (!svg) return;
+  if (!svg) { reject(new Error('此图表请使用表格或 CSV 导出')); return; }
   const xml = new XMLSerializer().serializeToString(svg);
   const svg64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
   const img = new Image();
@@ -36,27 +40,21 @@ function exportSvgToPng(container: HTMLElement | null, filename: string) {
     canvas.width = rect.width * scale;
     canvas.height = rect.height * scale;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) { reject(new Error('无法创建图像')); return; }
     ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     const a = document.createElement('a');
     a.download = filename;
     a.href = canvas.toDataURL('image/png');
-    a.click();
+    a.click(); resolve();
   };
+  img.onerror = () => reject(new Error('图表导出失败，请重试'));
   img.src = svg64;
+  });
 }
 
-function exportCsv(filename: string, rows: (string | number)[][]) {
-  const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-  const blob = new Blob(['\﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
+function exportCsv(filename: string, rows: (string | number)[][]) { downloadCsv(rows, filename); }
 
 const densityColor = (count: number, max: number) => {
   const t = max === 0 ? 0 : count / max;
@@ -104,10 +102,10 @@ const DashboardPage: React.FC = () => {
     return categories
       .map((cat) => {
         const list = breeds.filter((b) => b.category === cat);
-        const protectedCount = list.filter((b) => b.endangered === '濒危' || b.endangered === '极危').length;
+        const protectedCount = list.filter((b) => getBreedMetadata(b).protectionStatus === 'national-list').length;
         return {
           name: cat,
-          size: list.length,
+          size: protectedCount,
           fill: categoryColors[cat] ?? '#95A5A6',
           total: list.length,
           protectedCount,
@@ -175,18 +173,21 @@ const DashboardPage: React.FC = () => {
     >
       <div className="flex items-start justify-between gap-2 mb-4">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground truncate">{title}</h3>
+          <h2 className="text-base font-semibold text-foreground">{title}</h2>
           {source && <p className="text-[10px] text-muted-foreground mt-0.5">{source}</p>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="h-11 w-11"
             title={t('dash.exportPng')}
+            aria-label={title + ' · ' + t('dash.exportPng')}
+            disabled={chartKey === 'density-heatmap'}
             onClick={() => {
-              exportSvgToPng(chartRefs.current[chartKey] ?? null, `${chartKey}.png`);
-              toast.success(t('dash.pngDone'));
+              void exportSvgToPng(chartRefs.current[chartKey] ?? null, `${chartKey}.png`)
+                .then(() => toast.success(t('dash.pngDone')))
+                .catch(() => toast.error('图表导出失败，请使用 CSV 导出'));
             }}
           >
             <Download className="w-3.5 h-3.5" />
@@ -195,8 +196,9 @@ const DashboardPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-11 w-11"
               title={t('dash.exportCsv')}
+              aria-label={title + ' · ' + t('dash.exportCsv')}
               onClick={() => {
                 exportCsv(csvName, csvRows());
                 toast.success(t('dash.csvDone'));
@@ -210,6 +212,7 @@ const DashboardPage: React.FC = () => {
       <div ref={(el) => { chartRefs.current[chartKey] = el; }} className="w-full min-w-0 overflow-hidden">
         {children}
       </div>
+      {csvRows && <AccessibleChartSummary caption={title} columns={csvRows()[0]} rows={csvRows().slice(1)} />}
     </motion.div>
   );
 
@@ -223,6 +226,7 @@ const DashboardPage: React.FC = () => {
         {t('dash.title')}
       </motion.h1>
 
+      <p className="mb-5 text-sm text-muted-foreground">统计范围为本馆收录条目。濒危标签来自编辑资料，尚未完成逐条权威核验；国家级保护名录单独统计。</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         {stats.map((s) => (
           <motion.div
@@ -329,10 +333,10 @@ const DashboardPage: React.FC = () => {
 
         <ChartCard
           title={t('dash.protectedDist')}
-          source={t('dash.protectedDistDesc')}
+          source="第 940 号公告中的本馆收录品种；不等同于濒危等级"
           chartKey="protection-treemap"
           csvName="保护品种分布.csv"
-          csvRows={() => [['类别', '品种总数', '濒危/极危数'], ...treemapData.map((d) => [d.name, d.total, d.protectedCount])]}
+          csvRows={() => [['类别', '品种总数', '国家级保护名录数'], ...treemapData.map((d) => [d.name, d.total, d.protectedCount])]}
         >
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -351,15 +355,17 @@ const DashboardPage: React.FC = () => {
           >
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5">
               {provinceData.map((p) => (
-                <div
+                <button
+                  type="button"
+                  onClick={() => navigate(`/encyclopedia?province=${encodeURIComponent(p.name)}`)}
                   key={p.name}
                   className="rounded-md p-2 text-center transition-transform hover:scale-105"
                   style={{ backgroundColor: densityColor(p.value, maxProvince) }}
                   title={`${p.name}：${p.value} ${t('dash.breedsUnit')}`}
                 >
-                  <p className="text-xs font-semibold text-white leading-tight">{p.name}</p>
-                  <p className="text-[10px] text-white/80 mt-0.5">{p.value}</p>
-                </div>
+                  <p className="text-xs font-semibold text-[#102718] leading-tight">{p.name}</p>
+                  <p className="text-xs text-[#102718] mt-0.5">{p.value}</p>
+                </button>
               ))}
             </div>
           </ChartCard>

@@ -4,16 +4,16 @@ import { motion } from 'motion/react';
 import { VirtuosoGrid } from 'react-virtuoso';
 import { MapPin, Search, X, SearchX, Download, Shuffle } from 'lucide-react';
 import { breeds, categories, provinces, endangeredLevels } from '@/data/breeds';
+import { matchesBreedQuery } from '@/data/breedSearch';
 import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
 import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { useSettings } from '@/contexts/AppSettings';
-import { preloadBreedImages } from '@/lib/preload';
 import { exportBreedsToCSV } from '@/lib/export';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { BreedImage } from '@/components/common/BreedImage';
 import {
   Select,
   SelectContent,
@@ -31,9 +31,7 @@ const EncyclopediaPage: React.FC = () => {
   const [filterEndangered, setFilterEndangered] = useState<string>('all');
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [showSkeleton, setShowSkeleton] = useState(false);
   const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
-  const clickTimer = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   // 虚拟滚动容器：页面滚动发生在 Layout 的 <main> 元素上
@@ -55,47 +53,26 @@ const EncyclopediaPage: React.FC = () => {
     return () => window.clearTimeout(tm);
   }, [searchInput]);
 
-  // 切换筛选时先显示骨架屏，营造加载过渡，避免占位卡顿
-  useEffect(() => {
-    setShowSkeleton(true);
-    const t = window.setTimeout(() => setShowSkeleton(false), 240);
-    return () => window.clearTimeout(t);
-  }, [selectedCategory, filterProvince, filterEndangered, debouncedSearch]);
-
-  // 预加载前10个品种图片到缓存
-  useEffect(() => {
-    preloadBreedImages(breeds, 10);
-  }, []);
-
   const allMatches = useMemo(() => {
     return breeds.filter((b) => {
       const matchCat = selectedCategory ? b.category === selectedCategory : true;
       const matchProv = filterProvince !== 'all' ? b.province === filterProvince : true;
       const matchEnd = filterEndangered !== 'all' ? b.endangered === filterEndangered : true;
-      const matchSearch = debouncedSearch
-        ? b.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-        : true;
+      const matchSearch = matchesBreedQuery(b, debouncedSearch);
       return matchCat && matchProv && matchEnd && matchSearch;
     });
   }, [selectedCategory, filterProvince, filterEndangered, debouncedSearch]);
 
-  // 搜索时限制最多50条
-  const filtered = useMemo(() => {
-    return debouncedSearch ? allMatches.slice(0, 50) : allMatches;
-  }, [allMatches, debouncedSearch]);
+  const filtered = allMatches;
 
   const totalMatch = allMatches.length;
 
   const handleCardClick = useCallback(
     (breedId: string) => {
-      // 快速连续点击防抖：500ms 内多次点击只执行最后一次
-      if (clickTimer.current) window.clearTimeout(clickTimer.current);
-      clickTimer.current = window.setTimeout(() => {
-        setSelectedBreedId(breedId);
-        const breed = breeds.find((b) => b.id === breedId);
-        if (breed) setSelectedCategory(breed.category);
-        navigate(`/map?breed_id=${breedId}`);
-      }, 500);
+      setSelectedBreedId(breedId);
+      const breed = breeds.find(b => b.id === breedId);
+      if (breed) setSelectedCategory(breed.category);
+      navigate(`/map?breed_id=${breedId}`);
     },
     [navigate, setSelectedBreedId, setSelectedCategory],
   );
@@ -139,6 +116,8 @@ const EncyclopediaPage: React.FC = () => {
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            type="search"
+            aria-label="搜索百科品种"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t('enc.searchPlaceholder')}
@@ -146,7 +125,7 @@ const EncyclopediaPage: React.FC = () => {
           />
         </div>
         <Select value={filterProvince} onValueChange={setFilterProvince}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="筛选省份" className="w-[140px] min-h-11">
             <SelectValue placeholder={t('enc.filterProvince')} />
           </SelectTrigger>
           <SelectContent>
@@ -157,7 +136,7 @@ const EncyclopediaPage: React.FC = () => {
           </SelectContent>
         </Select>
         <Select value={filterEndangered} onValueChange={setFilterEndangered}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="筛选濒危等级" className="w-[140px] min-h-11">
             <SelectValue placeholder={t('enc.filterLevel')} />
           </SelectTrigger>
           <SelectContent>
@@ -194,6 +173,7 @@ const EncyclopediaPage: React.FC = () => {
             <button
               key={cat}
               type="button"
+              aria-pressed={selectedCategory === cat}
               onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 selectedCategory === cat ? 'text-white' : 'bg-muted text-muted-foreground hover:bg-accent'
@@ -207,24 +187,11 @@ const EncyclopediaPage: React.FC = () => {
         })}
       </div>
 
-      <p className="text-sm text-muted-foreground mb-4">
+      <p role="status" aria-live="polite" className="text-sm text-muted-foreground mb-4">
         {t('enc.total').replace('{n}', String(totalMatch))}
-        {debouncedSearch && totalMatch > 50 ? t('enc.searchLimit') : ''}
       </p>
 
-      {showSkeleton ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-card border border-border rounded-xl overflow-hidden">
-              <Skeleton className="aspect-[4/3] w-full" />
-              <div className="p-3 space-y-2">
-                <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-3 w-1/3" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="text-center py-20">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
             <SearchX className="w-8 h-8 text-muted-foreground" />
@@ -238,7 +205,7 @@ const EncyclopediaPage: React.FC = () => {
           <Button variant="default" onClick={clearAll}>{t('enc.viewAll')}</Button>
         </div>
       ) : (
-        // 虚拟滚动：仅渲染可视区域内的卡片，568 个品种流畅浏览
+        // 虚拟滚动：仅渲染可视区域内的卡片，不截断搜索结果
         <VirtuosoGrid
           customScrollParent={scrollParent ?? undefined}
           data={filtered}
@@ -248,6 +215,7 @@ const EncyclopediaPage: React.FC = () => {
             <motion.button
               key={breed.id}
               type="button"
+              aria-label={`查看${breed.name}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(index * 0.03, 0.3) }}
@@ -255,17 +223,12 @@ const EncyclopediaPage: React.FC = () => {
               onClick={() => handleCardClick(breed.id)}
               className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-card transition-shadow text-left flex flex-col w-full"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-muted">
-                <img
-                  src={breed.image}
-                  alt={breed.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
+              <BreedImage
+                src={breed.image}
+                alt={breed.name}
+                className="aspect-[4/3] w-full bg-muted"
+                imgClassName="object-cover"
+              />
               <div className="p-3 flex flex-col flex-1">
                 <h3 className="text-sm font-semibold text-foreground truncate">{breed.name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">

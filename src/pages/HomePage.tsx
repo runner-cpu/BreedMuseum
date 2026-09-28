@@ -23,8 +23,8 @@ import ChromaGrid, { type ChromaItem } from '@/components/effects/ChromaGrid';
 import ScrollFloat from '@/components/effects/ScrollFloat';
 import CircularGallery from '@/components/effects/CircularGallery';
 import MagicBento from '@/components/effects/MagicBento';
+import { BreedImage } from '@/components/common/BreedImage';
 
-const TOTAL_TARGET = 1018;
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const HomePage: React.FC = () => {
     {
       title: String(breeds.length),
       subtitle: t('home.statBreedsLabel'),
-      handle: `${t('home.statProgress')} ${breeds.length}/${TOTAL_TARGET}`,
+      handle: '按实际馆藏记录统计',
       borderColor: '#4F46E5',
       gradient: 'linear-gradient(145deg, #1e2a5e, #0a0f24)',
       url: '/encyclopedia',
@@ -174,10 +174,10 @@ const HomePage: React.FC = () => {
               glowColor="212, 168, 83"
               spotlightRadius={400}
               particleCount={12}
-              enableStars
-              enableSpotlight
-              enableBorderGlow
-              clickEffect
+              enableStars={false}
+              enableSpotlight={false}
+              enableBorderGlow={false}
+              clickEffect={false}
               onNavigate={(to) => navigate(to)}
             />
           </div>
@@ -198,9 +198,12 @@ const HomePage: React.FC = () => {
                     onClick={() => handleBreedClick(breed.id, breed.category)}
                     className="snap-start shrink-0 w-40 bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-white/30 transition-colors text-left"
                   >
-                    <div className="aspect-[4/3] overflow-hidden bg-white/5">
-                      <img src={breed.image} alt={breed.name} className="w-full h-full object-cover" loading="lazy" />
-                    </div>
+                    <BreedImage
+                      src={breed.image}
+                      alt={breed.name}
+                      className="aspect-[4/3] bg-white/5"
+                      imgClassName="object-cover"
+                    />
                     <div className="p-2.5">
                       <h3 className="text-sm font-semibold text-white truncate">{breed.name}</h3>
                       <p className="text-xs text-white/40 mt-0.5 flex items-center gap-1">

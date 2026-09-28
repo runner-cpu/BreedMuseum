@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { breeds } from '@/data/breeds';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { findBreedById } from '@/data/breedSearch';
 
 interface MuseumContextValue {
   selectedCategory: string | null;
@@ -28,6 +28,9 @@ export const MuseumProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [pulseId, setPulseId] = useState<string | null>(null);
+  const compareRef = useRef<string[]>([]);
+  const pulseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(pulseTimer.current), []);
 
   const setSelectedCategory = useCallback((category: string | null) => {
     setSelectedCategoryState(category);
@@ -37,32 +40,31 @@ export const MuseumProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // 触发地图点位脉冲光晕，5秒后自动消失（高亮放大状态由选中品种保持）
   const triggerPulse = useCallback((breedId: string) => {
     setPulseId(breedId);
-    window.setTimeout(() => setPulseId((cur) => (cur === breedId ? null : cur)), 5000);
+    clearTimeout(pulseTimer.current);
+    pulseTimer.current = setTimeout(() => setPulseId(null), 5000);
   }, []);
 
   const isInCompare = useCallback((breedId: string) => compareIds.includes(breedId), [compareIds]);
 
   const toggleCompare = useCallback(
     (breedId: string) => {
-      let added = false;
-      setCompareIds((prev) => {
-        if (prev.includes(breedId)) {
-          return prev.filter((id) => id !== breedId);
-        }
-        if (prev.length >= 4) return prev; // 最多4个
-        added = true;
-        return [...prev, breedId];
-      });
-      return added;
+      if (!findBreedById(breedId)) return false;
+      const prev = compareRef.current;
+      const exists = prev.includes(breedId);
+      if (!exists && prev.length >= 4) return false;
+      const next = exists ? prev.filter(id => id !== breedId) : [...prev, breedId];
+      compareRef.current = next; setCompareIds(next);
+      return !exists;
     },
     [],
   );
 
   const removeFromCompare = useCallback((breedId: string) => {
-    setCompareIds((prev) => prev.filter((id) => id !== breedId));
+    compareRef.current = compareRef.current.filter(id => id !== breedId);
+    setCompareIds(compareRef.current);
   }, []);
 
-  const clearCompare = useCallback(() => setCompareIds([]), []);
+  const clearCompare = useCallback(() => { compareRef.current = []; setCompareIds([]); }, []);
 
   return (
     <MuseumContext.Provider
@@ -97,6 +99,5 @@ export const useMuseum = () => {
 
 /** 根据 ID 查找品种 */
 export function getBreedById(id: string | null) {
-  if (!id) return null;
-  return breeds.find((b) => b.id === id) ?? null;
+  return findBreedById(id);
 }

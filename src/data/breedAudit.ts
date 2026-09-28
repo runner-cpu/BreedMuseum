@@ -109,14 +109,13 @@ export function auditBreedDataset(
       });
     }
 
-    if (
-      radarDimensions.some(
-        (key) =>
-          !Number.isFinite(breed.radar[key]) ||
-          breed.radar[key] < 0 ||
-          breed.radar[key] > 100,
-      )
-    ) {
+    const radarValues = radarDimensions.map((key) => breed.radar[key]);
+    const allRadarValuesUnavailable = radarValues.every((value) => value === null);
+    const allRadarValuesValid = radarValues.every(
+      (value) => value !== null && Number.isFinite(value) && value >= 0 && value <= 100,
+    );
+
+    if (!allRadarValuesUnavailable && !allRadarValuesValid) {
       issues.push({
         code: 'invalid-radar',
         breedId: breed.id,

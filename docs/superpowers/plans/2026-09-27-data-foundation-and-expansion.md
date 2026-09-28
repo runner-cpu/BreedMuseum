@@ -14,7 +14,7 @@
 - The announcement contains 271 livestock and poultry breeds, 12 bee breeds and 15 silkworm breeds; bees and silkworms are out of scope for this implementation.
 - Do not add a record merely to increase the total; every new record needs a traceable source and a 2026-09-27 verification date.
 - Distinguish “collected by this site” from “listed in the national protection list”; never label every site record as nationally protected.
-- Preserve the existing five-axis performance model in this phase and describe its 0–100 values as editorial normalized scores, not official measurements.
+- Preserve verified legacy five-axis values as editorial normalized scores, not official measurements; new name-only records use five null values until a traceable metric source exists.
 - New records without a verified reusable photograph use `/brand/breed-placeholder.svg`; do not invent a photo source or rights claim.
 - Follow TDD for every behavior change and commit each task only after its focused tests pass.
 
@@ -336,7 +336,7 @@ git commit -m "feat: add breed provenance and protection metadata"
 
 **Interfaces:**
 - Consumes: `auditBreedDataset`, `getBreedMetadata`
-- Produces: a collision-free pre-expansion dataset of 679 records
+- Produces: a collision-free historical intermediate of 679 records before additions
 
 - [ ] **Step 1: Write the complete-dataset failure test**
 
@@ -406,7 +406,7 @@ git commit -m "fix: normalize duplicate breed identities"
 - Modify: the existing modules containing `准噶尔双峰驼`, `山麻鸭`, and `驯鹿`
 
 **Interfaces:**
-- Produces: a final `breeds` array of 702 unique records
+- Produces: a final `breeds` array of 701 unique records (679 normalized records plus 22 net additions)
 - Produces: canonical names 新疆准噶尔双峰驼, 龙岩山麻鸭, 敖鲁古雅驯鹿 with their old names searchable as aliases
 
 - [ ] **Step 1: Write exact coverage and final-count tests**
@@ -421,7 +421,7 @@ const expectedNewNames = [
 ] as const;
 
 test('adds every reviewed missing livestock breed exactly once', () => {
-  expect(breeds).toHaveLength(702);
+  expect(breeds).toHaveLength(701);
   for (const name of expectedNewNames) {
     expect(breeds.filter((breed) => breed.name === name), name).toHaveLength(1);
   }
@@ -458,7 +458,7 @@ Rename the three existing canonical records in place and add aliases in `metadat
 - [ ] **Step 4: Run coverage, metadata and full audit tests**
 
 Run: `pnpm exec vitest run src/data/__tests__/announcement940Coverage.test.ts src/data/__tests__/breedMetadata.test.ts src/data/__tests__/datasetIntegrity.test.ts`  
-Expected: PASS, 702 records, all 23 additions present once, all three aliases resolved, no audit issue.
+Expected: PASS, 701 records, all 23 reviewed announcement names resolved once, 22 placeholder additions, all three aliases resolved and no audit issue.
 
 - [ ] **Step 5: Commit the verified expansion**
 

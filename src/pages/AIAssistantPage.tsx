@@ -26,17 +26,14 @@ import {
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { breeds } from '@/data/breeds';
 import { sendStreamRequest } from '@/lib/sse';
-import { supabase } from '@/db/supabase';
+import { readBackendConfig, requireSupabaseClient, type BackendConfig } from '@/config/backend';
+import { BackendUnavailable } from '@/components/ai/BackendUnavailable';
 import { useSettings } from '@/contexts/AppSettings';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 type AIMode = 'chat' | 'report' | 'image' | 'recognize';
 type Feedback = 'up' | 'down' | null;
@@ -193,6 +190,7 @@ const downloadPdf = async (filename: string, title: string, text: string): Promi
   container.appendChild(body);
   document.body.appendChild(container);
   try {
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
     const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageW = 210;
@@ -224,7 +222,8 @@ const downloadPdf = async (filename: string, title: string, text: string): Promi
   }
 };
 
-const AIAssistantPage: React.FC = () => {
+const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) => {
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = backend;
   const navigate = useNavigate();
   const { t } = useSettings();
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -373,6 +372,7 @@ const AIAssistantPage: React.FC = () => {
       ]);
       setMediaBusy(true);
       try {
+        const supabase = await requireSupabaseClient();
         const enPrompt = `A ${prompt}, Chinese local livestock breed, full body standard photo, pure white background, high quality, detailed, photorealistic`;
         const { data, error } = await supabase.functions.invoke('submit-image-generation', {
           body: { contents: [{ parts: [{ text: enPrompt }] }] },
@@ -418,6 +418,7 @@ const AIAssistantPage: React.FC = () => {
     setRecognizeResult(null);
     try {
       const base64 = await fileToBase64(file);
+      const supabase = await requireSupabaseClient();
       const { data, error } = await supabase.functions.invoke('image-understanding-request', {
         body: { image: base64, question: '这张图片中的畜禽是什么品种？请直接回答品种名称、品种类别和特征描述。' },
       });
@@ -559,6 +560,7 @@ const AIAssistantPage: React.FC = () => {
           const raw = await blob.arrayBuffer();
           const wav = await convertToWav(raw);
           const speech = arrayBufferToBase64(wav);
+          const supabase = await requireSupabaseClient();
           const { data, error } = await supabase.functions.invoke('short-speech-recognition', {
             body: { speech, len: wav.byteLength, format: 'wav', rate: 16000, cuid: 'web-user-cuid' },
           });
@@ -1078,4 +1080,7 @@ const AIAssistantPage: React.FC = () => {
   );
 };
 
-export default AIAssistantPage;
+export default function AIAssistantPage() {
+  const backend = readBackendConfig();
+  return backend ? <ConfiguredAssistant backend={backend} /> : <BackendUnavailable />;
+}

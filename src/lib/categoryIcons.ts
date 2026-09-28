@@ -33,4 +33,5 @@ export const endangeredColors: Record<string, string> = {
   易危: '#f39c12',
   濒危: '#e67e22',
   极危: '#c0392b',
+  待核验: '#64748b',
 };

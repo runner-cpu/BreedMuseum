@@ -40,12 +40,12 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'common.back': { zh: '返回', en: 'Back' },
   // 首页
   'home.heroTitle': { zh: '中国地方畜禽品种数字博物馆', en: 'China Local Livestock Breed Digital Museum' },
-  'home.heroSub': { zh: '收录全国1090个畜禽品种，守护中华农业文明基因', en: 'Documenting 1,090 livestock breeds, safeguarding the genes of Chinese agricultural civilization' },
+  'home.heroSub': { zh: '探索地方畜禽遗传资源，守护中华农业文明基因', en: 'Explore local livestock genetic resources and Chinese agricultural heritage' },
   'home.startExplore': { zh: '开始探索', en: 'Start Exploring' },
   'home.statBreeds': { zh: '收录品种', en: 'Breeds' },
   'home.statProvinces': { zh: '覆盖省份', en: 'Provinces' },
   'home.statCategories': { zh: '畜禽类别', en: 'Categories' },
-  'home.statEndangered': { zh: '濒危保护品种', en: 'Endangered Breeds' },
+  'home.statEndangered': { zh: '编辑濒危标签', en: 'Endangered Breeds' },
   'home.features': { zh: '核心功能', en: 'Core Features' },
   'home.fMap': { zh: '品种地图探索', en: 'Explore Breed Map' },
   'home.fMapDesc': { zh: '在地图上查看全国品种分布', en: 'View the nationwide distribution of breeds on the map' },
@@ -144,7 +144,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'nf.backHome': { zh: '返回首页', en: 'Back to Home' },
   'dash.catCompare': { zh: '各类别品种数量对比', en: 'Breed Count by Category' },
   'dash.catCompareDesc': { zh: '畜禽类别横向对比', en: 'Comparison across livestock categories' },
-  'dash.protectedDist': { zh: '国家级保护品种分布', en: 'Protected Breeds Distribution' },
+  'dash.protectedDist': { zh: '国家级国家级保护名录分布', en: 'Protected Breeds Distribution' },
   'dash.protectedDistDesc': { zh: '面积=品种总数，颜色=类别', en: 'Area = total breeds, color = category' },
   'dash.density': { zh: '各省品种密度热力图', en: 'Breed Density Heatmap by Province' },
   'dash.densityDesc': { zh: '颜色越深表示品种数量越多', en: 'Darker color means more breeds' },
@@ -189,22 +189,22 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'home.aboutIntroText': { zh: '中国地方畜禽品种数字博物馆致力于以可视化地图、图表与故事，系统记录与展示我国丰富的地方畜禽遗传资源，守护中华农业文明的活态遗产。', en: 'The museum systematically documents and displays China\'s rich local livestock genetic resources through visual maps, charts and stories, safeguarding the living heritage of Chinese agricultural civilization.' },
   'home.aboutSourceText': { zh: '数据来源于《国家畜禽遗传资源品种名录》《国家级畜禽遗传资源保护名录》等国家家养动物种质资源库等官方权威渠道。', en: 'Data from the National Livestock Genetic Resources Breed Catalog, National Protected Breed List, and the National Domestic Animal Germplasm Resource Bank.' },
   'home.aboutTechText': { zh: '本平台由秒哒平台搭建，采用 React + TypeScript + Tailwind CSS 技术栈，融合地图可视化与 AI 智能问答能力。', en: 'Built on the Miaoda platform with React + TypeScript + Tailwind CSS, combining map visualization and AI Q&A.' },
-  'home.aboutContactText': { zh: '如有数据纠错、内容建议或合作意向，欢迎通过 museum@livestock.cn 与我们联系。', en: 'For data corrections, suggestions or cooperation, contact museum@livestock.cn.' },
+  'home.aboutContactText': { zh: '如需纠错，请记录品种名称、问题字段与公开来源，通过项目仓库的反馈入口提交。', en: 'For corrections, report the breed name, field and public source through the project repository.' },
   'home.heroBadge': { zh: '守护中华农业文明基因', en: 'Safeguarding the genes of Chinese agricultural civilization' },
   'home.heroSearchPh': { zh: '搜索品种名称，如 宁乡猪、秦川牛...', en: 'Search breed name, e.g. Ningxiang Pig, Qinchuan Cattle...' },
   'home.heroTitleTop': { zh: '中国地方畜禽', en: 'China Local Livestock' },
   'home.heroTitleBottom': { zh: '品种数字博物馆', en: 'Breed Digital Museum' },
   'home.heroDescLeft': {
-    zh: '收录全国1000+畜禽品种，守护中华农业文明基因，从高原牦牛到江南黑猪，每一品种都承载着地域文化与生态智慧。',
-    en: 'Documenting 1,000+ local livestock breeds, safeguarding the genes of Chinese agricultural civilization — from plateau yak to Jiangnan black pig, each breed carries regional culture and ecological wisdom.',
+    zh: '探索中国地方畜禽遗传资源，从高原牦牛到江南黑猪，每一品种都承载着地域文化与生态智慧。',
+    en: 'Explore Chinese local livestock heritage — from plateau yak to Jiangnan black pig, each breed carries regional culture and ecological wisdom.',
   },
   'home.heroDescRight': {
     zh: '点击地图探索各地品种分布，或通过百科深入了解每个品种的独特故事。',
     en: 'Click the map to explore breed distribution, or dive into the encyclopedia for each breed’s unique story.',
   },
   'home.coreData': { zh: '核心数据看板', en: 'Core Data' },
-  'home.dataSource': { zh: '数据来源：农业农村部《国家畜禽遗传资源品种名录（2024年版）》', en: 'Source: National Livestock Genetic Resources Breed Catalog (2024)' },
-  'home.dataSourceShort': { zh: '2024年版 · 农业农村部', en: '2024 Edition · MOA' },
+  'home.dataSource': { zh: '名称与保护名录核对：农业农村部公告第 940 号；其他资料见品种详情', en: 'Name and protection-list reference: MOA Announcement No. 940; see individual source notes' },
+  'home.dataSourceShort': { zh: '第 940 号公告 · 名称核对', en: 'MOA No. 940 · names' },
   'home.statBreedsLabel': { zh: '已收录品种', en: 'Breeds Collected' },
   'home.statProvincesLabel': { zh: '覆盖省份', en: 'Provinces Covered' },
   'home.statCategoriesLabel': { zh: '畜禽类别', en: 'Categories' },
@@ -239,7 +239,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'common.useless': { zh: '无用', en: 'Not Useful' },
   'common.copiedTip': { zh: '已复制到剪贴板', en: 'Copied to clipboard' },
   'common.copyFailTip': { zh: '复制失败', en: 'Copy failed' },
-  'common.aiNote': { zh: '内容由AI生成，仅供参考 · 回答基于真实品种数据库', en: 'AI-generated content for reference only · Based on real breed database' },
+  'common.aiNote': { zh: '内容由AI生成，仅供参考 · 请结合品种来源核实回答', en: 'AI-generated content for reference only · Verify answers against the cited breed sources' },
   'common.recording': { zh: '正在录音，点击麦克风停止...', en: 'Recording, tap mic to stop...' },
   'common.micFail': { zh: '无法访问麦克风，请检查浏览器权限', en: 'Cannot access microphone. Check browser permission.' },
   'common.speechFail': { zh: '语音识别失败', en: 'Speech recognition failed' },
@@ -253,7 +253,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'common.offline': { zh: '网络连接已断开，请检查网络设置', en: 'You are offline. Please check your connection.' },
   'common.backOnline': { zh: '网络已恢复', en: 'Back online' },
   'common.retry': { zh: '重试', en: 'Retry' },
-  'error.boundaryTitle': { zh: '页面出现异常', en: 'Something went wrong' },
+  'error.boundaryTitle': { zh: '页面暂时无法显示', en: 'Something went wrong' },
   'error.boundaryMessage': { zh: '应用遇到了意外错误，请尝试刷新页面。', en: 'The app encountered an unexpected error. Please reload.' },
   'error.reload': { zh: '刷新页面', en: 'Reload' },
   'ai.downloadPdf': { zh: '下载 PDF', en: 'Download PDF' },
@@ -265,8 +265,8 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'ai.feedbackThanks': { zh: '感谢您的反馈', en: 'Thanks for your feedback' },
   'home.footerLog4': { zh: '2026-09-03 · 数据去重与文化故事扩充至 ≥100 字', en: '2026-09-03 · Data dedup & story enrichment to ≥100 chars' },
   'home.footerLog5': { zh: '2026-09-03 · 第十三批补录 24 个品种（鸽/骆驼/兔/马/牛/特种畜禽）', en: '2026-09-03 · Batch 13: 24 new breeds (pigeon/camel/rabbit/horse/cattle/special)' },
-  'home.footerLog6': { zh: '2026-09-10 · 第十四批补录 36 个国家级保护名录品种（总计 628 个品种，配图全量独立）', en: '2026-09-10 · Batch 14: 36 national-protected breeds (total 628 breeds, 100% unique images)' },
-  'home.footerLog7': { zh: '2026-09-15 · 第十五批补录 59 个国家级保护名录与特色品种（总计 687 个品种，配图全量独立）', en: '2026-09-15 · Batch 15: 59 national-protected & regional breeds (total 687 breeds, 100% unique images)' },
+  'home.footerLog6': { zh: '2026-09-10 · 第十四批补录 36 个国家级保护名录品种（总计 628 个品种，历史登记数量，图像权利待核验）', en: '2026-09-10 · Batch 14: 36 national-protected breeds (total 628 breeds, historical count; image rights unverified)' },
+  'home.footerLog7': { zh: '2026-09-15 · 第十五批补录 59 个国家级保护名录与特色品种（总计 687 个品种，配图全量独立）', en: '2026-09-15 · Batch 15: 59 national-protected & regional breeds (total 687 breeds, historical count; image rights unverified)' },
   'home.lastUpdate': { zh: '数据更新', en: 'Last updated' },
   'home.totalBreeds': { zh: '收录品种', en: 'Breeds' },
   'home.noLatestBreeds': { zh: '暂无最新收录品种', en: 'No newly added breeds yet' },
@@ -282,7 +282,9 @@ const dictionary: Record<string, { zh: string; en: string }> = {
 function resolveDark(mode: ThemeMode): boolean {
   if (mode === 'dark') return true;
   if (mode === 'light') return false;
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+    : false;
 }
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -301,6 +303,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [theme]);
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
       if (theme === 'system') {

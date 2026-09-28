@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Do not use this command, only use lint to check'",
+    "dev": "vite",
     "typecheck": "tsc -p tsconfig.check.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -11,7 +11,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "biome lint",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm data:audit && pnpm build"
+    "docs:sync": "node tasks/sync-data-docs.mjs",
+    "docs:check": "node tasks/sync-data-docs.mjs --check",
+    "bundle:check": "node tasks/check-bundle-size.mjs",
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e",
+    "e2e": "playwright test",
+    "check": "node tasks/check-all.mjs",
+    "check:all": "node tasks/check-all.mjs --all"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

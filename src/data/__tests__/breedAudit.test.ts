@@ -52,4 +52,27 @@ describe('auditBreedDataset', () => {
       ]),
     );
   });
+
+  it('accepts an entirely unavailable radar profile', () => {
+    const issues = auditBreedDataset([
+      {
+        ...valid,
+        endangered: '待核验',
+        radar: { meat: null, milk: null, reproduction: null, labor: null, adaptability: null },
+      },
+    ]);
+
+    expect(issues).toEqual([]);
+  });
+
+  it('rejects a radar profile that mixes unavailable and numeric values', () => {
+    const issues = auditBreedDataset([
+      {
+        ...valid,
+        radar: { ...valid.radar, meat: null },
+      },
+    ]);
+
+    expect(issues.map((issue) => issue.code)).toContain('invalid-radar');
+  });
 });

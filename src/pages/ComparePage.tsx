@@ -9,6 +9,8 @@ import { exportBreedsToCSV } from '@/lib/export';
 import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { AccessibleChartSummary } from '@/components/common/AccessibleChartSummary';
+import { BreedImage } from '@/components/common/BreedImage';
 
 const ComparePage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,8 +40,9 @@ const ComparePage: React.FC = () => {
         <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-5">
           <GitCompare className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-serif font-bold text-foreground mb-2">{t('compare.title')}</h2>
+        <h1 className="text-lg font-serif font-bold text-foreground mb-2">{t('compare.title')}</h1>
         <p className="text-sm text-muted-foreground max-w-xs">{t('compare.empty')}</p>
+        <Button className="mt-5 min-h-11" onClick={() => navigate('/encyclopedia')}>浏览百科并选择品种</Button>
       </div>
     );
   }
@@ -69,25 +72,21 @@ const ComparePage: React.FC = () => {
 
       <div className="w-full max-w-full overflow-x-auto bg-card border border-border rounded-xl">
         <table className="w-full min-w-max text-sm">
+          <caption className="sr-only">所选品种资料对比</caption>
           <thead>
             <tr>
-              <th className="whitespace-nowrap text-left p-3 text-muted-foreground font-medium w-28 border-b border-border">
+              <th scope="col" className="sticky left-0 z-10 bg-card whitespace-nowrap text-left p-3 text-muted-foreground font-medium w-28 border-b border-border">
                 {t('compare.dim.dim')}
               </th>
               {breeds.map((b) => (
-                <th key={b!.id} className="whitespace-nowrap p-3 text-left border-b border-l border-border min-w-[200px]">
+                <th scope="col" key={b!.id} className="whitespace-nowrap p-3 text-left border-b border-l border-border min-w-[200px]">
                   <div className="flex items-start gap-2">
-                    <div className="aspect-[4/3] w-20 rounded overflow-hidden bg-muted shrink-0">
-                      <img
-                        src={b!.image}
-                        alt={b!.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
+                    <BreedImage
+                      src={b!.image}
+                      alt={b!.name}
+                      className="aspect-[4/3] w-20 rounded shrink-0"
+                      imgClassName="object-cover"
+                    />
                     <div className="min-w-0">
                       <p className="font-semibold text-foreground truncate">{b!.name}</p>
                       <span
@@ -99,8 +98,9 @@ const ComparePage: React.FC = () => {
                     </div>
                     <button
                       type="button"
+                      aria-label={`移除${b.name}`}
                       onClick={() => removeFromCompare(b!.id)}
-                      className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                      className="min-h-11 min-w-11 flex items-center justify-center shrink-0 text-muted-foreground hover:text-destructive transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -112,9 +112,9 @@ const ComparePage: React.FC = () => {
           <tbody>
             {dimensions.map((dim) => (
               <tr key={dim.key} className="align-top">
-                <td className="whitespace-nowrap p-3 text-muted-foreground font-medium border-b border-border">
+                <th scope="row" className="sticky left-0 z-10 bg-card whitespace-nowrap p-3 text-left text-muted-foreground font-medium border-b border-border">
                   {dim.label}
-                </td>
+                </th>
                 {breeds.map((b) => (
                   <td key={b!.id} className="p-3 border-b border-l border-border">
                     {dim.key === 'endangered' ? (
@@ -141,6 +141,8 @@ const ComparePage: React.FC = () => {
         </table>
       </div>
 
+      <p className="mt-4 text-sm text-muted-foreground">以下分值为编辑归一化指标（0–100），非统一试验条件下的实测结果；无可靠来源的记录显示“待补充”，不宜作为选育或投资决策依据。</p>
+      <AccessibleChartSummary caption="五维编辑指标对比" columns={["指标", ...breeds.map(b => b.name)]} rows={([ ["meat", "肉用"], ["milk", "乳用"], ["reproduction", "繁殖"], ["labor", "役用"], ["adaptability", "适应性"] ] as const).map(([key, label]) => [label, ...breeds.map(b => b.radar[key] ?? '待补充')])} />
       <div className="mt-4">
         <Button variant="ghost" onClick={() => navigate('/encyclopedia')}>
           {t('compare.continue')}

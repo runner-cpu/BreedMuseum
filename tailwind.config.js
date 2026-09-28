@@ -27,6 +27,7 @@ export default {
                 serif: ['"Source Han Serif CN"', '"Noto Serif SC"', 'SimSun', 'STSong', 'serif'],
             },
             colors: {
+                museum: { ink: '#173B2C', paper: '#F4EFE3', gold: '#C79A45' },
                 border: 'hsl(var(--border))',
                 borderColor: {
                     border: 'hsl(var(--border))'

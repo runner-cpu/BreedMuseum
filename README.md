@@ -1,98 +1,106 @@
-## 介绍
+# 中国地方畜禽品种数字博物馆
 
-项目介绍
+面向公众、动物科学学生与畜牧从业者的开放科普站。项目提供品种地图、百科检索、数据看板、品种对比与可选 AI 助手，并明确区分“本站收录”“国家级保护名录”和“尚待核验的编辑资料”。
 
-## 目录结构
+<!-- data-summary:start -->
+统计日期：2026-09-28；口径：运行时归一化后的 breeds 数组。
 
-```
-├── README.md # 说明文档
-├── components.json # 组件库配置
-├── index.html # 入口文件
-├── package.json # 包管理
-├── postcss.config.js # postcss 配置
-├── public # 静态资源目录
-│   ├── favicon.png # 图标
-│   └── images # 图片资源
-├── src # 源码目录
-│   ├── App.tsx # 入口文件
-│   ├── components # 组件目录
-│   ├── contexts # 上下文目录
-│   ├── db # 数据库配置目录
-│   ├── hooks # 通用钩子函数目录
-│   ├── index.css # 全局样式
-│   ├── layout # 布局目录
-│   ├── lib # 工具库目录
-│   ├── main.tsx # 入口文件
-│   ├── routes.tsx # 路由配置
-│   ├── pages # 页面目录
-│   ├── services  # 数据库交互目录
-│   ├── types   # 类型定义目录
-├── tsconfig.app.json  # ts 前端配置文件
-├── tsconfig.json # ts 配置文件
-├── tsconfig.node.json # ts node端配置文件
-└── vite.config.ts # vite 配置文件
-```
+| 指标 | 实测值 |
+| --- | --- |
+| 馆藏条目 | 701 |
+| 唯一 ID / 名称 | 701 / 701 |
+| 覆盖省份 | 30 |
+| 分类 | 11 |
+| 第 940 号公告畜禽名称匹配 | 271 / 271 |
+| 项目 SVG 占位图 | 22 |
 
-## 技术栈
+| 类别 | 条目数 |
+| --- | --- |
+| 牛 | 154 |
+| 羊 | 117 |
+| 猪 | 115 |
+| 鸡 | 104 |
+| 马 | 46 |
+| 其他 | 43 |
+| 鸭 | 38 |
+| 鹅 | 30 |
+| 兔 | 27 |
+| 鸽 | 15 |
+| 骆驼 | 12 |
 
-Vite、TypeScript、React、Supabase
+编辑濒危标签统计（非权威保护结论）：普通 426；易危 170；濒危 83；待核验 22。
+<!-- data-summary:end -->
 
-## 本地开发
+## 当前能力
 
-### 如何在本地编辑代码？
+- 按名称、英文名和别名检索品种，并按类别、省份、资料状态筛选。
+- 在地图中浏览近似产地点位，通过 URL 搜索参数直达具体品种。
+- 查看来源、名录状态、核验日期、图片权利状态和指标口径。
+- 对比多个品种，展开无障碍数据表，并导出带公式注入防护的 CSV。
+- 查看省份、类别与资料状态统计，导出 CSV 或 PNG。
+- 在桌面端和 390px 移动端使用完整导航、筛选抽屉和详情面板。
+- 后端未配置时仍可浏览全部公共内容，AI 页面会说明“AI 服务尚未配置”。
+- 未知路径保留原 URL 并显示真实 404 页面。
 
-您可以选择 [VSCode](https://code.visualstudio.com/Download) 或者您常用的任何 IDE 编辑器，唯一的要求是安装 Node.js 和 npm.
+## 数据与证据边界
 
-### 环境要求
+- 第 940 号公告仅用于核对畜禽名称及其国家级保护名录成员身份，不用于推导濒危等级、雷达分值、体貌、性能或故事。
+- 历史五维值是编辑归一化指标，不是统一试验条件下的实测结果。
+- 本轮仅有名称证据的新记录使用“待核验”和空指标；界面显示“性能指标待补充”。
+- 历史外链图片的作者与授权大多尚未逐条核验；新记录使用项目原生 SVG 占位图。
+- 蜂 12 种、蚕 15 种暂不纳入，因为现有五维畜禽指标模型不适用。
 
-```
-# Node.js ≥ 20
-# npm ≥ 10
-例如：
-# node -v   # v20.18.3
-# npm -v    # 10.8.2
-```
+## 本地运行
 
-具体安装步骤如下：
+要求 Node.js 20 或更高版本，以及 pnpm。仅在重新生成 PDF 手册时需要 Python 3，并先执行 python -m pip install -r requirements-docs.txt。
 
-### 在 Windows 上安装 Node.js
+1. 复制 .env.example 为本地环境文件，只填写自己拥有的配置。
+2. 安装依赖：pnpm install
+3. 启动开发服务：pnpm dev
+4. 生产构建：pnpm build
 
-```
-# Step 1: 访问Node.js官网：https://nodejs.org/，点击下载后，会根据你的系统自动选择合适的版本（32位或64位）。
-# Step 2: 运行安装程序：下载完成后，双击运行安装程序。
-# Step 3: 完成安装：按照安装向导完成安装过程。
-# Step 4: 验证安装：在命令提示符（cmd）或IDE终端（terminal）中输入 node -v 和 npm -v 来检查 Node.js 和 npm 是否正确安装。
-```
+Supabase、Sentry 与 AI 相关环境变量均为可选项。不要把任何真实密钥提交到仓库；.env.production 已从版本控制中移除。
 
-### 在 macOS 上安装 Node.js
+## 常用命令
 
-```
-# Step 1: 使用Homebrew安装（推荐方法）：打开终端。输入命令brew install node并回车。如果尚未安装Homebrew，需要先安装Homebrew，
-可以通过在终端中运行如下命令来安装：
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-或者使用官网安装程序：访问Node.js官网。下载macOS的.pkg安装包。打开下载的.pkg文件，按照提示完成安装。
-# Step 2: 验证安装：在命令提示符（cmd）或IDE终端（terminal）中输入 node -v 和 npm -v 来检查 Node.js 和 npm 是否正确安装。
-```
+| 命令 | 用途 |
+| --- | --- |
+| pnpm dev | 启动 Vite 开发服务 |
+| pnpm typecheck | TypeScript 静态检查 |
+| pnpm lint | Biome 代码检查 |
+| pnpm test | Vitest 单元与组件测试 |
+| pnpm data:audit | 数据完整性与来源契约测试 |
+| pnpm docs:sync | 从运行时数据同步统计和图片索引 |
+| pnpm docs:check | 检查文档是否与运行时数据一致 |
+| python tasks/md_to_pdf.py 输入.md 输出.pdf | 重新生成 PDF 手册（需 requirements-docs.txt） |
+| pnpm build | 生产构建 |
+| pnpm bundle:check | 校验入口与关键异步包预算 |
+| pnpm build:e2e | 构建无后端配置的 E2E 产物 |
+| pnpm e2e | 运行桌面与移动端 Playwright |
+| pnpm check | 类型、代码、测试、文档、构建与体积检查 |
+| pnpm check:all | 在 pnpm check 基础上运行双端 E2E |
 
-### 安装完后按照如下步骤操作：
+## 路由与部署
 
-```
-# Step 1: 下载代码包
-# Step 2: 解压代码包
-# Step 3: 用IDE打开代码包，进入代码目录
-# Step 4: IDE终端输入命令行，安装依赖：npm i
-# Step 5: IDE终端输入命令行，启动开发服务器：npm run dev -- --host 127.0.0.1
-```
+项目使用 HashRouter，静态托管不需要服务端回退配置。部署时应保留 dist 内的相对资源路径。GitHub Pages、对象存储或普通静态服务器均可使用；如配置可选后端，应通过部署平台密钥管理注入环境变量。
 
-### 如何开发后端服务？
+## 目录概览
 
-配置环境变量，安装相关依赖
-如需使用数据库，请使用 supabase 官方版本或自行部署开源版本的 Supabase
+- src/data：品种数据、国家名录、来源、元数据、搜索与审计。
+- src/components 与 src/pages：品牌组件、通用状态和各业务页面。
+- public/brand：项目 SVG 标志、字标、favicon 与品种占位图。
+- e2e：桌面 1440×900 与移动 390×844 的用户旅程。
+- tasks：数据文档同步、体积预算、总检查和 Markdown 转 PDF。
+- docs：产品、设计、网站、数据与全面审计文档。
 
-### 如何配置应用中的三方 API？
+## 相关文档
 
-具体三方 API 调用方法，请参考帮助文档：[源码导出](https://cloud.baidu.com/doc/MIAODA/s/Xmewgmsq7)，了解更多详细内容。
+- [项目全面审计与改进报告](docs/项目全面审计与改进报告.md)
+- [网站说明书](docs/网站说明书.md)
+- [品种数据手册](docs/品种数据手册.md)
+- [设计规范](docs/DESIGN.md)
+- [产品需求](docs/prd.md)
 
-## 了解更多
+## 维护原则
 
-您也可以查看帮助文档：[源码导出](https://cloud.baidu.com/doc/MIAODA/s/Xmewgmsq7)，了解更多详细内容。
+任何新增记录都必须先补来源和失败测试，再进入运行时数组。新增图片必须记录来源、作者、授权和是否 AI 生成；无法证明复用权时继续使用 SVG 占位。发布前运行 pnpm check:all，并在审计报告中记录仍未解决的风险。

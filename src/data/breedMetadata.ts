@@ -14,7 +14,7 @@ export interface BreedMetadata {
   legacyIds?: string[];
   imageSource?: string;
   imageRights: ImageRights;
-  metricBasis: 'editorial-normalized';
+  metricBasis: 'editorial-normalized' | 'not-available';
 }
 
 type BreedMetadataOverride = Partial<Omit<BreedMetadata, 'metricBasis'>>;
@@ -32,6 +32,7 @@ export const metadataOverrides: Partial<Record<string, BreedMetadataOverride>> =
   新疆准噶尔双峰驼: { aliases: ['准噶尔双峰驼'] },
   龙岩山麻鸭: { aliases: ['山麻鸭'] },
   敖鲁古雅驯鹿: { aliases: ['驯鹿'] },
+  青海毛驴: { aliases: ['青海驴'] },
 };
 
 const verifiedAdditionNames = new Set([
@@ -66,11 +67,14 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
   const override = metadataOverrides[breed.name];
   const officialName = override?.officialName ?? breed.name;
   const listed = protectedNames.has(officialName);
-  const sourceIds =
+  const recordSourceIds =
     override?.sourceIds ??
     (verifiedAdditionNames.has(officialName)
       ? ['moa-notice-940', 'breed-museum-editorial']
       : ['breed-museum-legacy']);
+  const sourceIds = listed
+    ? Array.from(new Set(['moa-notice-940', ...recordSourceIds]))
+    : recordSourceIds;
 
   return {
     officialName,
@@ -83,8 +87,11 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
     legacyIds: override?.legacyIds,
     imageSource: override?.imageSource,
     imageRights:
-      override?.imageRights ?? (verifiedAdditionNames.has(officialName) ? 'project-svg' : 'unverified'),
-    metricBasis: 'editorial-normalized',
+      override?.imageRights ?? (breed.image === '/brand/breed-placeholder.svg' ? 'project-svg' : 'unverified'),
+    metricBasis:
+      breed.image === '/brand/breed-placeholder.svg'
+        ? 'not-available'
+        : 'editorial-normalized',
   };
 }
 
