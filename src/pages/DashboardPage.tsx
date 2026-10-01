@@ -14,6 +14,9 @@ import {
   Cell,
   Legend,
   Treemap,
+  LineChart,
+  Line,
+  CartesianGrid,
 } from 'recharts';
 import { Download, FileDown } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
@@ -97,6 +100,23 @@ const DashboardPage: React.FC = () => {
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value);
   }, []);
+
+  const endangeredData = useMemo(
+    () => ['普通', '易危', '濒危', '极危'].map((level) => ({
+      name: level,
+      value: breeds.filter((breed) => breed.endangered === level).length,
+      color: level === '极危' ? '#9f1239' : level === '濒危' ? '#c2410c' : level === '易危' ? '#b7791f' : '#5b7a5a',
+    })).filter((item) => item.value > 0),
+    [],
+  );
+
+  const collectionTimeline = [
+    { date: '基础库', value: 124 }, { date: '第1批', value: 154 }, { date: '第2批', value: 177 },
+    { date: '第3批', value: 213 }, { date: '第4批', value: 259 }, { date: '第5批', value: 306 },
+    { date: '第6批', value: 350 }, { date: '第7批', value: 465 }, { date: '第8批', value: 473 },
+    { date: '第9批', value: 552 }, { date: '第10批', value: 561 }, { date: '第11批', value: 568 },
+    { date: '第12批', value: 592 }, { date: '第14批 / extra13', value: 628 }, { date: '第15批 / extra14', value: 687 },
+  ];
 
   const treemapData = useMemo(() => {
     return categories
@@ -276,17 +296,17 @@ const DashboardPage: React.FC = () => {
         </ChartCard>
 
         <ChartCard
-          title={t('dash.byCategory')}
-          source={t('dash.byCategoryDesc')}
-          chartKey="category-pie"
-          csvName="各类别品种占比.csv"
-          csvRows={() => [['类别', '品种数'], ...categoryData.map((c) => [c.name, c.value])]}
+          title="濒危等级构成"
+          source="颜色按等级区分；数据为站内记录，不等同于官方保护等级认定"
+          chartKey="endangered-pie"
+          csvName="濒危等级构成.csv"
+          csvRows={() => [['等级', '品种数'], ...endangeredData.map((c) => [c.name, c.value])]}
         >
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={endangeredData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
@@ -294,10 +314,8 @@ const DashboardPage: React.FC = () => {
                   innerRadius={45}
                   outerRadius={80}
                   paddingAngle={2}
-                  onClick={(d: { name?: string }) => d.name && handlePieClick(d.name)}
-                  className="cursor-pointer"
                 >
-                  {categoryData.map((entry) => (
+                  {endangeredData.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} className="transition-opacity hover:opacity-80" />
                   ))}
                 </Pie>
@@ -344,6 +362,28 @@ const DashboardPage: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+
+        <div className="lg:col-span-2">
+          <ChartCard
+            title="站内收录批次时间轴"
+            source="按源码批次文件累计；用于展示资料整理进度，不代表全国品种总量"
+            chartKey="collection-timeline"
+            csvName="站内收录批次时间轴.csv"
+            csvRows={() => [['批次', '累计记录'], ...collectionTimeline.map((item) => [item.date, item.value])]}
+          >
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={collectionTimeline} margin={{ top: 10, right: 20, left: 0, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={1} />
+                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value} 条`, '累计记录']} />
+                  <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 3, fill: 'hsl(var(--primary))' }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartCard>
+        </div>
 
         <div className="lg:col-span-2">
           <ChartCard
