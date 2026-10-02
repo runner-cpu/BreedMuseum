@@ -3,7 +3,8 @@ import { cn } from '@/lib/utils';
 import { publicAsset } from '@/lib/publicAsset';
 
 export const BREED_IMAGE_FALLBACK = publicAsset('brand/breed-placeholder.svg');
-const resolveSrc = (src?: string) => src?.startsWith('/brand/') ? publicAsset(src) : src || BREED_IMAGE_FALLBACK;
+// 站内根路径（/brand/...、/images/...）统一走 publicAsset 以兼容 Pages 子路径部署；外链 URL 原样使用
+const resolveSrc = (src?: string) => (src?.startsWith('/') ? publicAsset(src) : src || BREED_IMAGE_FALLBACK);
 
 export interface BreedImageProps {
   src?: string;

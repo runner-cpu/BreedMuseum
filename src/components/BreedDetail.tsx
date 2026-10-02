@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useSettings } from '@/contexts/AppSettings';
 import { getBreedMetadata, getBreedSource } from '@/data/breedMetadata';
+import { breedImageOverrides } from '@/data/breedImageOverrides';
 import { BreedImage } from '@/components/common/BreedImage';
 
 interface BreedDetailProps {
@@ -71,6 +72,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   ];
   const hasRadarData = Object.values(breed.radar).every((value) => value !== null);
   const metadata = getBreedMetadata(breed);
+  const imageCredit = breedImageOverrides[breed.id];
   const sourceRecords = metadata.sourceIds
     .map((sourceId) => getBreedSource(sourceId))
     .filter((source): source is NonNullable<typeof source> => Boolean(source));
@@ -233,7 +235,25 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
             </dd>
             <dt className="text-muted-foreground">{t('detail.imageStatus')}</dt>
             <dd className="text-foreground">
-              {metadata.imageRights === 'project-svg' ? t('detail.imageSvg') : t('detail.imageUnverified')}
+              {metadata.imageRights === 'project-svg'
+                ? t('detail.imageSvg')
+                : metadata.imageRights === 'verified'
+                  ? t('detail.imageVerified')
+                  : t('detail.imageUnverified')}
+              {metadata.imageRights === 'verified' && imageCredit && (
+                <span className="mt-1 block text-muted-foreground">
+                  {t('detail.imageCredit').replace('{author}', imageCredit.author).replace('{license}', imageCredit.license)}
+                  {' · '}
+                  <a
+                    href={imageCredit.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  >
+                    {t('detail.imageSourceLink')}
+                  </a>
+                </span>
+              )}
             </dd>
           </dl>
           <p className="mt-3 text-xs text-muted-foreground leading-relaxed">{t('detail.provenanceNote')}</p>

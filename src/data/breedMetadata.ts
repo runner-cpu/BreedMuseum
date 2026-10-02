@@ -1,6 +1,7 @@
 import type { Breed } from './breeds';
 import { NATIONAL_PROTECTED_BREED_NAMES } from './nationalProtectionList';
 import { getBreedSource, type BreedSource } from './breedSources';
+import { breedImageOverrides } from './breedImageOverrides';
 
 export type ProtectionStatus = 'national-list' | 'not-on-national-list' | 'unverified';
 export type ImageRights = 'verified' | 'unverified' | 'project-svg';
@@ -76,6 +77,8 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
     ? Array.from(new Set(['moa-notice-940', ...recordSourceIds]))
     : recordSourceIds;
 
+  const imageCredit = breedImageOverrides[breed.id];
+
   return {
     officialName,
     aliases: override?.aliases ?? [],
@@ -85,9 +88,12 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
     sourceIds,
     verifiedAt: override?.verifiedAt ?? '2026-09-27',
     legacyIds: override?.legacyIds,
-    imageSource: override?.imageSource,
-    imageRights:
-      override?.imageRights ?? (breed.image === '/brand/breed-placeholder.svg' ? 'project-svg' : 'unverified'),
+    imageSource: imageCredit
+      ? `${imageCredit.author} · ${imageCredit.license}`
+      : override?.imageSource,
+    imageRights: imageCredit
+      ? 'verified'
+      : (override?.imageRights ?? (breed.image === '/brand/breed-placeholder.svg' ? 'project-svg' : 'unverified')),
     metricBasis:
       breed.image === '/brand/breed-placeholder.svg'
         ? 'not-available'

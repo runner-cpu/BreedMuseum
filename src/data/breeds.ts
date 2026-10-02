@@ -44,6 +44,7 @@ import { extraBreeds12 } from './extraBreeds12';
 import { extraBreeds13 } from './extraBreeds13';
 import { extraBreeds14 } from './extraBreeds14';
 import { extraBreeds15 } from './extraBreeds15';
+import { breedImageOverrides } from './breedImageOverrides';
 
 const rawBreeds: Breed[] = [
   {
@@ -1973,4 +1974,16 @@ function normalizeBreedIdentities(items: readonly Breed[]): Breed[] {
   return normalized;
 }
 
-export const breeds: Breed[] = normalizeBreedIdentities(rawBreeds);
+/**
+ * 已核验授权的本地图片（Wikimedia Commons，见 breedImageOverrides.ts）在
+ * 数据边界统一替换，避免散改批次文件；未登记的品种保持原外链或占位图。
+ */
+function applyImageOverrides(items: readonly Breed[]): Breed[] {
+  if (Object.keys(breedImageOverrides).length === 0) return [...items];
+  return items.map((breed) => {
+    const override = breedImageOverrides[breed.id];
+    return override ? { ...breed, image: override.src } : breed;
+  });
+}
+
+export const breeds: Breed[] = applyImageOverrides(normalizeBreedIdentities(rawBreeds));
