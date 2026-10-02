@@ -5,6 +5,8 @@ test('summary uses only supplied records', () => {
 });
 test('replaces only one named generated block and rejects ambiguity', () => {
   expect(replaceGeneratedSection('before\n<!-- data-summary:start -->\nold\n<!-- data-summary:end -->\nafter', 'data-summary', 'new')).toBe('before\n<!-- data-summary:start -->\nnew\n<!-- data-summary:end -->\nafter');
+  expect(replaceGeneratedSection('before\r\n<!-- data-summary:start -->\r\nold\r\n<!-- data-summary:end -->\r\nafter', 'data-summary', 'line 1\nline 2')).toBe('before\r\n<!-- data-summary:start -->\r\nline 1\r\nline 2\r\n<!-- data-summary:end -->\r\nafter');
+  expect(replaceGeneratedSection('before\r\n<!-- data-summary:start -->\nold\n<!-- data-summary:end -->\r\nafter', 'data-summary', 'line 1\nline 2')).toBe('before\r\n<!-- data-summary:start -->\nline 1\nline 2\n<!-- data-summary:end -->\r\nafter');
   expect(() => replaceGeneratedSection('no markers', 'data-summary', 'new')).toThrow();
   expect(() => replaceGeneratedSection('<!-- data-summary:start --><!-- data-summary:start --><!-- data-summary:end -->','data-summary','new')).toThrow();
 });

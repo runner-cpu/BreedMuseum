@@ -11,7 +11,14 @@ export function summarizeBreeds(items, resolveMetadata = () => ({ protectionStat
 export function replaceGeneratedSection(text, name, replacement) {
   const start = '<!-- ' + name + ':start -->'; const end = '<!-- ' + name + ':end -->';
   if (text.split(start).length !== 2 || text.split(end).length !== 2 || text.indexOf(end) < text.indexOf(start)) throw new Error('Missing or ambiguous markers: ' + name);
-  return text.slice(0, text.indexOf(start) + start.length) + '\n' + replacement.trim() + '\n' + text.slice(text.indexOf(end));
+  // Keep the checked-out file's newline convention (LF on CI, CRLF on
+  // Windows with core.autocrlf). Some existing documents are mixed, so use
+  // the newline immediately after this generated block's start marker.
+  const startIndex = text.indexOf(start);
+  const blockEol = text.slice(startIndex + start.length).match(/^(\r?\n)/)?.[1];
+  const eol = blockEol ?? (text.includes('\r\n') ? '\r\n' : '\n');
+  const normalized = replacement.trim().replace(/\r?\n/g, eol);
+  return text.slice(0, startIndex + start.length) + eol + normalized + eol + text.slice(text.indexOf(end));
 }
 export function buildImageIndexRows(items, resolveMetadata) {
   return [
