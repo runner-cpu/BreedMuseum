@@ -1,21 +1,56 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Download, GitCompare, Trash2, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Trash2, Download, GitCompare, X } from 'lucide-react';
-import type { Breed } from '@/data/breeds';
-import { useMuseum, getBreedById } from '@/contexts/MuseumContext';
-import { useSettings } from '@/contexts/AppSettings';
-import { exportBreedsToCSV } from '@/lib/export';
-import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AccessibleChartSummary } from '@/components/common/AccessibleChartSummary';
 import { BreedImage } from '@/components/common/BreedImage';
+import { Button } from '@/components/ui/button';
+import { useSettings } from '@/contexts/AppSettings';
+import { useMuseum } from '@/contexts/MuseumContext';
+import type { Breed } from '@/data/breeds';
+import { getBreedById } from '@/data/breedLookup';
+import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
+import { exportBreedsToCSV } from '@/lib/export';
+import { parseCompareQuery, serializeCompareQuery } from '@/lib/queryState';
 
 const ComparePage: React.FC = () => {
   const navigate = useNavigate();
-  const { compareIds, removeFromCompare, clearCompare } = useMuseum();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { compareIds, setCompareIds, removeFromCompare, clearCompare } = useMuseum();
   const { t } = useSettings();
+  const queryString = searchParams.toString();
+  const initialCompareIdsRef = useRef(compareIds);
+  const initializedFromUrlRef = useRef(false);
+  const applyingUrlStateRef = useRef(false);
+
+  useEffect(() => {
+    const parsedIds = parseCompareQuery(queryString);
+    const hasCompareParam = searchParams.has('compare') || searchParams.has('breeds');
+    const isInitial = !initializedFromUrlRef.current;
+    const requestedIds = isInitial && !hasCompareParam ? initialCompareIdsRef.current : parsedIds;
+    const validIds = requestedIds.filter((id) => getBreedById(id) !== null);
+
+    applyingUrlStateRef.current = true;
+    setCompareIds(validIds);
+
+    const canonical = serializeCompareQuery(validIds);
+    if (canonical !== queryString) {
+      setSearchParams(canonical, { replace: true });
+    }
+    initializedFromUrlRef.current = true;
+  }, [queryString, searchParams, setCompareIds, setSearchParams]);
+
+  useEffect(() => {
+    if (applyingUrlStateRef.current) {
+      applyingUrlStateRef.current = false;
+      return;
+    }
+    const canonical = serializeCompareQuery(compareIds);
+    if (canonical !== queryString) {
+      setSearchParams(canonical, { replace: true });
+    }
+  }, [compareIds, queryString, setSearchParams]);
 
   const breeds = compareIds.map(getBreedById).filter((b): b is Breed => b !== null);
 

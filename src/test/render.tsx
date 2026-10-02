@@ -18,7 +18,9 @@ export function renderWithProviders(ui: ReactElement, { route = '/' }: { route?:
 }
 
 export function renderAppAt(path: string) {
-  window.location.hash = '#' + path;
+  // Set the initial hash without dispatching a stale hashchange event from a
+  // previous mounted router. HashRouter will read this location on mount.
+  window.history.replaceState(null, '', '#' + (path.startsWith('/') ? path : '/' + path));
   return render(
     <AppWrapper>
       <App />

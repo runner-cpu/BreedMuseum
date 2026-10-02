@@ -24,6 +24,8 @@ import ScrollFloat from '@/components/effects/ScrollFloat';
 import CircularGallery from '@/components/effects/CircularGallery';
 import MagicBento from '@/components/effects/MagicBento';
 import { BreedImage } from '@/components/common/BreedImage';
+import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 
 const HomePage: React.FC = () => {
@@ -31,15 +33,12 @@ const HomePage: React.FC = () => {
   const { setSelectedCategory, setSelectedBreedId, setSearchValue } = useMuseum();
   const { t } = useSettings();
 
-  const distinctProvinces = useMemo(() => new Set(breeds.map((b) => b.province)).size, []);
-  const endangeredCount = useMemo(
-    () => breeds.filter((b) => b.endangered === '濒危' || b.endangered === '极危').length,
-    [],
-  );
+  const distinctProvinces = COLLECTION_SUMMARY.provinces;
+  const endangeredCount = COLLECTION_SUMMARY.editorialEndangered;
 
   const statItems: ChromaItem[] = [
     {
-      title: String(breeds.length),
+      title: String(COLLECTION_SUMMARY.total),
       subtitle: t('home.statBreedsLabel'),
       handle: '按实际馆藏记录统计',
       borderColor: '#4F46E5',
@@ -57,9 +56,9 @@ const HomePage: React.FC = () => {
       countUp: true,
     },
     {
-      title: String(categories.length),
+      title: String(COLLECTION_SUMMARY.categories),
       subtitle: t('home.statCategoriesLabel'),
-      handle: `${categories.length}${t('home.statCategoriesSub')}`,
+      handle: `${COLLECTION_SUMMARY.categories}${t('home.statCategoriesSub')}`,
       borderColor: '#d4a853',
       gradient: 'linear-gradient(145deg, #4a3a14, #1a1408)',
       url: '/encyclopedia',
@@ -85,15 +84,15 @@ const HomePage: React.FC = () => {
   ];
 
   const categoryCounts = useMemo(
-    () =>
-      categories.map((cat) => ({
-        cat,
-        count: breeds.filter((b) => b.category === cat).length,
-      })),
-    [],
+    () => {
+      const counts = new Map<string, number>();
+      for (const breed of breeds) counts.set(breed.category, (counts.get(breed.category) ?? 0) + 1);
+      return categories.map((cat) => ({ cat, count: counts.get(cat) ?? 0 }));
+    },
+    [categories],
   );
 
-  const latestBreeds = useMemo(() => breeds.slice(-10).reverse(), []);
+  const latestBreeds = useMemo(() => breeds.slice(-10).reverse(), [breeds]);
 
   const handleHeroSearch = (q: string) => {
     const query = q.trim();
@@ -262,14 +261,12 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* 品牌页脚 */}
-        <footer className="bg-[#050810] text-white/70">
+        <section className="bg-[#050810] text-white/70" aria-label={t('home.footerBrand')}>
           <div className="max-w-5xl mx-auto px-4 md:px-6 py-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-[#d4a853] flex items-center justify-center text-[#1a3a2a] font-bold text-sm">
-                    畜
-                  </div>
+                  <BrandLogo compact className="h-8 w-8" />
                   <span className="font-serif text-white font-semibold">{t('home.footerBrand')}</span>
                 </div>
                 <p className="text-white/50 leading-relaxed text-pretty">{t('home.footerBrandDesc')}</p>
@@ -292,7 +289,7 @@ const HomePage: React.FC = () => {
               {t('home.footerCopyright')} · {t('home.footerContact')}
             </div>
           </div>
-        </footer>
+        </section>
       </BackgroundWrapper>
     </div>
   );

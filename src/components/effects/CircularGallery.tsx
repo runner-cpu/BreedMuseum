@@ -36,9 +36,15 @@ const CircularGallery = ({
   const rotationRef = useRef(0);
   const dragState = useRef({ dragging: false, lastX: 0, velocity: 0, moved: 0 });
   const [radius, setRadius] = useState(330);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+  );
 
   const count = items.length;
   const step = 360 / Math.max(count, 1);
+  const staticLayout = reducedMotion;
 
   // 响应式半径
   useEffect(() => {
@@ -48,8 +54,18 @@ const CircularGallery = ({
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
   // 渲染循环：自动旋转 + 拖拽惯性 + 卡片深度样式
   useEffect(() => {
+    if (reducedMotion) return undefined;
     let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
@@ -76,7 +92,7 @@ const CircularGallery = ({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [count, step, radius, autoSpeed]);
+  }, [count, step, radius, autoSpeed, reducedMotion]);
 
   // 拖拽交互
   useEffect(() => {
@@ -117,10 +133,14 @@ const CircularGallery = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-[400px] md:h-[600px] overflow-hidden select-none touch-pan-y cursor-grab active:cursor-grabbing ${className}`}
-      style={{ perspective: '1200px' }}
+      className={`relative w-full h-[400px] md:h-[600px] overflow-hidden select-none ${staticLayout ? 'overflow-y-auto' : 'touch-pan-y cursor-grab active:cursor-grabbing'} ${className}`}
+      style={staticLayout ? undefined : { perspective: '1200px' }}
+      data-reduced-motion={staticLayout ? 'true' : 'false'}
     >
-      <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+      <div
+        className={staticLayout ? 'grid grid-cols-1 gap-3 p-4 sm:grid-cols-2' : 'absolute inset-0'}
+        style={staticLayout ? undefined : { transformStyle: 'preserve-3d' }}
+      >
         {items.map((item, i) => (
           <button
             key={i}
@@ -134,10 +154,9 @@ const CircularGallery = ({
             }}
             className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-sm text-white transition-colors hover:border-white/40 hover:bg-white/10"
             style={{
-              width: itemWidth,
-              height: itemHeight,
-              transform: 'translate(-50%, -50%)',
-              backfaceVisibility: 'visible',
+              ...(staticLayout
+                ? { position: 'relative', left: 'auto', top: 'auto', width: '100%', height: itemHeight, transform: 'none' }
+                : { width: itemWidth, height: itemHeight, transform: 'translate(-50%, -50%)', backfaceVisibility: 'visible' }),
             }}
           >
             {item.icon}
@@ -147,7 +166,7 @@ const CircularGallery = ({
         ))}
       </div>
       {/* 底部渐变遮罩，增强纵深 */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a1a] to-transparent" />
+      {!staticLayout && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a1a] to-transparent" />}
     </div>
   );
 };

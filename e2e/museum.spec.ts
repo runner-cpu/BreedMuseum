@@ -16,14 +16,16 @@ test.beforeEach(async ({ page, baseURL }) => {
 });
 test.afterEach(async ({ page }) => { expect(errors.get(page)).toEqual([]); });
 for (const path of ['/', '/map', '/dashboard', '/encyclopedia', '/compare', '/ai', '/not-a-route']) {
-  test('public route ' + path + ' loads without backend', async ({ page }) => {
+  test('public route ' + path + ' loads without backend', async ({ page, baseURL }) => {
     await page.goto('/#' + path);
     await expect(page.locator('main h1')).toHaveCount(1);
     await expect(page.locator('main h1')).toBeVisible();
     await expect(page).not.toHaveTitle(/React|Vite/);
     const description = page.locator('meta[name="description"]').last();
     await expect(description).toHaveAttribute('content', /.+/);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', new RegExp('#' + path + '$'));
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    const expectedCanonical = new URL('/', baseURL ?? page.url()).href;
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', expectedCanonical);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.locator('main').evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     if (path === '/ai') await expect(page.getByRole('heading', { name: 'AI 服务尚未配置' })).toBeVisible();

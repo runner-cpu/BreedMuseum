@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { findBreedById } from '@/data/breedSearch';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 interface MuseumContextValue {
   selectedCategory: string | null;
@@ -11,6 +10,7 @@ interface MuseumContextValue {
   selectedProvince: string | null;
   setSelectedProvince: (province: string | null) => void;
   compareIds: string[];
+  setCompareIds: (ids: readonly string[]) => void;
   toggleCompare: (breedId: string) => boolean;
   isInCompare: (breedId: string) => boolean;
   removeFromCompare: (breedId: string) => void;
@@ -26,7 +26,7 @@ export const MuseumProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [searchValue, setSearchValue] = useState('');
   const [selectedBreedId, setSelectedBreedId] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareIds, setCompareIdsState] = useState<string[]>([]);
   const [pulseId, setPulseId] = useState<string | null>(null);
   const compareRef = useRef<string[]>([]);
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -46,25 +46,39 @@ export const MuseumProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const isInCompare = useCallback((breedId: string) => compareIds.includes(breedId), [compareIds]);
 
+  const setCompareIds = useCallback((ids: readonly string[]) => {
+    const next: string[] = [];
+    for (const id of ids) {
+      const normalized = id.trim();
+      if (!normalized || next.includes(normalized)) continue;
+      next.push(normalized);
+      if (next.length >= 4) break;
+    }
+    compareRef.current = next;
+    setCompareIdsState(next);
+  }, []);
+
   const toggleCompare = useCallback(
     (breedId: string) => {
-      if (!findBreedById(breedId)) return false;
+      const normalized = breedId.trim();
+      if (!normalized) return false;
       const prev = compareRef.current;
-      const exists = prev.includes(breedId);
+      const exists = prev.includes(normalized);
       if (!exists && prev.length >= 4) return false;
-      const next = exists ? prev.filter(id => id !== breedId) : [...prev, breedId];
-      compareRef.current = next; setCompareIds(next);
+      const next = exists ? prev.filter(id => id !== normalized) : [...prev, normalized];
+      compareRef.current = next; setCompareIdsState(next);
       return !exists;
     },
     [],
   );
 
   const removeFromCompare = useCallback((breedId: string) => {
-    compareRef.current = compareRef.current.filter(id => id !== breedId);
-    setCompareIds(compareRef.current);
+    const next = compareRef.current.filter(id => id !== breedId);
+    compareRef.current = next;
+    setCompareIdsState(next);
   }, []);
 
-  const clearCompare = useCallback(() => { compareRef.current = []; setCompareIds([]); }, []);
+  const clearCompare = useCallback(() => { compareRef.current = []; setCompareIdsState([]); }, []);
 
   return (
     <MuseumContext.Provider
@@ -78,6 +92,7 @@ export const MuseumProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         selectedProvince,
         setSelectedProvince,
         compareIds,
+        setCompareIds,
         toggleCompare,
         isInCompare,
         removeFromCompare,
@@ -96,8 +111,3 @@ export const useMuseum = () => {
   if (!ctx) throw new Error('useMuseum must be used within MuseumProvider');
   return ctx;
 };
-
-/** 根据 ID 查找品种 */
-export function getBreedById(id: string | null) {
-  return findBreedById(id);
-}

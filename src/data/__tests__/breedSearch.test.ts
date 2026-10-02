@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { breeds } from '@/data/breeds';
-import { findBreedById, matchesBreedQuery } from '@/data/breedSearch';
+import { findBreedById, matchesBreedQuery, normalizeBreedQuery } from '@/data/breedSearch';
 
 test.each([
   ['准噶尔双峰驼', '新疆准噶尔双峰驼'],
@@ -16,4 +16,10 @@ test.each([
 test('findBreedById returns one canonical record and null for an unknown id', () => {
   expect(findBreedById('xinihe-horse')?.name).toBe('锡尼河马');
   expect(findBreedById('does-not-exist')).toBeNull();
+});
+
+test('normalizes compatibility spaces and full-width punctuation before matching', () => {
+  expect(normalizeBreedQuery('  XINIHE　Horse  ')).toBe('xinihehorse');
+  expect(normalizeBreedQuery('')).toBe('');
+  expect(breeds.some((breed) => matchesBreedQuery(breed, 'XINIHE　Horse'))).toBe(true);
 });

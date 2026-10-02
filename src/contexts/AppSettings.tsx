@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { readStoredEnum, writeStoredValue } from '@/lib/safeStorage';
 
 export type Language = 'zh' | 'en';
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -96,10 +97,21 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'compare.dim.story': { zh: '文化故事', en: 'Cultural Story' },
   // AI
   'ai.title': { zh: 'AI智能助手', en: 'AI Assistant' },
+  'ai.privacyTitle': { zh: 'AI 数据处理提示', en: 'AI data processing notice' },
+  'ai.privacyBody': { zh: '发送文本、图片或语音后，内容可能传给第三方服务商用于回答或识别；请勿上传敏感或可识别个人信息，项目不承诺长期保存。', en: 'Text, image or voice inputs may be sent to third-party providers for answering or recognition. Do not upload sensitive or identifying information; long-term retention is not promised.' },
+  'ai.privacyLink': { zh: '查看隐私与 AI 使用说明', en: 'Read privacy and AI use details' },
+  'ai.requestFailed': { zh: 'AI 服务暂时不可用，请稍后重试。', en: 'AI service request failed. Please try again.' },
+  'ai.inputTooLong': { zh: '输入内容不能超过 {n} 个字符', en: 'Input must be {n} characters or fewer' },
+  'ai.welcome': { zh: '您好！我是地方畜禽数字博物馆的 AI 助手。您可以选择工具进行问答、生成品种报告、生成示意图片或识别品种。', en: 'Hello! I am the Local Livestock Digital Museum AI assistant. Ask questions, generate breed reports or images, or recognize a breed.' },
+  'ai.imageGenerating': { zh: '正在生成图片，通常需要 1–3 分钟，请耐心等待…', en: 'Generating the image. This usually takes 1–3 minutes.' },
   'ai.copy': { zh: '复制', en: 'Copy' },
   'ai.sub': { zh: '基于品种数据库，随时为您解答关于中国地方畜禽品种的问题', en: 'Powered by the breed database, ready to answer questions about Chinese local livestock breeds' },
   'ai.thinking': { zh: '正在思考...', en: 'Thinking...' },
   'ai.placeholder': { zh: '输入您的问题...', en: 'Type your question...' },
+  'ai.modeChatPlaceholder': { zh: '输入您的问题，例如：八眉猪有什么特点？', en: 'Ask a question, e.g. What are the traits of Bamei pigs?' },
+  'ai.modeReportPlaceholder': { zh: '例如：生成一份关于宁乡猪的详细报告', en: 'e.g. Generate a detailed report on Ningxiang pigs' },
+  'ai.modeImagePlaceholder': { zh: '例如：生成一张宁乡猪的图片', en: 'e.g. Generate an image of a Ningxiang pig' },
+  'ai.pendingImageAlt': { zh: '待识别图片', en: 'Image awaiting recognition' },
   'ai.send': { zh: '发送', en: 'Send' },
   'ai.qq1': { zh: '青海有哪些特色畜种？', en: 'What specialty breeds does Qinghai have?' },
   'ai.qq2': { zh: '浙江省的猪品种有哪些？', en: 'What pig breeds are in Zhejiang?' },
@@ -289,10 +301,10 @@ function resolveDark(mode: ThemeMode): boolean {
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem('museum_lang') as Language) || 'zh';
+    return readStoredEnum('museum_lang', ['zh', 'en'] as const, 'zh');
   });
   const [theme, setTheme] = useState<ThemeMode>(() => {
-    return (localStorage.getItem('museum_theme') as ThemeMode) || 'system';
+    return readStoredEnum('museum_theme', ['light', 'dark', 'system'] as const, 'system');
   });
   const [isDark, setIsDark] = useState<boolean>(() => resolveDark(theme));
 
@@ -318,18 +330,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('museum_lang', lang);
+    writeStoredValue('museum_lang', lang);
   }, []);
 
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setTheme(mode);
-    localStorage.setItem('museum_theme', mode);
+    writeStoredValue('museum_theme', mode);
   }, []);
 
   const cycleTheme = useCallback(() => {
     setTheme((prev) => {
       const next: ThemeMode = prev === 'light' ? 'dark' : prev === 'dark' ? 'system' : 'light';
-      localStorage.setItem('museum_theme', next);
+      writeStoredValue('museum_theme', next);
       return next;
     });
   }, []);

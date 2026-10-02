@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
 import type { Breed } from '@/data/breeds';
+import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
 
 interface ChinaMapProps {
@@ -71,6 +71,10 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
             <path
               key={fullName}
               d={d}
+              role="button"
+              tabIndex={0}
+              aria-label={simpleName + ' province'}
+              aria-pressed={isSelected}
               fill={
                 isSelected
                   ? 'hsl(var(--primary))'
@@ -86,7 +90,15 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               opacity={hasData ? 1 : 0.6}
               onMouseEnter={() => setHoveredProvince(fullName)}
               onMouseLeave={() => setHoveredProvince(null)}
+              onFocus={() => setHoveredProvince(fullName)}
+              onBlur={() => setHoveredProvince(null)}
               onClick={() => onProvinceClick(simpleName)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onProvinceClick(simpleName);
+                }
+              }}
             />
           );
         })}
@@ -99,12 +111,25 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
             <g
               key={breed.id}
               className="cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label={breed.name + ' breed'}
+              aria-pressed={isSelected}
               onClick={(e) => {
                 e.stopPropagation();
                 onBreedClick(breed);
               }}
               onMouseEnter={() => setTooltip({ x, y, name: breed.name, category: breed.category })}
               onMouseLeave={() => setTooltip(null)}
+              onFocus={() => setTooltip({ x, y, name: breed.name, category: breed.category })}
+              onBlur={() => setTooltip(null)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onBreedClick(breed);
+                }
+              }}
             >
               {/* 跳转定位脉冲光晕 */}
               {isPulsing && (

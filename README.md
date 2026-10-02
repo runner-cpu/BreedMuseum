@@ -6,12 +6,13 @@
 
 - [公开网站](https://runner-cpu.github.io/BreedMuseum/)
 - [全面审计与改进报告（HTML）](https://runner-cpu.github.io/BreedMuseum/audit/)
+- [隐私与 AI 使用说明](https://runner-cpu.github.io/BreedMuseum/privacy.html)
 - [GitHub 源码仓库](https://github.com/runner-cpu/BreedMuseum)
 
 公开站点由 gh-pages 分支托管，使用 HashRouter，因此百科、地图、看板、对比和 AI 页面均可在普通静态托管环境中打开。AI 服务未配置时不会影响公共科普内容。
 
 <!-- data-summary:start -->
-统计日期：2026-09-28；口径：运行时归一化后的 breeds 数组。
+数据版本：2026-09-27；统计日期：2026-09-29；口径：运行时归一化后的 breeds 数组。
 
 | 指标 | 实测值 |
 | --- | --- |
@@ -56,7 +57,8 @@
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 48 项单元/组件测试、桌面与 390px 移动端 E2E、文档同步和包体预算检查。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 28 个测试文件、79 项 Vitest 测试，Playwright 结果见审计报告。
+- 当前 Playwright 24 个用例中有 16 项待修复（本地 canonical 基址断言与移动详情选择器），因此发布说明不会把本轮标记为 E2E 全链路通过。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ## 数据与证据边界

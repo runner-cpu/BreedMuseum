@@ -20,4 +20,7 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 
 afterEach(() => {
   cleanup();
+  // HashRouter keeps its location outside React's DOM tree. Reset it between
+  // files/tests so a previous share URL cannot become the next test's route.
+  window.history.replaceState(null, '', '/');
 });

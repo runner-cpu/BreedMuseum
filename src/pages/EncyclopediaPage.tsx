@@ -1,19 +1,12 @@
-import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Download, MapPin, Search, SearchX, Shuffle, X } from 'lucide-react';
 import { motion } from 'motion/react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VirtuosoGrid } from 'react-virtuoso';
-import { MapPin, Search, X, SearchX, Download, Shuffle } from 'lucide-react';
-import { breeds, categories, provinces, endangeredLevels } from '@/data/breeds';
-import { matchesBreedQuery } from '@/data/breedSearch';
-import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
-import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
-import { useMuseum } from '@/contexts/MuseumContext';
-import { useSettings } from '@/contexts/AppSettings';
-import { exportBreedsToCSV } from '@/lib/export';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { BreedImage } from '@/components/common/BreedImage';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -21,31 +14,82 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useSettings } from '@/contexts/AppSettings';
+import { useMuseum } from '@/contexts/MuseumContext';
+import { matchesBreedQuery } from '@/data/breedSearch';
+import { breeds, categories, endangeredLevels, provinces } from '@/data/breeds';
+import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
+import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
+import { exportBreedsToCSV } from '@/lib/export';
+import type { EncyclopediaQueryState } from '@/lib/queryState';
+import { parseEncyclopediaQuery, serializeEncyclopediaQuery } from '@/lib/queryState';
 
 const EncyclopediaPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { selectedCategory, setSelectedCategory, setSelectedBreedId } = useMuseum();
   const { t } = useSettings();
-  const [filterProvince, setFilterProvince] = useState<string>('all');
-  const [filterEndangered, setFilterEndangered] = useState<string>('all');
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const initialQueryRef = useRef<EncyclopediaQueryState | null>(null);
+  if (initialQueryRef.current === null) {
+    initialQueryRef.current = parseEncyclopediaQuery(searchParams, { provinces, categories, endangeredLevels });
+  }
+  const initialQuery = initialQueryRef.current;
+  const [filterProvince, setFilterProvince] = useState<string>(initialQuery.province ?? 'all');
+  const [filterEndangered, setFilterEndangered] = useState<string>(initialQuery.endangered ?? 'all');
+  const [searchInput, setSearchInput] = useState(initialQuery.search);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialQuery.search);
   const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const queryString = searchParams.toString();
+  const initialContextCategoryRef = useRef(selectedCategory);
+  const initializedFromUrlRef = useRef(false);
+  const applyingUrlStateRef = useRef(false);
 
   // 虚拟滚动容器：页面滚动发生在 Layout 的 <main> 元素上
   useEffect(() => {
     setScrollParent(rootRef.current?.closest('main') ?? null);
   }, []);
 
-  // 支持 URL 参数联动：/encyclopedia?province=xx 与 ?search=xx
+  // Keep shared links canonical and restore state when browser navigation changes the query.
   useEffect(() => {
-    const province = searchParams.get('province');
-    const search = searchParams.get('search');
-    if (province && provinces.includes(province)) setFilterProvince(province);
-    if (search) setSearchInput(search);
-  }, [searchParams]);
+    const parsed = parseEncyclopediaQuery(searchParams, { provinces, categories, endangeredLevels });
+    const isInitial = !initializedFromUrlRef.current;
+    const category = isInitial && parsed.category === null ? initialContextCategoryRef.current : parsed.category;
+
+    applyingUrlStateRef.current = true;
+    setFilterProvince(parsed.province ?? 'all');
+    setFilterEndangered(parsed.endangered ?? 'all');
+    setSearchInput(parsed.search);
+    setSelectedCategory(category);
+
+    const canonical = serializeEncyclopediaQuery({
+      search: parsed.search,
+      province: parsed.province,
+      category,
+      endangered: parsed.endangered,
+    });
+    if (canonical !== queryString) {
+      setSearchParams(canonical, { replace: true });
+    }
+    initializedFromUrlRef.current = true;
+  }, [queryString, searchParams, setSearchParams, setSelectedCategory]);
+
+  // State changes made by the controls are reflected in a stable share URL.
+  useEffect(() => {
+    if (applyingUrlStateRef.current) {
+      applyingUrlStateRef.current = false;
+      return;
+    }
+    const canonical = serializeEncyclopediaQuery({
+      search: searchInput,
+      province: filterProvince,
+      category: selectedCategory,
+      endangered: filterEndangered,
+    });
+    if (canonical !== queryString) {
+      setSearchParams(canonical, { replace: true });
+    }
+  }, [filterEndangered, filterProvince, queryString, searchInput, selectedCategory, setSearchParams]);
 
   // 300ms 搜索防抖
   useEffect(() => {
@@ -70,11 +114,12 @@ const EncyclopediaPage: React.FC = () => {
   const handleCardClick = useCallback(
     (breedId: string) => {
       setSelectedBreedId(breedId);
-      const breed = breeds.find(b => b.id === breedId);
-      if (breed) setSelectedCategory(breed.category);
+      // Let MapPage derive the category from the breed_id query. Updating the
+      // shared category here races the URL-sync effect below and can overwrite
+      // the navigation with the current encyclopedia query string.
       navigate(`/map?breed_id=${breedId}`);
     },
-    [navigate, setSelectedBreedId, setSelectedCategory],
+    [navigate, setSelectedBreedId],
   );
 
   const clearAll = () => {

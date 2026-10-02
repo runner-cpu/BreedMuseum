@@ -1,0 +1,10 @@
+{
+  "name": "中国地方畜禽品种数字博物馆",
+  "short_name": "畜禽品种博物馆",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F4EFE3",
+  "theme_color": "#173B2C",
+  "icons": [{ "src": "brand/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

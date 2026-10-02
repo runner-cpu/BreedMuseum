@@ -1,4 +1,7 @@
-export type EndangeredLevel = '普通' | '易危' | '濒危' | '极危' | '待核验';
+import { categories, endangeredLevels, provinces, type BreedCategory, type EndangeredLevel } from './catalog';
+
+export { categories, endangeredLevels, provinces };
+export type { BreedCategory, EndangeredLevel };
 
 export interface PerformanceData {
   meat: number | null;
@@ -23,20 +26,6 @@ export interface Breed {
   story: string;
   image: string;
 }
-
-export type BreedCategory = '猪' | '牛' | '羊' | '鸡' | '鸭' | '马' | '骆驼' | '兔' | '鹅' | '鸽' | '其他';
-
-export const categories: BreedCategory[] = ['猪', '牛', '羊', '鸡', '鸭', '马', '骆驼', '兔', '鹅', '鸽', '其他'];
-
-export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '极危', '待核验'];
-
-export const provinces = [
-  '黑龙江', '吉林', '辽宁', '内蒙古', '北京', '天津', '河北', '山西',
-  '陕西', '甘肃', '青海', '宁夏', '新疆', '西藏', '四川', '重庆',
-  '贵州', '云南', '山东', '江苏', '安徽', '浙江', '江西', '福建',
-  '上海', '台湾', '河南', '湖北', '湖南', '广东', '广西', '海南',
-  '香港', '澳门',
-];
 
 const IMG = 'https://miaoda-site-img.cdn.bcebos.com/images/';
 

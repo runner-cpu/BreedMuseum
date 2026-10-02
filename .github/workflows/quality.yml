@@ -1,0 +1,69 @@
+name: Quality gate
+
+on:
+  push:
+    branches:
+      - main
+      - quality-upgrade
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Typecheck, test, build and Pages package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit and component tests
+        run: pnpm test
+
+      - name: Build production site
+        run: pnpm build
+
+      - name: Check bundle budgets
+        run: pnpm bundle:check
+
+      - name: Validate Pages extras
+        run: pnpm test:pages
+
+      - name: Prepare and inspect Pages package
+        run: |
+          node tasks/prepare-pages.mjs
+          test -s dist/index.html
+          test -s dist/audit/index.html
+          test -n "$(find dist/audit -maxdepth 1 -type f -name '*.md' -size +0c -print -quit)"
+          test ! -s dist/.nojekyll
+          for asset in museum-mark.svg museum-wordmark.svg favicon.svg breed-placeholder.svg; do
+            test -s "dist/public/brand/$asset"
+          done

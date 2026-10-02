@@ -1,42 +1,45 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { toast } from 'sonner';
 import {
+  AlertCircle,
+  ArrowRight,
   Bot,
-  Send,
-  Square,
-  Sparkles,
-  MessageSquare,
+  Check,
+  Copy,
+  Download,
   FileText,
   ImageIcon,
-  Download,
   Loader2,
-  Mic,
-  Volume2,
-  Square as StopIcon,
-  Copy,
-  Check,
-  ThumbsUp,
-  ThumbsDown,
-  ScanSearch,
-  Upload,
   MapPin,
-  ArrowRight,
+  MessageSquare,
+  Mic,
   RefreshCw,
-  AlertCircle,
+  ScanSearch,
+  Send,
+  Sparkles,
+  Square,
+  Square as StopIcon,
+  ThumbsDown,
+  ThumbsUp,
+  Upload,
+  Volume2,
 } from 'lucide-react';
-import { breeds } from '@/data/breeds';
-import { sendStreamRequest } from '@/lib/sse';
-import { readBackendConfig, requireSupabaseClient, type BackendConfig } from '@/config/backend';
+import { motion } from 'motion/react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import AIPrivacyNotice from '@/components/ai/AIPrivacyNotice';
 import { BackendUnavailable } from '@/components/ai/BackendUnavailable';
-import { useSettings } from '@/contexts/AppSettings';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { type BackendConfig, readBackendConfig, requireSupabaseClient } from '@/config/backend';
+import { useSettings } from '@/contexts/AppSettings';
+import { breeds } from '@/data/breeds';
+import { safeAiErrorMessage } from '@/lib/safeAiError';
+import { sendStreamRequest } from '@/lib/sse';
 
 
 type AIMode = 'chat' | 'report' | 'image' | 'recognize';
 type Feedback = 'up' | 'down' | null;
+const MAX_AI_INPUT_LENGTH = 2000;
 
 interface ChatMessage {
   id: string;
@@ -164,7 +167,27 @@ const buildKnowledgeBase = () => {
     .join('；');
 };
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Wait without keeping a polling loop alive after the page is left. */
+const sleep = (ms: number, signal?: AbortSignal): Promise<boolean> =>
+  new Promise((resolve) => {
+    if (signal?.aborted) {
+      resolve(false);
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (completed: boolean) => {
+      if (timer) clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+      resolve(completed);
+    };
+    const onAbort = () => finish(false);
+    timer = setTimeout(() => finish(true), ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
+
+const isAbortError = (error: unknown): boolean =>
+  (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') ||
+  (error instanceof Error && error.name === 'AbortError');
 
 const downloadText = (filename: string, text: string) => {
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
@@ -173,7 +196,8 @@ const downloadText = (filename: string, text: string) => {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  // Give the browser time to start the download before releasing the object URL.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 /** 将报告文本渲染为 PDF 并下载（前端 html2canvas + jsPDF 方案） */
@@ -230,8 +254,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
     {
       id: 'welcome',
       role: 'assistant',
-      content:
-        '您好！我是地方畜禽数字博物馆的AI助手。您可以选择上方工具，进行智能问答、生成品种报告、生成品种示意图片，或上传图片进行品种识别。',
+      content: t('ai.welcome'),
     },
   ]);
   const [input, setInput] = useState('');
@@ -267,17 +290,53 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
 
   const streamingRef = useRef('');
   const abortRef = useRef<AbortController | null>(null);
+  const operationAbortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const recognizeImageUrlRef = useRef<string | null>(null);
+  const copyResetTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+
+  const knowledgeBase = useMemo(() => buildKnowledgeBase(), []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      abortRef.current?.abort();
+      operationAbortRef.current?.abort();
+
+      const recorder = recorderRef.current;
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stream.getTracks().forEach((track) => track.stop());
+        recorder.stop();
+      }
+      recorderRef.current = null;
+
+      audioRef.current?.pause();
+      audioRef.current = null;
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+        audioUrlRef.current = null;
+      }
+      if (recognizeImageUrlRef.current) {
+        URL.revokeObjectURL(recognizeImageUrlRef.current);
+        recognizeImageUrlRef.current = null;
+      }
+      for (const timer of copyResetTimersRef.current.values()) clearTimeout(timer);
+      copyResetTimersRef.current.clear();
+    };
+  }, []);
 
   const busy = isStreaming || mediaBusy || recognizing;
 
   const modes: { key: AIMode; label: string; icon: React.ElementType; placeholder: string }[] = [
-    { key: 'chat', label: t('ai.modeChat'), icon: MessageSquare, placeholder: '输入您的问题，例如：八眉猪有什么特点？' },
-    { key: 'report', label: t('ai.modeReport'), icon: FileText, placeholder: '例如：生成一份关于宁乡猪的详细报告' },
-    { key: 'image', label: t('ai.modeImage'), icon: ImageIcon, placeholder: '例如：生成一张宁乡猪的图片' },
+    { key: 'chat', label: t('ai.modeChat'), icon: MessageSquare, placeholder: t('ai.modeChatPlaceholder') },
+    { key: 'report', label: t('ai.modeReport'), icon: FileText, placeholder: t('ai.modeReportPlaceholder') },
+    { key: 'image', label: t('ai.modeImage'), icon: ImageIcon, placeholder: t('ai.modeImagePlaceholder') },
     { key: 'recognize', label: t('ai.modeRecognize'), icon: ScanSearch, placeholder: t('ai.recognizeTip') },
   ];
 
@@ -303,21 +362,25 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       ]);
       setIsStreaming(true);
       streamingRef.current = '';
-      abortRef.current = new AbortController();
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
       const flush = () => {
         const c = streamingRef.current;
         updateMessage(assistantId, { content: c });
       };
 
-      await sendStreamRequest({
-        functionUrl: `${supabaseUrl}/functions/v1/wenxin-text-generation`,
-        requestBody: {
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content }],
-        },
-        supabaseAnonKey,
-        signal: abortRef.current.signal,
-        onData: (data) => {
+      try {
+        await sendStreamRequest({
+          functionUrl: `${supabaseUrl}/functions/v1/wenxin-text-generation`,
+          requestBody: {
+            messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content }],
+          },
+          supabaseAnonKey,
+          signal: controller.signal,
+          onData: (data) => {
+          if (!mountedRef.current || controller.signal.aborted) return;
           if (data === '[DONE]') return;
           try {
             const parsed = JSON.parse(data);
@@ -329,29 +392,41 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
           } catch {
             // 跳过无法解析的帧
           }
-        },
-        onComplete: () => {
+          },
+          onComplete: () => {
+          if (!mountedRef.current || controller.signal.aborted) return;
           flush();
           if (streamingRef.current === '') {
-            const fallbackMsg = 'AI服务未返回有效内容，请重试。';
+            const fallbackMsg = t('ai.requestFailed');
             updateMessage(assistantId, { content: fallbackMsg, error: true });
             setChatError(fallbackMsg);
           } else if (opts.downloadable) {
             updateMessage(assistantId, { downloadable: true, downloadName: opts.downloadName });
           }
           setIsStreaming(false);
-        },
-        onError: (err: Error) => {
-          const errMsg = err?.message || '网络异常或服务暂时不可用，请重试';
+          },
+          onError: (err: Error) => {
+          if (!mountedRef.current || controller.signal.aborted) return;
+          const errMsg = safeAiErrorMessage(err, t('ai.requestFailed'));
           if (streamingRef.current === '') {
             updateMessage(assistantId, { content: errMsg, error: true });
           }
           setChatError(errMsg);
           setIsStreaming(false);
-        },
-      });
+          },
+        });
+      } catch (error) {
+        if (mountedRef.current && !controller.signal.aborted) {
+          const errMsg = safeAiErrorMessage(error, t('ai.requestFailed'));
+          setChatError(errMsg);
+          updateMessage(assistantId, { content: errMsg, error: true });
+        }
+      } finally {
+        if (abortRef.current === controller) abortRef.current = null;
+        if (mountedRef.current && !controller.signal.aborted) setIsStreaming(false);
+      }
     },
-    [updateMessage],
+    [supabaseAnonKey, supabaseUrl, t, updateMessage],
   );
 
   // 失败消息重试
@@ -368,11 +443,15 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       const assistantId = `img-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
-        { id: assistantId, role: 'assistant', kind: 'image', loading: true, content: '正在生成图片，通常需要 1-3 分钟，请耐心等待...' },
+        { id: assistantId, role: 'assistant', kind: 'image', loading: true, content: t('ai.imageGenerating') },
       ]);
       setMediaBusy(true);
+      operationAbortRef.current?.abort();
+      const controller = new AbortController();
+      operationAbortRef.current = controller;
       try {
         const supabase = await requireSupabaseClient();
+        if (controller.signal.aborted) return;
         const enPrompt = `A ${prompt}, Chinese local livestock breed, full body standard photo, pure white background, high quality, detailed, photorealistic`;
         const { data, error } = await supabase.functions.invoke('submit-image-generation', {
           body: { contents: [{ parts: [{ text: enPrompt }] }] },
@@ -386,10 +465,11 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
 
         const deadline = Date.now() + 3 * 60 * 1000;
         while (Date.now() < deadline) {
-          await sleep(7000);
+          if (!(await sleep(7000, controller.signal))) return;
           const { data: q, error: qErr } = await supabase.functions.invoke('query-task', {
             body: { taskId },
           });
+          if (controller.signal.aborted) return;
           if (qErr) {
             const msg = await qErr?.context?.text?.();
             throw new Error(msg || '查询失败');
@@ -403,9 +483,12 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
         }
         throw new Error('图片生成超时，请稍后重试');
       } catch (e) {
-        updateMessage(assistantId, { loading: false, content: `生成失败：${(e as Error).message}` });
+        if (!controller.signal.aborted && mountedRef.current && !isAbortError(e)) {
+          updateMessage(assistantId, { loading: false, content: safeAiErrorMessage(e, t('ai.requestFailed')), error: true });
+        }
       } finally {
-        setMediaBusy(false);
+        if (operationAbortRef.current === controller) operationAbortRef.current = null;
+        if (mountedRef.current) setMediaBusy(false);
       }
     },
     [updateMessage, t],
@@ -416,8 +499,12 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
     setRecognizing(true);
     setRecognizeError(null);
     setRecognizeResult(null);
+    operationAbortRef.current?.abort();
+    const controller = new AbortController();
+    operationAbortRef.current = controller;
     try {
       const base64 = await fileToBase64(file);
+      if (controller.signal.aborted) return;
       const supabase = await requireSupabaseClient();
       const { data, error } = await supabase.functions.invoke('image-understanding-request', {
         body: { image: base64, question: '这张图片中的畜禽是什么品种？请直接回答品种名称、品种类别和特征描述。' },
@@ -433,10 +520,11 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
 
       const deadline = Date.now() + 3 * 60 * 1000;
       while (Date.now() < deadline) {
-        await sleep(3000);
+        if (!(await sleep(3000, controller.signal))) return;
         const { data: q, error: qErr } = await supabase.functions.invoke('image-understanding-result', {
           body: { task_id: taskId },
         });
+        if (controller.signal.aborted) return;
         if (qErr) {
           const msg = await qErr?.context?.text?.();
           throw new Error(msg || '查询失败');
@@ -457,9 +545,12 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       }
       throw new Error('识别超时，请稍后重试');
     } catch (e) {
-      setRecognizeError((e as Error).message || t('ai.recognizeFail'));
+      if (!controller.signal.aborted && mountedRef.current && !isAbortError(e)) {
+        setRecognizeError(safeAiErrorMessage(e, t('ai.recognizeFail')));
+      }
     } finally {
-      setRecognizing(false);
+      if (operationAbortRef.current === controller) operationAbortRef.current = null;
+      if (mountedRef.current) setRecognizing(false);
     }
   }, [t]);
 
@@ -475,27 +566,40 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
         toast.error(t('ai.imgSizeError'));
         return;
       }
+      if (recognizeImageUrlRef.current) {
+        URL.revokeObjectURL(recognizeImageUrlRef.current);
+      }
       setRecognizeFile(file);
       const url = URL.createObjectURL(file);
+      recognizeImageUrlRef.current = url;
       setRecognizeImage(url);
       setRecognizeResult(null);
       setRecognizeError(null);
     },
-    [],
+    [t],
   );
 
   const resetRecognize = useCallback(() => {
-    if (recognizeImage) URL.revokeObjectURL(recognizeImage);
+    operationAbortRef.current?.abort();
+    if (recognizeImageUrlRef.current) {
+      URL.revokeObjectURL(recognizeImageUrlRef.current);
+      recognizeImageUrlRef.current = null;
+    }
     setRecognizeImage(null);
     setRecognizeFile(null);
     setRecognizeResult(null);
     setRecognizeError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [recognizeImage]);
+  }, []);
 
   const handleSend = useCallback(
     async (text: string) => {
-      const content = text.trim();
+      const trimmed = text.trim();
+      if (trimmed.length > MAX_AI_INPUT_LENGTH) {
+        toast.error(t('ai.inputTooLong').replace('{n}', String(MAX_AI_INPUT_LENGTH)));
+        return;
+      }
+      const content = trimmed;
       if (!content || busy) return;
       setInput('');
       setMessages((prev) => [...prev, { id: `u-${Date.now()}`, role: 'user', content }]);
@@ -505,11 +609,10 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
         return;
       }
 
-      const kb = buildKnowledgeBase();
       if (mode === 'report') {
         await streamText(
           content,
-          `你是"中国地方畜禽品种数字博物馆"的专业AI助手。请基于以下真实品种数据，为用户指定的品种或主题生成一份结构化的科普报告，使用 Markdown 格式，包含：一、品种概述；二、产地分布；三、体貌特征；四、生产性能；五、保护现状；六、总结与建议。内容准确、条理清晰。\n\n【品种数据库】${kb}`,
+          `你是"中国地方畜禽品种数字博物馆"的专业AI助手。请基于以下真实品种数据，为用户指定的品种或主题生成一份结构化的科普报告，使用 Markdown 格式，包含：一、品种概述；二、产地分布；三、体貌特征；四、生产性能；五、保护现状；六、总结与建议。内容准确、条理清晰。\n\n【品种数据库】${knowledgeBase}`,
           { downloadable: true, downloadName: `${content.slice(0, 20)}-品种报告.md` },
         );
         return;
@@ -518,21 +621,23 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       // chat
       await streamText(
         content,
-        `你是"中国地方畜禽品种数字博物馆"的专业AI助手，请基于以下真实品种数据回答用户问题。回答要准确、简洁、条理清晰，可适当使用要点列举。如果问题超出品种数据范围，请礼貌说明并引导用户提问品种相关问题。\n\n【品种数据库】${kb}`,
+        `你是"中国地方畜禽品种数字博物馆"的专业AI助手，请基于以下真实品种数据回答用户问题。回答要准确、简洁、条理清晰，可适当使用要点列举。如果问题超出品种数据范围，请礼貌说明并引导用户提问品种相关问题。\n\n【品种数据库】${knowledgeBase}`,
         {},
       );
     },
-    [busy, mode, handleImage, streamText],
+    [busy, handleImage, knowledgeBase, mode, streamText, t],
   );
 
-  const handleStop = () => {
+  const handleStop = useCallback(() => {
     abortRef.current?.abort();
+    abortRef.current = null;
     setIsStreaming(false);
-  };
+  }, []);
 
   // ---- 语音输入 ----
   const stopRecording = useCallback(() => {
-    recorderRef.current?.stop();
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state !== 'inactive') recorder.stop();
     setIsRecording(false);
   }, []);
 
@@ -543,6 +648,10 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mountedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       const recorder = new MediaRecorder(stream);
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
@@ -550,6 +659,8 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       };
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        recorderRef.current = null;
+        if (!mountedRef.current) return;
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         if (blob.size === 0) {
           toast.error(t('common.noAudio'));
@@ -559,6 +670,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
         try {
           const raw = await blob.arrayBuffer();
           const wav = await convertToWav(raw);
+          if (!mountedRef.current) return;
           const speech = arrayBufferToBase64(wav);
           const supabase = await requireSupabaseClient();
           const { data, error } = await supabase.functions.invoke('short-speech-recognition', {
@@ -568,6 +680,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
             const msg = await error?.context?.text?.();
             throw new Error(msg || error.message || '识别失败');
           }
+          if (!mountedRef.current) return;
           if (data.err_no !== 0) throw new Error(data.err_msg || '识别失败');
           const text = data.result?.[0] ?? '';
           if (text) {
@@ -577,9 +690,9 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
             toast.error(t('common.speechEmpty'));
           }
         } catch (e) {
-          toast.error(`${t('common.speechFail')}：${(e as Error).message}`);
+          if (mountedRef.current) toast.error(safeAiErrorMessage(e, t('common.speechFail')));
         } finally {
-          setTranscribing(false);
+          if (mountedRef.current) setTranscribing(false);
         }
       };
       recorderRef.current = recorder;
@@ -595,11 +708,17 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
     async (msg: ChatMessage) => {
       if (playingId === msg.id) {
         audioRef.current?.pause();
+        if (audioUrlRef.current) {
+          URL.revokeObjectURL(audioUrlRef.current);
+          audioUrlRef.current = null;
+        }
+        audioRef.current = null;
         setPlayingId(null);
         return;
       }
       const text = msg.content?.trim();
       if (!text) return;
+      let objectUrl: string | null = null;
       try {
         const resp = await fetch(`${supabaseUrl}/functions/v1/tts-short-web`, {
           method: 'POST',
@@ -615,24 +734,40 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
           throw new Error(err.error || `朗读失败 (${resp.status})`);
         }
         const blob = await resp.blob();
+        if (!mountedRef.current) return;
         const url = URL.createObjectURL(blob);
+        objectUrl = url;
         if (audioRef.current) {
           audioRef.current.pause();
         }
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
         const audio = new Audio(url);
+        audioUrlRef.current = url;
         audio.onended = () => {
-          setPlayingId(null);
+          if (audioRef.current === audio && mountedRef.current) setPlayingId(null);
+          if (audioUrlRef.current === url) audioUrlRef.current = null;
+          URL.revokeObjectURL(url);
+        };
+        audio.onerror = () => {
+          if (audioRef.current === audio && mountedRef.current) setPlayingId(null);
+          if (audioUrlRef.current === url) audioUrlRef.current = null;
           URL.revokeObjectURL(url);
         };
         audioRef.current = audio;
         setPlayingId(msg.id);
         await audio.play();
       } catch (e) {
-        setPlayingId(null);
-        toast.error(`${t('common.ttsFail')}：${(e as Error).message}`);
+        if (objectUrl && audioUrlRef.current === objectUrl) {
+          URL.revokeObjectURL(objectUrl);
+          audioUrlRef.current = null;
+        }
+        if (mountedRef.current) {
+          setPlayingId(null);
+          toast.error(safeAiErrorMessage(e, t('common.ttsFail')));
+        }
       }
     },
-    [playingId, t],
+    [playingId, supabaseAnonKey, supabaseUrl, t],
   );
 
   // ---- 复制 / 评价 ----
@@ -641,9 +776,14 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       await navigator.clipboard.writeText(msg.content);
       setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, copied: true } : m)));
       toast.success(t('common.copiedTip'));
-      setTimeout(() => {
+      const previousTimer = copyResetTimersRef.current.get(msg.id);
+      if (previousTimer) clearTimeout(previousTimer);
+      const timer = setTimeout(() => {
+        copyResetTimersRef.current.delete(msg.id);
+        if (!mountedRef.current) return;
         setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, copied: false } : m)));
       }, 2000);
+      copyResetTimersRef.current.set(msg.id, timer);
     } catch {
       toast.error(t('common.copyFailTip'));
     }
@@ -654,12 +794,13 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
       prev.map((m) => (m.id === id ? { ...m, feedback: m.feedback === feedback ? null : feedback } : m)),
     );
     toast.success(t('ai.feedbackThanks'));
-  }, []);
+  }, [t]);
 
   const currentMode = modes.find((m) => m.key === mode)!;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] min-h-0 w-full px-4 py-3 overflow-hidden">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden px-4 py-3">
+      <AIPrivacyNotice />
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -669,8 +810,8 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
           <Bot className="w-5 h-5 text-primary-foreground" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-lg font-serif font-bold text-foreground">AI 智能助手</h1>
-          <p className="text-xs text-muted-foreground">基于真实品种数据库，支持问答、报告、图片生成与品种识别</p>
+          <h1 className="text-lg font-serif font-bold text-foreground">{t('ai.title')}</h1>
+          <p className="text-xs text-muted-foreground">{t('ai.sub')}</p>
         </div>
       </motion.div>
 
@@ -688,8 +829,17 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
             {/* 上传区域 */}
             {!recognizeImage ? (
               <div
+                role="button"
+                tabIndex={0}
+                aria-label={t('ai.recognizeUpload')}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
                 onDrop={(e) => {
                   e.preventDefault();
                   setDragOver(false);
@@ -706,15 +856,17 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                 <input
                   ref={fileInputRef}
                   type="file"
+                  aria-label={t('ai.recognizeUpload')}
                   accept="image/jpeg,image/png,image/webp"
                   className="hidden"
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => handleFileSelect(e.target.files?.[0])}
                 />
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="rounded-xl overflow-hidden border border-border bg-muted">
-                  <img src={recognizeImage} alt="待识别图片" className="w-full h-auto max-h-80 object-contain bg-muted" />
+                  <img src={recognizeImage} alt={t('ai.pendingImageAlt')} className="w-full h-auto max-h-80 object-contain bg-muted" />
                 </div>
 
                 {recognizing && (
@@ -805,7 +957,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
         <>
           <div
             ref={scrollRef}
-            className="flex-1 min-h-[calc(100vh-380px)] overflow-y-auto rounded-xl border border-border bg-card/50 p-4 mb-3 space-y-4"
+            className="flex-1 min-h-40 overflow-y-auto rounded-xl border border-border bg-card/50 p-3 sm:p-4 mb-3 space-y-4"
           >
             {messages.map((msg) => {
               const isAssistant = msg.role === 'assistant';
@@ -816,7 +968,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[75%] rounded-2xl p-6 md:px-8 md:py-6 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                    className={`max-w-[92%] sm:max-w-[75%] rounded-2xl p-3 sm:p-6 md:px-8 md:py-6 text-sm leading-relaxed whitespace-pre-wrap break-words ${
                       msg.role === 'user'
                         ? 'bg-primary text-primary-foreground rounded-br-sm'
                         : msg.error
@@ -827,7 +979,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                     {msg.kind === 'image' && msg.mediaUrl ? (
                       <div className="space-y-2">
                         <div className="rounded-lg overflow-hidden border border-border bg-muted">
-                          <img src={msg.mediaUrl} alt="AI生成图片" className="w-full h-auto" />
+                          <img src={msg.mediaUrl} alt={t('common.aiImage')} className="w-full h-auto" />
                         </div>
                         <p className="text-xs text-muted-foreground">{t('common.aiImage')}</p>
                         <a
@@ -886,7 +1038,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                                 className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-destructive bg-destructive/15 hover:bg-destructive/25 transition-colors"
                               >
                                 <RefreshCw className="w-3 h-3" />
-                                重新生成
+                                {t('common.retry')}
                               </button>
                             ) : null}
                             <button
@@ -954,7 +1106,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
 
           {/* 快捷提问（仅对话模式，单行三个卡片） */}
           {mode === 'chat' && (
-            <div className="shrink-0 grid grid-cols-3 gap-2 mb-3">
+            <div className="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
               {quickQuestions.map((q) => (
                 <button
                   key={q}
@@ -984,7 +1136,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                 onClick={handleRetry}
               >
                 <RefreshCw className="w-3 h-3 mr-1" />
-                重试
+                {t('common.retry')}
               </Button>
             </div>
           )}
@@ -998,6 +1150,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                 <button
                   key={m.key}
                   type="button"
+                  aria-pressed={active}
                   disabled={busy}
                   onClick={() => setMode(m.key)}
                   className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs md:text-sm font-medium transition-colors shrink-0 disabled:opacity-50 ${
@@ -1019,6 +1172,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
               variant="outline"
               size="icon"
               onClick={toggleRecording}
+              aria-label={isRecording ? t('common.stopRecording') : t('common.voiceInput')}
               disabled={busy || transcribing}
               className={`shrink-0 h-10 w-10 p-0 ${
                 isRecording
@@ -1038,6 +1192,8 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
             <input
               type="text"
               value={input}
+              maxLength={MAX_AI_INPUT_LENGTH}
+              aria-label={t('ai.placeholder')}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -1054,6 +1210,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                 variant="secondary"
                 size="icon"
                 onClick={handleStop}
+                aria-label={t('common.stop')}
                 className="shrink-0 h-10 w-10 p-0"
                 title={t('common.stop')}
               >
@@ -1064,6 +1221,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
                 type="button"
                 size="icon"
                 onClick={() => handleSend(input)}
+                aria-label={t('ai.send')}
                 disabled={!input.trim() || mediaBusy}
                 className="shrink-0 h-10 w-10 p-0"
                 title={t('ai.send')}
