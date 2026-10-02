@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { buildImageIndexRows, summarizeBreeds, replaceGeneratedSection } from '../sync-data-docs.mjs';
+import { buildImageIndexRows, formatImageIndexCsv, summarizeBreeds, replaceGeneratedSection } from '../sync-data-docs.mjs';
 test('summary uses only supplied records', () => {
   expect(summarizeBreeds([{id:'a', name:'A', category:'牛', province:'云南', endangered:'普通', image:'x'}, {id:'b', name:'B', category:'牛', province:'四川', endangered:'易危', image:'x'}])).toMatchObject({total:2, uniqueIds:2, categoryCounts:{牛:2}, provinceCount:2, nationalProtectionCount:0});
 });
@@ -21,4 +21,9 @@ test('image index uses explicit placeholder and unverified-rights statuses', () 
 
   expect(rows[1][4]).toBe('项目 SVG 占位');
   expect(rows[2][4]).toBe('历史外链；来源权利待核验');
+});
+test('image index CSV preserves the requested newline and BOM convention', () => {
+  const rows = [['列1', '列2'], ['a', 'b']];
+  expect(formatImageIndexCsv(rows, '\n', true)).toBe('\uFEFF"列1","列2"\n"a","b"\n');
+  expect(formatImageIndexCsv(rows, '\r\n', false)).toBe('"列1","列2"\r\n"a","b"\r\n');
 });

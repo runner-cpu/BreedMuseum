@@ -39,6 +39,10 @@ export function buildImageIndexRows(items, resolveMetadata) {
     }),
   ];
 }
+export function formatImageIndexCsv(rows, eol = '\r\n', withBom = true) {
+  const csvCell = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+  return (withBom ? '\uFEFF' : '') + rows.map(row => row.map(csvCell).join(',')).join(eol) + eol;
+}
 function summaryMarkdown(s) {
   const rows = Object.entries(s.categoryCounts).sort((a,b) => b[1]-a[1]).map(([key, count]) => '| ' + key + ' | ' + count + ' |').join('\n');
   return ['数据版本：2026-09-27；统计日期：2026-10-02；口径：运行时归一化后的 breeds 数组。', '',
@@ -59,10 +63,12 @@ export async function syncDataDocs(check = false) {
       const old = await readFile(file, 'utf8');
       pending.push([file, old, replaceGeneratedSection(old, 'data-summary', summaryMarkdown(summary))]);
     }
-    const csvCell = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
     const imageRows = buildImageIndexRows(breeds, getBreedMetadata);
-    const csv = '\uFEFF' + imageRows.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
-    const file = 'docs/品种图片索引.csv'; pending.push([file, await readFile(file, 'utf8'), csv]);
+    const file = 'docs/品种图片索引.csv';
+    const oldCsv = await readFile(file, 'utf8');
+    const csvEol = oldCsv.includes('\r\n') ? '\r\n' : '\n';
+    const hasBom = oldCsv.charCodeAt(0) === 0xfeff;
+    pending.push([file, oldCsv, formatImageIndexCsv(imageRows, csvEol, hasBom)]);
     const changed = pending.filter(([,old,next]) => old !== next);
     if (check && changed.length) throw new Error('Documents need synchronization: ' + changed.map(([p])=>p).join(', '));
     if (!check) for (const [p,,next] of changed) await writeFile(p, next, 'utf8');
