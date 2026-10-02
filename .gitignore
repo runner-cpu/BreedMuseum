@@ -23,3 +23,9 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+
+# 本地研究/临时脚本（数据核验、图片溯源等工作文件不入库）
+.tmp-*
+tasks/tmp-*
+.mimosa/
+.zcode/

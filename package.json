@@ -1,6 +1,6 @@
 {
-  "name": "miaoda-react-admin",
-  "version": "0.0.1",
+  "name": "breed-museum",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,6 @@
     "check:all": "node tasks/check-all.mjs --all"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -53,17 +52,14 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@sentry/react": "^9.47.1",
     "@supabase/supabase-js": "2.103.1",
-    "axios": "^1.13.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "eventsource-parser": "^3.0.6",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
-    "ky": "^1.13.0",
     "lucide-react": "^0.576.0",
     "miaoda-react-devkit": "0.1.1-beta.22",
     "miaoda-sc-plugin": "1.0.73",
@@ -82,7 +78,6 @@
     "react-virtuoso": "^4.18.12",
     "recharts": "2.15.4",
     "sonner": "^2.0.7",
-    "streamdown": "^1.4.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-intersect": "^2.2.0",

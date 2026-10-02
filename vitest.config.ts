@@ -16,6 +16,6 @@ export default defineConfig({
     maxWorkers: 4,
     testTimeout: 15000,
     hookTimeout: 15000,
-    exclude: ['**/node_modules/**', '**/dist*/**', 'e2e/**'],
+    exclude: ['**/node_modules/**', '**/dist*/**', '**/.worktrees/**', 'e2e/**'],
   },
 });
