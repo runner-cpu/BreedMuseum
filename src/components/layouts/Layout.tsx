@@ -93,11 +93,12 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
       </div>
     </div>
     <Sheet open={filterOpen} onOpenChange={setFilterOpen}><SheetContent side="left" className="w-[min(90vw,360px)] overflow-y-auto"><SheetTitle>{zh ? '筛选馆藏' : 'Filter collection'}</SheetTitle><SheetDescription>{zh ? '按畜禽类别浏览，可随时切回全部。' : 'Choose a category or view all breeds.'}</SheetDescription><div className="mt-5">{categoryNav}</div></SheetContent></Sheet>
-    <footer className="shrink-0 bg-museum-ink text-museum-paper/75 px-4 py-2 text-center text-[11px] leading-relaxed">
+    <footer className="shrink-0 bg-museum-ink text-museum-paper/85 px-4 py-2 text-center text-xs leading-relaxed">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span>{zh ? '传承农耕文明 · 站内收录' : 'Museum collection'} {COLLECTION_SUMMARY.total} {zh ? '条' : 'records'}<span className="hidden sm:inline"> · {zh ? '数据更新' : 'Updated'} {COLLECTION_VERSION}</span></span>
         <span aria-hidden="true">·</span>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html')}>{zh ? '隐私与 AI 说明' : 'Privacy & AI use'}</a>
+        <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html#images')}>{zh ? '图片来源说明' : 'Image sources'}</a>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('audit/')}>{zh ? '审计报告' : 'Quality report'}</a>
       </div>
       {!zh && <span className="ml-2">Breed narratives: Chinese</span>}

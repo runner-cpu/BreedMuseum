@@ -65,7 +65,7 @@ const ComparePage: React.FC = () => {
 
   const handleExport = () => {
     if (breeds.length === 0) return;
-    exportBreedsToCSV(breeds, '品种对比结果.csv');
+    exportBreedsToCSV(breeds, t('compare.csvName'));
     toast.success(t('compare.exported'));
   };
 
@@ -77,7 +77,7 @@ const ComparePage: React.FC = () => {
         </div>
         <h1 className="text-lg font-serif font-bold text-foreground mb-2">{t('compare.title')}</h1>
         <p className="text-sm text-muted-foreground max-w-xs">{t('compare.empty')}</p>
-        <Button className="mt-5 min-h-11" onClick={() => navigate('/encyclopedia')}>浏览百科并选择品种</Button>
+        <Button className="mt-5 min-h-11" onClick={() => navigate('/encyclopedia')}>{t('compare.browseEnc')}</Button>
       </div>
     );
   }
@@ -107,7 +107,7 @@ const ComparePage: React.FC = () => {
 
       <div className="w-full max-w-full overflow-x-auto bg-card border border-border rounded-xl">
         <table className="w-full min-w-max text-sm">
-          <caption className="sr-only">所选品种资料对比</caption>
+          <caption className="sr-only">{t('compare.tableCaption')}</caption>
           <thead>
             <tr>
               <th scope="col" className="sticky left-0 z-10 bg-card whitespace-nowrap text-left p-3 text-muted-foreground font-medium w-28 border-b border-border">
@@ -133,7 +133,7 @@ const ComparePage: React.FC = () => {
                     </div>
                     <button
                       type="button"
-                      aria-label={`移除${b.name}`}
+                      aria-label={t('compare.removeBreed').replace('{name}', b.name)}
                       onClick={() => removeFromCompare(b!.id)}
                       className="min-h-11 min-w-11 flex items-center justify-center shrink-0 text-muted-foreground hover:text-destructive transition-colors"
                     >
@@ -176,8 +176,8 @@ const ComparePage: React.FC = () => {
         </table>
       </div>
 
-      <p className="mt-4 text-sm text-muted-foreground">以下分值为编辑归一化指标（0–100），非统一试验条件下的实测结果；无可靠来源的记录显示“待补充”，不宜作为选育或投资决策依据。</p>
-      <AccessibleChartSummary caption="五维编辑指标对比" columns={["指标", ...breeds.map(b => b.name)]} rows={([ ["meat", "肉用"], ["milk", "乳用"], ["reproduction", "繁殖"], ["labor", "役用"], ["adaptability", "适应性"] ] as const).map(([key, label]) => [label, ...breeds.map(b => b.radar[key] ?? '待补充')])} />
+      <p className="mt-4 text-sm text-muted-foreground">{t('compare.radarDisclaimer')}</p>
+      <AccessibleChartSummary caption={t('compare.radarCaption')} columns={[t('detail.colDim'), ...breeds.map(b => b.name)]} rows={([ ['meat', t('detail.dim.meat')], ['milk', t('detail.dim.milk')], ['reproduction', t('detail.dim.reproduction')], ['labor', t('detail.dim.labor')], ['adaptability', t('detail.dim.adaptability')] ] as const).map(([key, label]) => [label, ...breeds.map(b => b.radar[key] ?? t('detail.radarPending'))])} />
       <div className="mt-4">
         <Button variant="ghost" onClick={() => navigate('/encyclopedia')}>
           {t('compare.continue')}

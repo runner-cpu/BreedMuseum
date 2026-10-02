@@ -116,8 +116,16 @@ const DashboardPage: React.FC = () => {
     { date: '第3批', value: 213 }, { date: '第4批', value: 259 }, { date: '第5批', value: 306 },
     { date: '第6批', value: 350 }, { date: '第7批', value: 465 }, { date: '第8批', value: 473 },
     { date: '第9批', value: 552 }, { date: '第10批', value: 561 }, { date: '第11批', value: 568 },
-    { date: '第12批', value: 592 }, { date: '第14批 / extra13', value: 628 }, { date: '当前馆藏', value: COLLECTION_SUMMARY.total },
+    { date: '第12批', value: 592 }, { date: '第14批', value: 628 }, { date: '当前馆藏', value: COLLECTION_SUMMARY.total },
   ];
+
+  const timelineLabel = (label: string) => {
+    if (label === '基础库') return t('dash.timelineBase');
+    if (label === '当前馆藏') return t('dash.timelineCurrent');
+    const match = label.match(/^第(\d+)批/);
+    if (match) return t('dash.timelineBatch').replace('{n}', match[1]);
+    return label;
+  };
 
   const treemapData = useMemo(() => {
     return categories
@@ -208,7 +216,7 @@ const DashboardPage: React.FC = () => {
             onClick={() => {
               void exportSvgToPng(chartRefs.current[chartKey] ?? null, `${chartKey}.png`)
                 .then(() => toast.success(t('dash.pngDone')))
-                .catch(() => toast.error('图表导出失败，请使用 CSV 导出'));
+                .catch(() => toast.error(t('dash.exportPngFail')));
             }}
           >
             <Download className="w-3.5 h-3.5" />
@@ -247,7 +255,7 @@ const DashboardPage: React.FC = () => {
         {t('dash.title')}
       </motion.h1>
 
-      <p className="mb-5 text-sm text-muted-foreground">统计范围为本馆收录条目。濒危标签来自编辑资料，尚未完成逐条权威核验；国家级保护名录单独统计。</p>
+      <p className="mb-5 text-sm text-muted-foreground">{t('dash.statsNote')}</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         {stats.map((s) => (
           <motion.div
@@ -267,8 +275,8 @@ const DashboardPage: React.FC = () => {
           title={t('dash.topProvinces')}
           source={t('dash.topProvincesDesc')}
           chartKey="province-bar"
-          csvName="各省品种数量.csv"
-          csvRows={() => [['省份', '品种数'], ...topProvinces.map((p) => [p.name, p.value])]}
+          csvName={t('dash.csvProvinces')}
+          csvRows={() => [[t('dash.colProvince'), t('dash.colCount')], ...topProvinces.map((p) => [p.name, p.value])]}
         >
           <div className="h-[28rem]">
             <ResponsiveContainer width="100%" height="100%">
@@ -297,11 +305,11 @@ const DashboardPage: React.FC = () => {
         </ChartCard>
 
         <ChartCard
-          title="濒危等级构成"
-          source="颜色按等级区分；数据为站内记录，不等同于官方保护等级认定"
+          title={t('dash.endangeredTitle')}
+          source={t('dash.endangeredSource')}
           chartKey="endangered-pie"
-          csvName="濒危等级构成.csv"
-          csvRows={() => [['等级', '品种数'], ...endangeredData.map((c) => [c.name, c.value])]}
+          csvName={t('dash.csvEndangered')}
+          csvRows={() => [[t('dash.colLevel'), t('dash.colCount')], ...endangeredData.map((c) => [c.name, c.value])]}
         >
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -331,8 +339,8 @@ const DashboardPage: React.FC = () => {
           title={t('dash.catCompare')}
           source={t('dash.catCompareDesc')}
           chartKey="category-bar"
-          csvName="各类别品种对比.csv"
-          csvRows={() => [['类别', '品种数'], ...categoryData.map((c) => [c.name, c.value])]}
+          csvName={t('dash.csvCategory')}
+          csvRows={() => [[t('dash.colCategory'), t('dash.colCount')], ...categoryData.map((c) => [c.name, c.value])]}
         >
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -352,10 +360,10 @@ const DashboardPage: React.FC = () => {
 
         <ChartCard
           title={t('dash.protectedDist')}
-          source="第 940 号公告中的本馆收录品种；不等同于濒危等级"
+          source={t('dash.protectedSource')}
           chartKey="protection-treemap"
-          csvName="保护品种分布.csv"
-          csvRows={() => [['类别', '品种总数', '国家级保护名录数'], ...treemapData.map((d) => [d.name, d.total, d.protectedCount])]}
+          csvName={t('dash.csvProtected')}
+          csvRows={() => [[t('dash.colCategory'), t('dash.colTotal'), t('dash.colProtected')], ...treemapData.map((d) => [d.name, d.total, d.protectedCount])]}
         >
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -366,19 +374,19 @@ const DashboardPage: React.FC = () => {
 
         <div className="lg:col-span-2">
           <ChartCard
-            title="站内收录批次时间轴"
-            source="按源码批次文件累计；用于展示资料整理进度，不代表全国品种总量"
+            title={t('dash.timelineTitle')}
+            source={t('dash.timelineSource')}
             chartKey="collection-timeline"
-            csvName="站内收录批次时间轴.csv"
-            csvRows={() => [['批次', '累计记录'], ...collectionTimeline.map((item) => [item.date, item.value])]}
+            csvName={t('dash.csvTimeline')}
+            csvRows={() => [[t('dash.colBatch'), t('dash.colCumulative')], ...collectionTimeline.map((item) => [timelineLabel(item.date), item.value])]}
           >
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={collectionTimeline} margin={{ top: 10, right: 20, left: 0, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={1} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={1} tickFormatter={timelineLabel} />
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value} 条`, '累计记录']} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value} ${t('dash.recordsUnit')}`, t('dash.colCumulative')]} />
                   <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 3, fill: 'hsl(var(--primary))' }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -391,8 +399,8 @@ const DashboardPage: React.FC = () => {
             title={t('dash.density')}
             source={t('dash.densityDesc')}
             chartKey="density-heatmap"
-            csvName="各省品种密度.csv"
-            csvRows={() => [['省份', '品种数'], ...provinceData.map((p) => [p.name, p.value])]}
+            csvName={t('dash.csvDensity')}
+            csvRows={() => [[t('dash.colProvince'), t('dash.colCount')], ...provinceData.map((p) => [p.name, p.value])]}
           >
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1.5">
               {provinceData.map((p) => (

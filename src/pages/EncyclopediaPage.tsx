@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { useSettings } from '@/contexts/AppSettings';
 import { useMuseum } from '@/contexts/MuseumContext';
-import { matchesBreedQuery } from '@/data/breedSearch';
+import { matchesBreedQuery, sortBreedsByRelevance } from '@/data/breedSearch';
 import { breeds, categories, endangeredLevels, provinces } from '@/data/breeds';
 import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
 import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
@@ -107,7 +107,7 @@ const EncyclopediaPage: React.FC = () => {
     });
   }, [selectedCategory, filterProvince, filterEndangered, debouncedSearch]);
 
-  const filtered = allMatches;
+  const filtered = sortBreedsByRelevance(allMatches, debouncedSearch);
 
   const totalMatch = allMatches.length;
 
