@@ -36,8 +36,7 @@ import { breeds } from '@/data/breeds';
 import { safeAiErrorMessage } from '@/lib/safeAiError';
 import { sendStreamRequest } from '@/lib/sse';
 
-
-type AIMode = 'chat' | 'report' | 'image' | 'recognize';
+type AIMode = 'chat' | 'report';
 type Feedback = 'up' | 'down' | null;
 const MAX_AI_INPUT_LENGTH = 2000;
 
@@ -45,37 +44,47 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  kind?: 'text' | 'image' | 'recognize';
-  mediaUrl?: string;
-  loading?: boolean;
   downloadable?: boolean;
   downloadName?: string;
   feedback?: Feedback;
   copied?: boolean;
-  error?: boolean;
-  rawPrompt?: string;
 }
 
-interface RecognizeResult {
-  breedId: string;
-  breedName: string;
-  category: string;
-  province: string;
-  confidence: number;
-  intro: string;
+const tokenize = (text: string) => text.toLowerCase().replace(/[？?，。,.、\s]/g, '').split('').filter(Boolean);
+
+function searchLocal(query: string) {
+  const normalized = query.toLowerCase();
+  const categoryNames = ['猪', '牛', '羊', '鸡', '鸭', '鹅', '马', '骆驼', '兔', '鸽', '其他'];
+  const category = categoryNames.find((item) => normalized.includes(item));
+  const province = breeds.map((breed) => breed.province).find((item) => normalized.includes(item));
+  const endangered = normalized.includes('濒危') || normalized.includes('保护');
+  const matchesFilters = (breed: (typeof breeds)[number]) =>
+    (!category || breed.category === category) &&
+    (!province || breed.province === province) &&
+    (!endangered || breed.endangered === '濒危' || breed.endangered === '极危');
+  const exact = breeds.filter((breed) => matchesFilters(breed) && normalized.includes(breed.name.toLowerCase()));
+  const tokens = tokenize(query);
+  const filtered = breeds.filter(matchesFilters);
+  const scored = filtered
+    .map((breed) => ({ breed, score: tokens.reduce((score, token) => score + (breed.name.includes(token) || breed.appearance.includes(token) || breed.performance.includes(token) ? 1 : 0), 0) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ breed }) => breed);
+  // A filter-only query such as “濒危品种有哪些” has no breed keyword to score;
+  // return the filtered records instead of treating it as a failed search.
+  const matches = exact.length ? exact : scored.length ? scored : filtered;
+  return { category, province, endangered, matches: matches.slice(0, 8) };
 }
 
-// ---- 音频工具函数 ----
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      resolve(dataUrl.split(',')[1]);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+function buildAnswer(query: string, report: boolean) {
+  const result = searchLocal(query);
+  if (!result.matches.length) return '暂未在本地品种库中找到匹配记录。可以试试“青海有哪些牛”“濒危品种有哪些”或直接输入品种名称。';
+  const filters = [result.province, result.category, result.endangered ? '濒危/极危' : ''].filter(Boolean).join(' · ') || '关键词匹配';
+  const header = `找到 ${result.matches.length} 条匹配记录（展示前 8 条）。筛选条件：${filters}。\n\n`;
+  const fmt = (v: number | null | undefined) => (v === null || v === undefined ? '—' : v);
+  const rows = result.matches.map((breed) => [`### ${breed.name}（${breed.category} · ${breed.province} · ${breed.endangered}）`, `- 外貌：${breed.appearance}`, `- 性能：${breed.performance}`, `- 方向性评分：产肉 ${fmt(breed.radar.meat)} / 产奶 ${fmt(breed.radar.milk)} / 繁殖 ${fmt(breed.radar.reproduction)} / 役用 ${fmt(breed.radar.labor)} / 适应性 ${fmt(breed.radar.adaptability)}`, `- 数据来源：公开资料整理，待逐条核验`].join('\n')).join('\n\n');
+  if (!report) return `${header}${rows}\n\n评分说明：五维雷达为方向性定性评分（0-100），用于科普浏览，不替代生产性能测定。`;
+  return `# ${query.slice(0, 40)}\n\n${header}${rows}\n\n## 数据边界\n本报告由本地静态品种库检索生成。文字描述与雷达值用于科普浏览，不替代生产性能测定；坐标为城市级主产地。`;
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -190,8 +199,7 @@ const isAbortError = (error: unknown): boolean =>
   (error instanceof Error && error.name === 'AbortError');
 
 const downloadText = (filename: string, text: string) => {
-  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
@@ -200,55 +208,39 @@ const downloadText = (filename: string, text: string) => {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
-/** 将报告文本渲染为 PDF 并下载（前端 html2canvas + jsPDF 方案） */
-const downloadPdf = async (filename: string, title: string, text: string): Promise<boolean> => {
+const downloadPdf = async (filename: string, title: string, text: string) => {
   const container = document.createElement('div');
-  container.style.cssText =
-    'position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;color:#1a1a1a;padding:48px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;';
-  const h1 = document.createElement('h1');
-  h1.style.cssText = 'font-size:22px;font-weight:700;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid #d4a853;';
-  h1.textContent = title;
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;color:#1a1a1a;padding:48px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;font-family:system-ui,"Microsoft YaHei",sans-serif;';
+  const heading = document.createElement('h1');
+  heading.textContent = title;
+  heading.style.cssText = 'font-size:22px;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid #d4a853;';
   const body = document.createElement('div');
   body.textContent = text;
-  container.appendChild(h1);
-  container.appendChild(body);
+  container.append(heading, body);
   document.body.appendChild(container);
   try {
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
-    const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
+    const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#fff' });
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageW = 210;
-    const pageH = 297;
     const pxPerMm = canvas.width / pageW;
-    const pageCanvasH = Math.floor(pageH * pxPerMm);
-    let rendered = 0;
-    while (rendered < canvas.height) {
-      const h = Math.min(pageCanvasH, canvas.height - rendered);
+    const pageH = Math.floor(297 * pxPerMm);
+    for (let offset = 0, pageIndex = 0; offset < canvas.height; offset += pageH, pageIndex += 1) {
+      const height = Math.min(pageH, canvas.height - offset);
       const page = document.createElement('canvas');
       page.width = canvas.width;
-      page.height = h;
-      const ctx = page.getContext('2d');
-      if (!ctx) return false;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, page.width, page.height);
-      ctx.drawImage(canvas, 0, rendered, canvas.width, h, 0, 0, canvas.width, h);
-      if (rendered > 0) pdf.addPage();
-      pdf.addImage(page.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, h / pxPerMm);
-      rendered += h;
+      page.height = height;
+      page.getContext('2d')?.drawImage(canvas, 0, offset, canvas.width, height, 0, 0, canvas.width, height);
+      if (pageIndex) pdf.addPage();
+      pdf.addImage(page.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, height / pxPerMm);
     }
     pdf.save(filename);
     return true;
-  } catch (e) {
-    console.error('PDF 生成失败:', e);
-    return false;
   } finally {
-    document.body.removeChild(container);
+    container.remove();
   }
 };
 
-const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) => {
-  const { url: supabaseUrl, anonKey: supabaseAnonKey } = backend;
-  const navigate = useNavigate();
+const AIAssistantPage: React.FC = () => {
   const { t } = useSettings();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -259,9 +251,8 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
   ]);
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<AIMode>('chat');
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [mediaBusy, setMediaBusy] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
   const [pdfBuilding, setPdfBuilding] = useState<string | null>(null);
   const [chatError, setChatError] = useState<string | null>(null);
   const lastPromptRef = useRef<{ content: string; systemPrompt: string; opts: { downloadable?: boolean; downloadName?: string } } | null>(null);
@@ -347,7 +338,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
   }, [messages]);
 
   const updateMessage = useCallback((id: string, patch: Partial<ChatMessage>) => {
-    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+    setMessages((current) => current.map((message) => (message.id === id ? { ...message, ...patch } : message)));
   }, []);
 
   // 文本流式生成（对话/报告）
@@ -787,7 +778,7 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
     } catch {
       toast.error(t('common.copyFailTip'));
     }
-  }, [t]);
+  }, [t, updateMessage]);
 
   const rateMessage = useCallback((id: string, feedback: Feedback) => {
     setMessages((prev) =>
@@ -1238,7 +1229,4 @@ const ConfiguredAssistant: React.FC<{ backend: BackendConfig }> = ({ backend }) 
   );
 };
 
-export default function AIAssistantPage() {
-  const backend = readBackendConfig();
-  return backend ? <ConfiguredAssistant backend={backend} /> : <BackendUnavailable />;
-}
+export default AIAssistantPage;

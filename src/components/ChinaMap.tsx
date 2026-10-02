@@ -38,9 +38,22 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   }, [breeds]);
 
   const breedPoints = useMemo(() => {
-    return breeds.map((breed) => {
+    const groups = new Map<string, typeof breeds>();
+    breeds.forEach((breed) => {
+      const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
+      const group = groups.get(key) ?? [];
+      group.push(breed);
+      groups.set(key, group);
+    });
+    return breeds.flatMap((breed) => {
+      const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
+      const group = groups.get(key) ?? [breed];
+      const index = group.findIndex((item) => item.id === breed.id);
       const { x, y } = projectCoordinate(breed.longitude, breed.latitude);
-      return { breed, x, y };
+      if (group.length === 1) return [{ breed, x, y }];
+      const angle = (index / group.length) * Math.PI * 2 - Math.PI / 2;
+      const radius = Math.min(18, 7 + group.length * 0.45);
+      return [{ breed, x: x + Math.cos(angle) * radius, y: y + Math.sin(angle) * radius }];
     });
   }, [breeds]);
 
@@ -193,6 +206,10 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           </div>
         </div>
       )}
+
+      <div className="absolute top-3 right-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm">
+        点位为主产地城市级坐标；同城品种已错位展示
+      </div>
 
       {/* 悬停信息卡片 */}
       {tooltip && (
