@@ -6,11 +6,7 @@ export default {
     darkMode: ['class'],
     content: [
         './index.html',
-        './pages/**/*.{ts,tsx}',
-        './components/**/*.{ts,tsx}',
-        './app/**/*.{ts,tsx}',
-        './src/**/*.{ts,tsx}',
-        './node_modules/streamdown/dist/**/*.js'
+        './src/**/*.{ts,tsx}'
     ],
     safelist: ['border', 'border-border'],
     prefix: '',
@@ -63,10 +59,6 @@ export default {
                 card: {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
-                },
-                education: {
-                    blue: 'hsl(var(--education-blue))',
-                    green: 'hsl(var(--education-green))'
                 },
                 success: 'hsl(var(--success))',
                 warning: 'hsl(var(--warning))',

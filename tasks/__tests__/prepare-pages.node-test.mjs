@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 import {
   AUDIT_REPORT_HTML,
   AUDIT_REPORT_MARKDOWN,
+  BREED_IMAGE_INDEX_CSV,
+  BREED_IMAGE_INDEX_PUBLISHED_NAME,
   REQUIRED_BRAND_ASSETS,
 } from '../prepare-pages.mjs';
 
@@ -43,6 +45,7 @@ test('prepares the public audit report and GitHub Pages metadata', async () => {
     'utf8',
   );
   await writeFile(path.join(root, 'docs', AUDIT_REPORT_MARKDOWN), '# audit', 'utf8');
+  await writeFile(path.join(root, 'docs', BREED_IMAGE_INDEX_CSV), '品种ID,名称\n fixture-breed,夹具品种', 'utf8');
   await createBrandFixture(root, true);
 
   const result = spawnSync(process.execPath, [scriptPath, '--root', root], {
@@ -57,6 +60,10 @@ test('prepares the public audit report and GitHub Pages metadata', async () => {
   assert.equal(
     await readFile(path.join(root, 'dist', 'audit', AUDIT_REPORT_MARKDOWN), 'utf8'),
     '# audit',
+  );
+  assert.equal(
+    await readFile(path.join(root, 'dist', 'audit', BREED_IMAGE_INDEX_PUBLISHED_NAME), 'utf8'),
+    '品种ID,名称\n fixture-breed,夹具品种',
   );
   for (const asset of REQUIRED_BRAND_ASSETS) {
     assert.equal(
@@ -75,6 +82,7 @@ test('fails when the production build is incomplete instead of publishing partia
   await writeFile(path.join(root, 'dist', 'index.html'), '<main>site</main>', 'utf8');
   await writeFile(path.join(root, 'docs', AUDIT_REPORT_HTML), '<main>audit</main>', 'utf8');
   await writeFile(path.join(root, 'docs', AUDIT_REPORT_MARKDOWN), '# audit', 'utf8');
+  await writeFile(path.join(root, 'docs', BREED_IMAGE_INDEX_CSV), '品种ID,名称', 'utf8');
   await createBrandFixture(root);
 
   const result = spawnSync(process.execPath, [scriptPath, '--root', root], {

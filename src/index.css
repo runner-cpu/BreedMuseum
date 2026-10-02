@@ -133,6 +133,21 @@
   button[aria-label] { min-width: 44px; }
 }
 
+/* 打印样式：隐藏导航/页脚/装饰，正文黑字白底，便于资料打印 */
+@media print {
+  header, footer, aside, .skip-link, canvas { display: none !important; }
+  body { background: #fff !important; }
+  *, *::before, *::after {
+    background-image: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+    color: #111 !important;
+    border-color: #ccc !important;
+  }
+  main, main * { overflow: visible !important; max-height: none !important; }
+}
+
 @layer components {
   .ink-card {
     @apply bg-card border border-border rounded shadow-card;

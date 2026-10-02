@@ -16,6 +16,9 @@ export const REQUIRED_BRAND_ASSETS = Object.freeze([
 
 export const AUDIT_REPORT_HTML = '项目全面审计与改进报告.html';
 export const AUDIT_REPORT_MARKDOWN = '项目全面审计与改进报告.md';
+/** Published under /audit/breed-images.csv and linked from privacy.html. */
+export const BREED_IMAGE_INDEX_CSV = '品种图片索引.csv';
+export const BREED_IMAGE_INDEX_PUBLISHED_NAME = 'breed-images.csv';
 
 const isMainModule = () => {
   if (!process.argv[1]) return false;
@@ -180,7 +183,7 @@ async function verifySourceFiles(root) {
   const docs = path.join(resolvedRoot, 'docs');
   const brand = path.join(resolvedRoot, 'public', 'brand');
   await requireFiles(
-    [path.join(docs, AUDIT_REPORT_HTML), path.join(docs, AUDIT_REPORT_MARKDOWN)],
+    [path.join(docs, AUDIT_REPORT_HTML), path.join(docs, AUDIT_REPORT_MARKDOWN), path.join(docs, BREED_IMAGE_INDEX_CSV)],
     'Pages source',
   );
   await requireFiles(
@@ -197,7 +200,7 @@ export async function verifyPagesOutput(root) {
   const audit = path.join(dist, 'audit');
   const publicBrand = path.join(dist, 'public', 'brand');
   await requireFiles(
-    [path.join(audit, 'index.html'), path.join(audit, AUDIT_REPORT_MARKDOWN)],
+    [path.join(audit, 'index.html'), path.join(audit, AUDIT_REPORT_MARKDOWN), path.join(audit, BREED_IMAGE_INDEX_PUBLISHED_NAME)],
     'Pages artifact',
   );
   const nojekyll = path.join(dist, '.nojekyll');
@@ -228,12 +231,13 @@ export async function preparePages(root = process.cwd()) {
   await Promise.all([
     copyFile(path.join(source.docs, AUDIT_REPORT_HTML), path.join(auditDestination, 'index.html')),
     copyFile(path.join(source.docs, AUDIT_REPORT_MARKDOWN), path.join(auditDestination, AUDIT_REPORT_MARKDOWN)),
+    copyFile(path.join(source.docs, BREED_IMAGE_INDEX_CSV), path.join(auditDestination, BREED_IMAGE_INDEX_PUBLISHED_NAME)),
     cp(source.brand, path.join(publicDestination, 'brand'), { recursive: true, force: true }),
     writeFile(path.join(build.dist, '.nojekyll'), '', 'utf8'),
   ]);
 
   const pages = await verifyPagesOutput(resolvedRoot);
-  console.log('GitHub Pages extras prepared: /audit/, /public/brand/, .nojekyll');
+  console.log('GitHub Pages extras prepared: /audit/ (report + breed-images.csv), /public/brand/, .nojekyll');
   return { ...build, ...pages };
 }
 
