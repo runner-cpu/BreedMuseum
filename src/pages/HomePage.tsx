@@ -13,6 +13,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
+import { featuredBreeds } from '@/data/featuredBreeds';
 import { categoryColors } from '@/lib/categoryIcons';
 import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
@@ -92,7 +93,7 @@ const HomePage: React.FC = () => {
     [categories],
   );
 
-  const latestBreeds = useMemo(() => breeds.slice(-10).reverse(), [breeds]);
+  const highlightedBreeds = featuredBreeds;
 
   const handleHeroSearch = (q: string) => {
     const query = q.trim();
@@ -182,15 +183,15 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 模块五：最新收录品种 */}
+        {/* 模块五：精选品种 */}
         <section className="py-16 md:py-20">
           <div className="max-w-5xl mx-auto px-4 md:px-6">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-8 border-l-4 border-[#d4a853] pl-3">
-              <ScrollFloat text={t('home.latestTitle')} />
+              <ScrollFloat text={t('home.featuredTitle')} />
             </h2>
-            {latestBreeds.length > 0 ? (
+            {highlightedBreeds.length > 0 ? (
               <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1 snap-x">
-                {latestBreeds.map((breed) => (
+                {highlightedBreeds.map((breed) => (
                   <button
                     key={breed.id}
                     type="button"
@@ -215,7 +216,7 @@ const HomePage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-12 border border-white/10 rounded-xl bg-white/5">
-                <p className="text-sm text-white/60">{t('home.noLatestBreeds')}</p>
+                <p className="text-sm text-white/60">{t('home.noFeaturedBreeds')}</p>
               </div>
             )}
           </div>
