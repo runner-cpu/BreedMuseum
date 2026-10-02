@@ -28,7 +28,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11.25.0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Audit production dependencies
+        run: pnpm audit --prod --registry=https://registry.npmjs.org
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -47,6 +50,9 @@ jobs:
 
       - name: Unit and component tests
         run: pnpm test
+
+      - name: Data and documentation consistency
+        run: pnpm docs:check
 
       - name: Build production site
         run: pnpm build
@@ -67,3 +73,45 @@ jobs:
           for asset in museum-mark.svg museum-wordmark.svg favicon.svg breed-placeholder.svg; do
             test -s "dist/public/brand/$asset"
           done
+
+  e2e:
+    name: Desktop and mobile browser tests
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 30
+    env:
+      E2E_PORT: 46218
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build the backend-free test site
+        run: pnpm build:e2e
+
+      - name: Run desktop and 390px mobile scenarios
+        run: pnpm e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore

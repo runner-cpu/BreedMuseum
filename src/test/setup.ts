@@ -1,6 +1,11 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';
+
+// Lazy-loaded route modules can take slightly longer than the DOM Testing
+// Library default on a cold Vitest worker. Keep the wait bounded while
+// allowing the first route render to settle before assertions run.
+configure({ asyncUtilTimeout: 5000 });
 
 if (!window.matchMedia) {
   window.matchMedia = (query: string) => ({

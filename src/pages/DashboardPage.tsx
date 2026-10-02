@@ -20,6 +20,7 @@ import {
 } from 'recharts';
 import { Download, FileDown } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
+import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { categoryColors } from '@/lib/categoryIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { useSettings } from '@/contexts/AppSettings';
@@ -115,7 +116,7 @@ const DashboardPage: React.FC = () => {
     { date: '第3批', value: 213 }, { date: '第4批', value: 259 }, { date: '第5批', value: 306 },
     { date: '第6批', value: 350 }, { date: '第7批', value: 465 }, { date: '第8批', value: 473 },
     { date: '第9批', value: 552 }, { date: '第10批', value: 561 }, { date: '第11批', value: 568 },
-    { date: '第12批', value: 592 }, { date: '第14批 / extra13', value: 628 }, { date: '第15批 / extra14', value: 687 },
+    { date: '第12批', value: 592 }, { date: '第14批 / extra13', value: 628 }, { date: '当前馆藏', value: COLLECTION_SUMMARY.total },
   ];
 
   const treemapData = useMemo(() => {

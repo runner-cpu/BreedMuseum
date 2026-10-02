@@ -1,6 +1,9 @@
 ## 介绍
 
-中国地方畜禽品种数字博物馆，收录站内整理的 687 条地方品种记录，提供品种百科、产地地图、数据看板、对比浏览和离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+[![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
+[![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
+
+中国地方畜禽品种数字博物馆，收录站内整理的 701 条地方品种记录，提供品种百科、产地地图、数据看板、对比浏览和离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -16,7 +19,8 @@
 ├── package.json # 包管理
 ├── postcss.config.js # postcss 配置
 ├── public # 静态资源目录
-│   ├── favicon.png # 图标
+│   ├── brand # 原创 SVG 品牌资产
+│   ├── favicon.png # 兼容旧入口的图标
 │   └── images # 图片资源
 ├── src # 源码目录
 │   ├── App.tsx # 入口文件
@@ -25,12 +29,10 @@
 │   ├── db # 数据库配置目录
 │   ├── hooks # 通用钩子函数目录
 │   ├── index.css # 全局样式
-│   ├── layout # 布局目录
 │   ├── lib # 工具库目录
 │   ├── main.tsx # 入口文件
 │   ├── routes.tsx # 路由配置
 │   ├── pages # 页面目录
-│   ├── services  # 数据库交互目录
 │   ├── types   # 类型定义目录
 ├── tsconfig.app.json  # ts 前端配置文件
 ├── tsconfig.json # ts 配置文件
@@ -39,9 +41,35 @@
 ```
 
 <!-- data-summary:start -->
-数据版本：2026-09-27；统计日期：2026-09-29；口径：运行时归一化后的 breeds 数组。
+数据版本：2026-09-27；统计日期：2026-10-02；口径：运行时归一化后的 breeds 数组。
 
-Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。当前 AI 助手使用浏览器内置的本地品种库检索，不依赖第三方密钥或在线后端。
+| 指标 | 实测值 |
+| --- | --- |
+| 馆藏条目 | 701 |
+| 唯一 ID / 名称 | 701 / 701 |
+| 覆盖省份 | 30 |
+| 分类 | 11 |
+| 第 940 号公告畜禽名称匹配 | 271 / 271 |
+| 项目 SVG 占位图 | 22 |
+
+| 类别 | 条目数 |
+| --- | --- |
+| 牛 | 154 |
+| 羊 | 117 |
+| 猪 | 115 |
+| 鸡 | 104 |
+| 马 | 46 |
+| 其他 | 43 |
+| 鸭 | 38 |
+| 鹅 | 30 |
+| 兔 | 27 |
+| 鸽 | 15 |
+| 骆驼 | 12 |
+
+编辑濒危标签统计（非权威保护结论）：普通 426；易危 170；濒危 83；待核验 22。
+<!-- data-summary:end -->
+
+Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在未配置后端时使用浏览器内置的本地品种库完成文本问答与报告导出；图片生成、图片识别和语音转写属于可选的第三方服务能力。
 
 ## 本地开发
 
@@ -64,7 +92,7 @@ Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。当前 AI 助
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
 - 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 28 个测试文件、79 项 Vitest 测试，Playwright 结果见审计报告。
-- 当前 Playwright 24 个用例中有 16 项待修复（本地 canonical 基址断言与移动详情选择器），因此发布说明不会把本轮标记为 E2E 全链路通过。
+- 当前 Playwright 共 24 个用例，23 项通过、1 项按桌面条件跳过、0 项失败。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ### 在 Windows 上安装 Node.js

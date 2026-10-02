@@ -34,7 +34,7 @@ export function buildImageIndexRows(items, resolveMetadata) {
 }
 function summaryMarkdown(s) {
   const rows = Object.entries(s.categoryCounts).sort((a,b) => b[1]-a[1]).map(([key, count]) => '| ' + key + ' | ' + count + ' |').join('\n');
-  return ['数据版本：2026-09-27；统计日期：2026-09-29；口径：运行时归一化后的 breeds 数组。', '',
+  return ['数据版本：2026-09-27；统计日期：2026-10-02；口径：运行时归一化后的 breeds 数组。', '',
     '| 指标 | 实测值 |', '| --- | --- |', '| 馆藏条目 | ' + s.total + ' |', '| 唯一 ID / 名称 | ' + s.uniqueIds + ' / ' + s.uniqueNames + ' |',
     '| 覆盖省份 | ' + s.provinceCount + ' |', '| 分类 | ' + Object.keys(s.categoryCounts).length + ' |', '| 第 940 号公告畜禽名称匹配 | ' + s.nationalProtectionCount + ' / 271 |',
     '| 项目 SVG 占位图 | ' + s.placeholderCount + ' |', '', '| 类别 | 条目数 |', '| --- | --- |', rows, '',

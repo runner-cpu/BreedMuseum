@@ -24,10 +24,9 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import AIPrivacyNotice from '@/components/ai/AIPrivacyNotice';
-import { BackendUnavailable } from '@/components/ai/BackendUnavailable';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { type BackendConfig, readBackendConfig, requireSupabaseClient } from '@/config/backend';
@@ -36,7 +35,7 @@ import { breeds } from '@/data/breeds';
 import { safeAiErrorMessage } from '@/lib/safeAiError';
 import { sendStreamRequest } from '@/lib/sse';
 
-type AIMode = 'chat' | 'report';
+type AIMode = 'chat' | 'report' | 'image' | 'recognize';
 type Feedback = 'up' | 'down' | null;
 const MAX_AI_INPUT_LENGTH = 2000;
 
@@ -44,49 +43,27 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  kind?: 'text' | 'image' | 'recognize';
+  mediaUrl?: string;
+  loading?: boolean;
   downloadable?: boolean;
   downloadName?: string;
   feedback?: Feedback;
   copied?: boolean;
+  error?: boolean;
+  rawPrompt?: string;
 }
 
-const tokenize = (text: string) => text.toLowerCase().replace(/[？?，。,.、\s]/g, '').split('').filter(Boolean);
-
-function searchLocal(query: string) {
-  const normalized = query.toLowerCase();
-  const categoryNames = ['猪', '牛', '羊', '鸡', '鸭', '鹅', '马', '骆驼', '兔', '鸽', '其他'];
-  const category = categoryNames.find((item) => normalized.includes(item));
-  const province = breeds.map((breed) => breed.province).find((item) => normalized.includes(item));
-  const endangered = normalized.includes('濒危') || normalized.includes('保护');
-  const matchesFilters = (breed: (typeof breeds)[number]) =>
-    (!category || breed.category === category) &&
-    (!province || breed.province === province) &&
-    (!endangered || breed.endangered === '濒危' || breed.endangered === '极危');
-  const exact = breeds.filter((breed) => matchesFilters(breed) && normalized.includes(breed.name.toLowerCase()));
-  const tokens = tokenize(query);
-  const filtered = breeds.filter(matchesFilters);
-  const scored = filtered
-    .map((breed) => ({ breed, score: tokens.reduce((score, token) => score + (breed.name.includes(token) || breed.appearance.includes(token) || breed.performance.includes(token) ? 1 : 0), 0) }))
-    .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score)
-    .map(({ breed }) => breed);
-  // A filter-only query such as “濒危品种有哪些” has no breed keyword to score;
-  // return the filtered records instead of treating it as a failed search.
-  const matches = exact.length ? exact : scored.length ? scored : filtered;
-  return { category, province, endangered, matches: matches.slice(0, 8) };
+interface RecognizeResult {
+  breedId: string;
+  breedName: string;
+  category: string;
+  province: string;
+  confidence: number;
+  intro: string;
 }
 
-function buildAnswer(query: string, report: boolean) {
-  const result = searchLocal(query);
-  if (!result.matches.length) return '暂未在本地品种库中找到匹配记录。可以试试“青海有哪些牛”“濒危品种有哪些”或直接输入品种名称。';
-  const filters = [result.province, result.category, result.endangered ? '濒危/极危' : ''].filter(Boolean).join(' · ') || '关键词匹配';
-  const header = `找到 ${result.matches.length} 条匹配记录（展示前 8 条）。筛选条件：${filters}。\n\n`;
-  const fmt = (v: number | null | undefined) => (v === null || v === undefined ? '—' : v);
-  const rows = result.matches.map((breed) => [`### ${breed.name}（${breed.category} · ${breed.province} · ${breed.endangered}）`, `- 外貌：${breed.appearance}`, `- 性能：${breed.performance}`, `- 方向性评分：产肉 ${fmt(breed.radar.meat)} / 产奶 ${fmt(breed.radar.milk)} / 繁殖 ${fmt(breed.radar.reproduction)} / 役用 ${fmt(breed.radar.labor)} / 适应性 ${fmt(breed.radar.adaptability)}`, `- 数据来源：公开资料整理，待逐条核验`].join('\n')).join('\n\n');
-  if (!report) return `${header}${rows}\n\n评分说明：五维雷达为方向性定性评分（0-100），用于科普浏览，不替代生产性能测定。`;
-  return `# ${query.slice(0, 40)}\n\n${header}${rows}\n\n## 数据边界\n本报告由本地静态品种库检索生成。文字描述与雷达值用于科普浏览，不替代生产性能测定；坐标为城市级主产地。`;
-}
-
+// ---- 音频工具函数 ----
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   let binary = '';
   const bytes = new Uint8Array(buffer);
@@ -176,6 +153,44 @@ const buildKnowledgeBase = () => {
     .join('；');
 };
 
+const normalizeLocalQuery = (text: string) => text.toLocaleLowerCase().replace(/[？?，。,.、\s]/g, '');
+
+function searchLocal(query: string) {
+  const normalized = normalizeLocalQuery(query);
+  const categories = ['猪', '牛', '羊', '鸡', '鸭', '鹅', '马', '骆驼', '兔', '鸽', '其他'];
+  const category = categories.find((item) => normalized.includes(item));
+  const province = breeds.map((breed) => breed.province).find((item) => normalized.includes(item));
+  const endangered = normalized.includes('濒危') || normalized.includes('保护');
+  const matchesFilters = (breed: (typeof breeds)[number]) =>
+    (!category || breed.category === category) && (!province || breed.province === province) && (!endangered || breed.endangered === '濒危' || breed.endangered === '极危');
+  const filtered = breeds.filter(matchesFilters);
+  const exact = filtered.filter((breed) => normalized.includes(normalizeLocalQuery(breed.name)));
+  const tokens = normalized.split('').filter(Boolean);
+  const scored = filtered
+    .map((breed) => ({ breed, score: tokens.reduce((score, token) => score + (breed.name.includes(token) || breed.appearance.includes(token) || breed.performance.includes(token) ? 1 : 0), 0) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ breed }) => breed);
+  return { category, province, endangered, matches: (exact.length ? exact : scored.length ? scored : filtered).slice(0, 8) };
+}
+
+function buildLocalAnswer(query: string, report: boolean) {
+  const result = searchLocal(query);
+  if (!result.matches.length) return '暂未在本地品种库中找到匹配记录。可以试试“青海有哪些牛”“濒危品种有哪些”或直接输入品种名称。';
+  const filters = [result.province, result.category, result.endangered ? '濒危/极危' : ''].filter(Boolean).join(' · ') || '关键词匹配';
+  const format = (value: number | null | undefined) => (value === null || value === undefined ? '—' : value);
+  const header = '找到 ' + result.matches.length + ' 条匹配记录（展示前 8 条）。筛选条件：' + filters + '。\n\n';
+  const rows = result.matches.map((breed) => [
+    '### ' + breed.name + '（' + breed.category + ' · ' + breed.province + ' · ' + breed.endangered + '）',
+    '- 外貌：' + breed.appearance,
+    '- 性能：' + breed.performance,
+    '- 方向性评分：产肉 ' + format(breed.radar.meat) + ' / 产奶 ' + format(breed.radar.milk) + ' / 繁殖 ' + format(breed.radar.reproduction) + ' / 役用 ' + format(breed.radar.labor) + ' / 适应性 ' + format(breed.radar.adaptability),
+    '- 数据来源：公开资料整理，待逐条核验',
+  ].join('\n')).join('\n\n');
+  const boundary = '评分为方向性定性评分（0-100），用于科普浏览，不替代生产性能测定。';
+  return report ? '# ' + query.slice(0, 40) + '\n\n' + header + rows + '\n\n## 数据边界\n本报告由本地静态品种库检索生成。' + boundary : header + rows + '\n\n' + boundary;
+}
+
 /** Wait without keeping a polling loop alive after the page is left. */
 const sleep = (ms: number, signal?: AbortSignal): Promise<boolean> =>
   new Promise((resolve) => {
@@ -199,7 +214,8 @@ const isAbortError = (error: unknown): boolean =>
   (error instanceof Error && error.name === 'AbortError');
 
 const downloadText = (filename: string, text: string) => {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
@@ -208,39 +224,56 @@ const downloadText = (filename: string, text: string) => {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
-const downloadPdf = async (filename: string, title: string, text: string) => {
+/** 将报告文本渲染为 PDF 并下载（前端 html2canvas + jsPDF 方案） */
+const downloadPdf = async (filename: string, title: string, text: string): Promise<boolean> => {
   const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;color:#1a1a1a;padding:48px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;font-family:system-ui,"Microsoft YaHei",sans-serif;';
-  const heading = document.createElement('h1');
-  heading.textContent = title;
-  heading.style.cssText = 'font-size:22px;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid #d4a853;';
+  container.style.cssText =
+    'position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;color:#1a1a1a;padding:48px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;';
+  const h1 = document.createElement('h1');
+  h1.style.cssText = 'font-size:22px;font-weight:700;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid #d4a853;';
+  h1.textContent = title;
   const body = document.createElement('div');
   body.textContent = text;
-  container.append(heading, body);
+  container.appendChild(h1);
+  container.appendChild(body);
   document.body.appendChild(container);
   try {
-    const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#fff' });
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
+    const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageW = 210;
+    const pageH = 297;
     const pxPerMm = canvas.width / pageW;
-    const pageH = Math.floor(297 * pxPerMm);
-    for (let offset = 0, pageIndex = 0; offset < canvas.height; offset += pageH, pageIndex += 1) {
-      const height = Math.min(pageH, canvas.height - offset);
+    const pageCanvasH = Math.floor(pageH * pxPerMm);
+    let rendered = 0;
+    while (rendered < canvas.height) {
+      const h = Math.min(pageCanvasH, canvas.height - rendered);
       const page = document.createElement('canvas');
       page.width = canvas.width;
-      page.height = height;
-      page.getContext('2d')?.drawImage(canvas, 0, offset, canvas.width, height, 0, 0, canvas.width, height);
-      if (pageIndex) pdf.addPage();
-      pdf.addImage(page.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, height / pxPerMm);
+      page.height = h;
+      const ctx = page.getContext('2d');
+      if (!ctx) return false;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, page.width, page.height);
+      ctx.drawImage(canvas, 0, rendered, canvas.width, h, 0, 0, canvas.width, h);
+      if (rendered > 0) pdf.addPage();
+      pdf.addImage(page.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, h / pxPerMm);
+      rendered += h;
     }
     pdf.save(filename);
     return true;
+  } catch (e) {
+    console.error('PDF 生成失败:', e);
+    return false;
   } finally {
-    container.remove();
+    document.body.removeChild(container);
   }
 };
 
-const AIAssistantPage: React.FC = () => {
+const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend }) => {
+  const supabaseUrl = backend?.url ?? '';
+  const supabaseAnonKey = backend?.anonKey ?? '';
+  const navigate = useNavigate();
   const { t } = useSettings();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -251,8 +284,9 @@ const AIAssistantPage: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<AIMode>('chat');
-  const [input, setInput] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [pdfBuilding, setPdfBuilding] = useState<string | null>(null);
   const [chatError, setChatError] = useState<string | null>(null);
   const lastPromptRef = useRef<{ content: string; systemPrompt: string; opts: { downloadable?: boolean; downloadName?: string } } | null>(null);
@@ -334,11 +368,17 @@ const AIAssistantPage: React.FC = () => {
   const quickQuestions = [t('ai.qq1'), t('ai.qq2'), t('ai.qq3')];
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    const element = scrollRef.current;
+    if (!element) return;
+    if (typeof element.scrollTo === 'function') {
+      element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
+    } else {
+      element.scrollTop = element.scrollHeight;
+    }
   }, [messages]);
 
   const updateMessage = useCallback((id: string, patch: Partial<ChatMessage>) => {
-    setMessages((current) => current.map((message) => (message.id === id ? { ...message, ...patch } : message)));
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   }, []);
 
   // 文本流式生成（对话/报告）
@@ -363,6 +403,13 @@ const AIAssistantPage: React.FC = () => {
       };
 
       try {
+        if (!backend) {
+          streamingRef.current = buildLocalAnswer(content, Boolean(opts.downloadable));
+          flush();
+          updateMessage(assistantId, { downloadable: opts.downloadable, downloadName: opts.downloadName });
+          setIsStreaming(false);
+          return;
+        }
         await sendStreamRequest({
           functionUrl: `${supabaseUrl}/functions/v1/wenxin-text-generation`,
           requestBody: {
@@ -417,7 +464,7 @@ const AIAssistantPage: React.FC = () => {
         if (mountedRef.current && !controller.signal.aborted) setIsStreaming(false);
       }
     },
-    [supabaseAnonKey, supabaseUrl, t, updateMessage],
+    [backend, supabaseAnonKey, supabaseUrl, t, updateMessage],
   );
 
   // 失败消息重试
@@ -441,6 +488,10 @@ const AIAssistantPage: React.FC = () => {
       const controller = new AbortController();
       operationAbortRef.current = controller;
       try {
+        if (!backend) {
+          updateMessage(assistantId, { loading: false, content: '图片生成需要配置 AI 服务。你仍可使用本地品种问答和报告。', error: true });
+          return;
+        }
         const supabase = await requireSupabaseClient();
         if (controller.signal.aborted) return;
         const enPrompt = `A ${prompt}, Chinese local livestock breed, full body standard photo, pure white background, high quality, detailed, photorealistic`;
@@ -482,7 +533,7 @@ const AIAssistantPage: React.FC = () => {
         if (mountedRef.current) setMediaBusy(false);
       }
     },
-    [updateMessage, t],
+    [backend, updateMessage, t],
   );
 
   // 图片识别
@@ -494,6 +545,10 @@ const AIAssistantPage: React.FC = () => {
     const controller = new AbortController();
     operationAbortRef.current = controller;
     try {
+      if (!backend) {
+        setRecognizeError('图片识别需要配置 AI 服务。你仍可使用本地品种问答和报告。');
+        return;
+      }
       const base64 = await fileToBase64(file);
       if (controller.signal.aborted) return;
       const supabase = await requireSupabaseClient();
@@ -543,7 +598,7 @@ const AIAssistantPage: React.FC = () => {
       if (operationAbortRef.current === controller) operationAbortRef.current = null;
       if (mountedRef.current) setRecognizing(false);
     }
-  }, [t]);
+  }, [backend, t]);
 
   const handleFileSelect = useCallback(
     (file: File | undefined) => {
@@ -778,7 +833,7 @@ const AIAssistantPage: React.FC = () => {
     } catch {
       toast.error(t('common.copyFailTip'));
     }
-  }, [t, updateMessage]);
+  }, [t]);
 
   const rateMessage = useCallback((id: string, feedback: Feedback) => {
     setMessages((prev) =>
@@ -791,6 +846,13 @@ const AIAssistantPage: React.FC = () => {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-hidden px-4 py-3">
+      {!backend && (
+        <section className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50/70 px-4 py-3 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
+          <h2 className="font-semibold">AI 服务尚未配置</h2>
+          <p className="mt-1">当前使用本地静态品种库回答文本问题；图片生成、图片识别和语音转写需要配置 AI 服务。</p>
+          <Link className="mt-2 inline-flex min-h-11 items-center rounded-md underline underline-offset-4" to="/encyclopedia">浏览品种百科</Link>
+        </section>
+      )}
       <AIPrivacyNotice />
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -1229,4 +1291,7 @@ const AIAssistantPage: React.FC = () => {
   );
 };
 
-export default AIAssistantPage;
+export default function AIAssistantPage() {
+  const backend = readBackendConfig();
+  return <ConfiguredAssistant backend={backend ?? undefined} />;
+}
