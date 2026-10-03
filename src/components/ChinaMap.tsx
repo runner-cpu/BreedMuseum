@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
 import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
@@ -29,6 +30,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   onBreedClick,
   onClearSelection,
 }) => {
+  const { t } = useSettings();
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
 
@@ -76,7 +78,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="transparent" />
 
         {Object.entries(provincePaths).map(([fullName, d]) => {
-          const simpleName = fullName.replace(/省|市|自治区|特别行政区/g, '');
+          const simpleName = fullName.replace(/省|市|壮族自治区|回族自治区|维吾尔自治区|自治区|特别行政区/g, '');
           const isSelected = selectedProvince === simpleName;
           const isHovered = hoveredProvince === fullName;
           const hasData = provinceHasData.has(simpleName);
@@ -86,7 +88,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               d={d}
               role="button"
               tabIndex={0}
-              aria-label={simpleName + ' province'}
+              aria-label={t('map.provinceAria').replace('{name}', simpleName)}
               aria-pressed={isSelected}
               fill={
                 isSelected
@@ -105,10 +107,15 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               onMouseLeave={() => setHoveredProvince(null)}
               onFocus={() => setHoveredProvince(fullName)}
               onBlur={() => setHoveredProvince(null)}
-              onClick={() => onProvinceClick(simpleName)}
+              onClick={(event) => {
+                // 阻止冒泡到 SVG 根的“点击空白清除选择”，否则省份选中会被立即清空
+                event.stopPropagation();
+                onProvinceClick(simpleName);
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
+                  event.stopPropagation();
                   onProvinceClick(simpleName);
                 }
               }}
@@ -126,7 +133,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               className="cursor-pointer"
               role="button"
               tabIndex={0}
-              aria-label={breed.name + ' breed'}
+              aria-label={t('map.pointAria').replace('{name}', breed.name)}
               aria-pressed={isSelected}
               onClick={(e) => {
                 e.stopPropagation();
@@ -198,17 +205,17 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         <div className="absolute bottom-3 left-3 z-10 bg-card/90 backdrop-blur border border-border rounded-lg shadow-lg px-3 py-2 text-xs space-y-1">
           <div className="flex items-center gap-2">
             <span className="w-4 h-3 rounded-sm bg-primary border border-border" />
-            <span className="text-muted-foreground">当前品种所在省份</span>
+            <span className="text-muted-foreground">{t('map.legendProvince')}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-primary border-2 border-card" />
-            <span className="text-muted-foreground">当前查看品种</span>
+            <span className="text-muted-foreground">{t('map.legendSelected')}</span>
           </div>
         </div>
       )}
 
       <div className="absolute top-3 right-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm">
-        点位为主产地城市级坐标；同城品种已错位展示
+        {t('map.coordNote')}
       </div>
 
       {/* 悬停信息卡片 */}

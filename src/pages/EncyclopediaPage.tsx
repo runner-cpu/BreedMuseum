@@ -81,7 +81,7 @@ const EncyclopediaPage: React.FC = () => {
       return;
     }
     const canonical = serializeEncyclopediaQuery({
-      search: searchInput,
+      search: debouncedSearch,
       province: filterProvince,
       category: selectedCategory,
       endangered: filterEndangered,
@@ -89,7 +89,7 @@ const EncyclopediaPage: React.FC = () => {
     if (canonical !== queryString) {
       setSearchParams(canonical, { replace: true });
     }
-  }, [filterEndangered, filterProvince, queryString, searchInput, selectedCategory, setSearchParams]);
+  }, [debouncedSearch, filterEndangered, filterProvince, queryString, selectedCategory, setSearchParams]);
 
   // 300ms 搜索防抖
   useEffect(() => {
@@ -108,6 +108,18 @@ const EncyclopediaPage: React.FC = () => {
   }, [selectedCategory, filterProvince, filterEndangered, debouncedSearch]);
 
   const filtered = sortBreedsByRelevance(allMatches, debouncedSearch);
+
+  // 结果集变化时回到列表顶部，避免深入浏览后新搜索停在中部
+  useEffect(() => {
+    if (!scrollParent) return;
+    if (typeof scrollParent.scrollTo === 'function') {
+      scrollParent.scrollTo({ top: 0 });
+    } else {
+      scrollParent.scrollTop = 0;
+    }
+  }, [debouncedSearch, selectedCategory, filterProvince, filterEndangered, scrollParent]);
+
+  const coveredProvinces = useMemo(() => new Set(breeds.map((b) => b.province)), []);
 
   const totalMatch = allMatches.length;
 
@@ -135,7 +147,7 @@ const EncyclopediaPage: React.FC = () => {
       toast.error(t('enc.exportEmpty'));
       return;
     }
-    exportBreedsToCSV(allMatches, '中国地方畜禽品种.csv');
+    exportBreedsToCSV(allMatches, t('enc.csvName'));
     toast.success(t('enc.exported'));
   };
 
@@ -162,7 +174,7 @@ const EncyclopediaPage: React.FC = () => {
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="search"
-            aria-label="搜索百科品种"
+            aria-label={t('enc.searchAria')}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t('enc.searchPlaceholder')}
@@ -170,24 +182,24 @@ const EncyclopediaPage: React.FC = () => {
           />
         </div>
         <Select value={filterProvince} onValueChange={setFilterProvince}>
-          <SelectTrigger aria-label="筛选省份" className="w-[140px] min-h-11">
+          <SelectTrigger aria-label={t('enc.filterProvinceAria')} className="w-[140px] min-h-11">
             <SelectValue placeholder={t('enc.filterProvince')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('enc.allProvinces')}</SelectItem>
-            {provinces.map((p) => (
+            {provinces.filter((p) => coveredProvinces.has(p)).map((p) => (
               <SelectItem key={p} value={p}>{p}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={filterEndangered} onValueChange={setFilterEndangered}>
-          <SelectTrigger aria-label="筛选濒危等级" className="w-[140px] min-h-11">
+          <SelectTrigger aria-label={t('enc.filterEndangeredAria')} className="w-[140px] min-h-11">
             <SelectValue placeholder={t('enc.filterLevel')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('enc.allLevels')}</SelectItem>
             {endangeredLevels.map((l) => (
-              <SelectItem key={l} value={l}>{l}</SelectItem>
+              <SelectItem key={l} value={l}>{t(`level.${l}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -236,6 +248,35 @@ const EncyclopediaPage: React.FC = () => {
         {t('enc.total').replace('{n}', String(totalMatch))}
       </p>
 
+      {hasActiveFilter && (
+        <div className="flex flex-wrap items-center gap-2 mb-4" aria-label={t('enc.activeFilters')}>
+          {searchInput && (
+            <button type="button" onClick={() => setSearchInput('')}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs text-foreground hover:bg-accent">
+              “{searchInput}”<X className="w-3 h-3" aria-hidden="true" />
+            </button>
+          )}
+          {selectedCategory && (
+            <button type="button" onClick={() => setSelectedCategory(null)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs text-foreground hover:bg-accent">
+              {t(`cat.${selectedCategory}`)}<X className="w-3 h-3" aria-hidden="true" />
+            </button>
+          )}
+          {filterProvince !== 'all' && (
+            <button type="button" onClick={() => setFilterProvince('all')}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs text-foreground hover:bg-accent">
+              {filterProvince}<X className="w-3 h-3" aria-hidden="true" />
+            </button>
+          )}
+          {filterEndangered !== 'all' && (
+            <button type="button" onClick={() => setFilterEndangered('all')}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs text-foreground hover:bg-accent">
+              {t(`level.${filterEndangered}`)}<X className="w-3 h-3" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <div className="text-center py-20">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -245,7 +286,7 @@ const EncyclopediaPage: React.FC = () => {
             {debouncedSearch ? t('enc.noResult') : t('enc.emptyFilter')}
           </p>
           <p className="text-sm text-muted-foreground mb-4">
-            {debouncedSearch ? t('enc.adjustFilter') : t('common.clear')}
+            {debouncedSearch ? t('enc.adjustFilter') : t('enc.emptyFilterDesc')}
           </p>
           <Button variant="default" onClick={clearAll}>{t('enc.viewAll')}</Button>
         </div>
@@ -260,7 +301,7 @@ const EncyclopediaPage: React.FC = () => {
             <motion.button
               key={breed.id}
               type="button"
-              aria-label={`查看${breed.name}`}
+              aria-label={t('enc.viewBreed').replace('{name}', breed.name)}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(index * 0.03, 0.3) }}
@@ -285,13 +326,13 @@ const EncyclopediaPage: React.FC = () => {
                     className="px-1.5 py-0.5 rounded-full text-[10px] font-medium text-white"
                     style={{ backgroundColor: categoryColors[breed.category] }}
                   >
-                    {breed.category}
+                    {t(`cat.${breed.category}`)}
                   </span>
                   <span
                     className="px-1.5 py-0.5 rounded-full text-[10px] font-medium text-white"
                     style={{ backgroundColor: endangeredColors[breed.endangered] }}
                   >
-                    {breed.endangered}
+                    {t(`level.${breed.endangered}`)}
                   </span>
                 </div>
               </div>

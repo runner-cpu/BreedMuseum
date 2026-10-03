@@ -14,7 +14,18 @@ interface SettingsContextValue {
   t: (key: string) => string;
 }
 
-const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
+/** 无 Provider 时的回退值：zh + 词典直查，保证叶子组件在测试/独立渲染时可用 */
+const fallbackSettings: SettingsContextValue = {
+  language: 'zh',
+  setLanguage: () => {},
+  theme: 'system',
+  setTheme: () => {},
+  cycleTheme: () => {},
+  isDark: false,
+  t: (key) => dictionary[key]?.zh ?? key,
+};
+
+const SettingsContext = createContext<SettingsContextValue>(fallbackSettings);
 
 // 翻译字典：覆盖导航、首页、按钮、标题等高频界面文案
 const dictionary: Record<string, { zh: string; en: string }> = {
@@ -43,10 +54,8 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'home.heroTitle': { zh: '中国地方畜禽品种数字博物馆', en: 'China Local Livestock Breed Digital Museum' },
   'home.heroSub': { zh: '探索地方畜禽遗传资源，守护中华农业文明基因', en: 'Explore local livestock genetic resources and Chinese agricultural heritage' },
   'home.startExplore': { zh: '开始探索', en: 'Start Exploring' },
-  'home.statBreeds': { zh: '收录品种', en: 'Breeds' },
   'home.statProvinces': { zh: '覆盖省份', en: 'Provinces' },
   'home.statCategories': { zh: '畜禽类别', en: 'Categories' },
-  'home.statEndangered': { zh: '编辑濒危标签', en: 'Endangered Breeds' },
   'home.features': { zh: '核心功能', en: 'Core Features' },
   'home.fMap': { zh: '品种地图探索', en: 'Explore Breed Map' },
   'home.fMapDesc': { zh: '在地图上查看全国品种分布', en: 'View the nationwide distribution of breeds on the map' },
@@ -71,12 +80,9 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'enc.noResult': { zh: '未找到该品种，试试其他关键词', en: 'No breed found, try other keywords' },
   'enc.viewAll': { zh: '查看全部品种', en: 'View all breeds' },
   'enc.total': { zh: '共 {n} 个品种', en: '{n} breeds in total' },
-  'enc.showing': { zh: '显示第 {a}-{b} 条，共 {n} 条', en: 'Showing {a}-{b} of {n}' },
   'enc.allProvinces': { zh: '全部省份', en: 'All Provinces' },
   'enc.allLevels': { zh: '全部等级', en: 'All Levels' },
   'enc.emptyFilter': { zh: '该条件下暂无品种', en: 'No breeds match these filters' },
-  'enc.prev': { zh: '上一页', en: 'Previous' },
-  'enc.next': { zh: '下一页', en: 'Next' },
   // 详情
   'detail.appearance': { zh: '体貌特征', en: 'Appearance' },
   'detail.performance': { zh: '生产性能', en: 'Performance' },
@@ -116,9 +122,6 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'ai.qq1': { zh: '青海有哪些特色畜种？', en: 'What specialty breeds does Qinghai have?' },
   'ai.qq2': { zh: '浙江省的猪品种有哪些？', en: 'What pig breeds are in Zhejiang?' },
   'ai.qq3': { zh: '适合南方养殖的牛品种推荐', en: 'Recommended cattle breeds for southern China' },
-  'ai.qq4': { zh: '八眉猪有什么特点？', en: 'What are the traits of Bamei pigs?' },
-  'ai.qq5': { zh: '西藏的绵羊品种有哪些？', en: 'What sheep breeds are in Xizang?' },
-  'ai.qq6': { zh: '哪些品种属于濒危保护品种？', en: 'Which breeds are endangered?' },
   'app.title': { zh: '地方畜禽数字博物馆', en: 'China Local Livestock Digital Museum' },
   'map.title': { zh: '品种分布地图', en: 'Breed Distribution Map' },
   'map.breedUnit': { zh: '个品种', en: 'breeds' },
@@ -183,9 +186,77 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'dash.pngDone': { zh: 'PNG 已导出', en: 'PNG exported' },
   'dash.csvDone': { zh: 'CSV 已导出', en: 'CSV exported' },
   'nf.title': { zh: '页面未找到', en: 'Page Not Found' },
-  'nf.error': { zh: '错误', en: 'Error' },
-  'nf.desc': { zh: '页面可能已被删除或不存在，请检查网址是否正确。', en: 'The page may have been removed or does not exist. Please check the URL.' },
-  'nf.backHome': { zh: '返回首页', en: 'Back to Home' },
+    'nf.desc': { zh: '页面可能已被删除或不存在，请检查网址是否正确。', en: 'The page may have been removed or does not exist. Please check the URL.' },
+  'nf.metaDesc': { zh: '地址未找到，返回博物馆或浏览品种百科。', en: 'Page not found. Return to the museum or browse the encyclopedia.' },
+  'nf.body': { zh: '这个地址没有对应的馆藏页面。', en: 'This address does not match a museum page.' },
+  'nf.backHome': { zh: '返回首页', en: 'Home' },
+  'nf.browseEnc': { zh: '浏览品种百科', en: 'Browse breeds' },
+  'common.loadingPage': { zh: '正在加载页面…', en: 'Loading page…' },
+  'hero.searchAria': { zh: '搜索馆藏品种', en: 'Search the collection' },
+  'layout.skip': { zh: '跳到主要内容', en: 'Skip to content' },
+  'layout.home': { zh: '博物馆首页', en: 'Museum home' },
+  'layout.mainNav': { zh: '主导航', en: 'Main navigation' },
+  'layout.searchBreeds': { zh: '搜索品种', en: 'Search breeds' },
+  'layout.searchPlaceholder': { zh: '搜索品种 / 别名', en: 'Search breeds / aliases' },
+  'layout.openSearch': { zh: '打开品种搜索', en: 'Open breed search' },
+  'layout.openMenu': { zh: '打开导航菜单', en: 'Open navigation menu' },
+  'layout.navTitle': { zh: '参观导航', en: 'Museum navigation' },
+  'layout.navDesc': { zh: '查找品种，探索馆藏。', en: 'Search breeds and explore the collection.' },
+  'layout.startSearch': { zh: '开始搜索', en: 'Search' },
+  'layout.mobileNav': { zh: '移动导航', en: 'Mobile navigation' },
+  'layout.appearanceLang': { zh: '外观与语言', en: 'Appearance & language' },
+  'layout.categories': { zh: '馆藏分类', en: 'CATEGORIES' },
+  'layout.filterButton': { zh: '畜种筛选', en: 'Categories' },
+  'layout.filterTitle': { zh: '筛选馆藏', en: 'Filter collection' },
+  'layout.filterDesc': { zh: '按畜禽类别浏览，可随时切回全部。', en: 'Choose a category or view all breeds.' },
+  'layout.catNav': { zh: '畜种分类', en: 'Breed categories' },
+  'layout.changeTheme': { zh: '切换主题', en: 'Change theme' },
+  'layout.changeLang': { zh: '切换语言', en: 'Change language' },
+  'layout.footerTagline': { zh: '传承农耕文明 · 站内收录', en: 'Museum collection' },
+  'layout.unitRecords': { zh: '条', en: 'records' },
+  'layout.updated': { zh: '数据更新', en: 'Updated' },
+  'layout.privacyLink': { zh: '隐私与 AI 说明', en: 'Privacy & AI use' },
+  'layout.imageSources': { zh: '图片来源说明', en: 'Image sources' },
+  'layout.qualityReport': { zh: '审计报告', en: 'Quality report' },
+  'layout.narrativesZh': { zh: '', en: 'Breed narratives: Chinese' },
+  'map.breedResults': { zh: '品种搜索结果', en: 'Breed results' },
+  'map.collapseAll': { zh: '收起全部品种（{n}）', en: 'Collapse all breeds ({n})' },
+  'map.showAllCount': { zh: '显示全部品种（{n}）', en: 'Show all breeds ({n})' },
+  'map.collapseList': { zh: '收起品种列表', en: 'Collapse breed list' },
+  'map.showAllShort': { zh: '显示全部（{n}）', en: 'Show all ({n})' },
+  'map.allFiltered': { zh: '全部筛选品种', en: 'All filtered breeds' },
+  'map.nameProvince': { zh: '{name}，{province}', en: '{name}, {province}' },
+  'map.noMatch': { zh: '未找到符合条件的品种。', en: 'No matching breeds.' },
+  'map.clearFilters': { zh: '清除筛选', en: 'Clear filters' },
+  'map.pointsNote': { zh: '地图点位用于示意主要产区，并非精确分布边界。', en: 'Points indicate approximate origin areas, not distribution boundaries.' },
+  'map.detailAria': { zh: '品种详情', en: 'Breed detail' },
+  'map.detailSheetDesc': { zh: '向下浏览品种特征与数据来源。', en: 'Read the breed profile and sources.' },
+  'map.legendProvince': { zh: '当前品种所在省份', en: 'Province of the current list' },
+  'map.legendSelected': { zh: '当前查看品种', en: 'Currently viewed breed' },
+  'map.coordNote': { zh: '点位为主产地城市级坐标；同城品种已错位展示', en: 'Points are city-level origin coordinates; same-city breeds are offset.' },
+  'map.provinceAria': { zh: '{name}', en: '{name} province' },
+  'map.pointAria': { zh: '地图点位：{name}', en: 'Map point: {name}' },
+  'enc.searchAria': { zh: '搜索百科品种', en: 'Search encyclopedia breeds' },
+  'enc.filterProvinceAria': { zh: '筛选省份', en: 'Filter by province' },
+  'enc.filterEndangeredAria': { zh: '筛选濒危等级', en: 'Filter by endangered level' },
+  'enc.viewBreed': { zh: '查看{name}', en: 'View {name}' },
+  'enc.csvName': { zh: '中国地方畜禽品种.csv', en: 'china-local-breeds.csv' },
+  'enc.emptyFilterDesc': { zh: '当前筛选组合没有匹配的品种，可调整或清空筛选。', en: 'No breeds match the current filter combination. Adjust or clear the filters.' },
+  'enc.activeFilters': { zh: '当前筛选条件', en: 'Active filters' },
+  'level.普通': { zh: '普通', en: 'Common' },
+  'level.易危': { zh: '易危', en: 'Vulnerable' },
+  'level.濒危': { zh: '濒危', en: 'Endangered' },
+  'level.待核验': { zh: '待核验', en: 'Unverified' },
+  'ai.notConfiguredTitle': { zh: 'AI 服务尚未配置', en: 'AI service is not configured' },
+  'ai.notConfiguredBody': { zh: '当前使用本地静态品种库回答文本问题；图片生成、图片识别和语音转写需要配置 AI 服务。', en: 'Text questions are answered from the built-in local dataset; image generation, recognition and voice transcription require an AI service.' },
+  'ai.browseEncLink': { zh: '浏览品种百科', en: 'Browse the encyclopedia' },
+  'ai.imgGenNeedConfig': { zh: '图片生成需要配置 AI 服务。你仍可使用本地品种问答和报告。', en: 'Image generation needs an AI service. Local Q&A and reports still work.' },
+  'ai.recognizeNeedConfig': { zh: '图片识别需要配置 AI 服务。你仍可使用本地品种问答和报告。', en: 'Image recognition needs an AI service. Local Q&A and reports still work.' },
+  'ai.reportFileName': { zh: '品种报告', en: 'breed-report' },
+
+
+
+
   'dash.catCompare': { zh: '各类别品种数量对比', en: 'Breed Count by Category' },
   'dash.catCompareDesc': { zh: '畜禽类别横向对比', en: 'Comparison across livestock categories' },
   'dash.protectedDist': { zh: '国家级保护名录分布', en: 'Protected Breeds Distribution' },
@@ -218,7 +289,6 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'dash.density': { zh: '各省品种密度热力图', en: 'Breed Density Heatmap by Province' },
   'dash.densityDesc': { zh: '颜色越深表示品种数量越多', en: 'Darker color means more breeds' },
   'dash.unit': { zh: '个', en: '' },
-  'ai.fallback': { zh: '抱歉，暂时无法回答该问题，请换个问法试试', en: 'Sorry, I cannot answer that right now. Please try another way.' },
   'ai.modeChat': { zh: '对话', en: 'Chat' },
   'ai.modeReport': { zh: '生成报告', en: 'Generate Report' },
   'ai.modeImage': { zh: '生成图片', en: 'Generate Image' },
@@ -228,11 +298,10 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'ai.recognizeFail': { zh: '未识别到畜禽品种，请尝试上传更清晰的图片', en: 'No livestock breed recognized. Please try a clearer image.' },
   'ai.recognizeUpload': { zh: '点击或拖拽上传图片', en: 'Click or drag to upload an image' },
   'ai.recognizeHint': { zh: '支持 JPG / PNG / WebP 格式', en: 'Supports JPG / PNG / WebP' },
-  'ai.recognizeBtn': { zh: '开始识别', en: 'Start Recognition' },
   'ai.recognizeAnother': { zh: '重新识别', en: 'Recognize Another' },
   'ai.recognizeBreed': { zh: '识别品种', en: 'Recognized Breed' },
   'ai.recognizeCategory': { zh: '品种类别', en: 'Category' },
-  'ai.recognizeConfidence': { zh: '置信度', en: 'Confidence' },
+  'ai.recognizeConfidence': { zh: '名称匹配度', en: 'Name-match score' },
   'ai.recognizeIntro': { zh: '品种简介', en: 'Breed Intro' },
   'ai.recognizeViewDetail': { zh: '查看详情', en: 'View Details' },
   'ai.recognizeNoMatch': { zh: '识别结果', en: 'Recognition Result' },
@@ -295,7 +364,6 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'home.footerLog3': { zh: '2026-08-15 · 接入 AI 智能问答功能', en: '2026-08-15 · Integrated AI Q&A' },
   'enc.filterProvince': { zh: '按省份筛选', en: 'Filter by Province' },
   'enc.filterLevel': { zh: '按等级筛选', en: 'Filter by Level' },
-  'enc.searchLimit': { zh: '（仅显示前50条）', en: '(showing first 50)' },
   'enc.adjustFilter': { zh: '调整筛选条件或查看全部品种', en: 'Adjust filters or view all breeds' },
   'enc.exportEmpty': { zh: '当前没有可导出的品种', en: 'No breeds to export' },
   'enc.exported': { zh: '已导出数据', en: 'Data exported' },
@@ -424,8 +492,4 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
-export const useSettings = (): SettingsContextValue => {
-  const ctx = useContext(SettingsContext);
-  if (!ctx) throw new Error('useSettings must be used within SettingsProvider');
-  return ctx;
-};
+export const useSettings = (): SettingsContextValue => useContext(SettingsContext);

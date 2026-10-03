@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Search } from 'lucide-react';
 import { provincePaths, mapViewBox } from '@/data/chinaMap';
+import { useSettings } from '@/contexts/AppSettings';
 import { Button } from '@/components/ui/button';
 
 // 各省份高亮配色（聚光时显示的彩色地图）
@@ -41,6 +42,7 @@ const SpotlightHero = ({
   onExplore,
   onSearch,
 }: SpotlightHeroProps) => {
+  const { t } = useSettings();
   const reduceMotion = useReducedMotion();
   const [pos, setPos] = useState({ x: '50%', y: '50%' });
   const [q, setQ] = useState('');
@@ -126,11 +128,11 @@ const SpotlightHero = ({
           <Search className="w-4 h-4 text-white/50 shrink-0" />
           <input
             type="search"
-            aria-label="搜索馆藏品种"
+            aria-label={t('hero.searchAria')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={searchPh}
-            className="h-11 flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/40 outline-none px-1"
+            className="h-11 flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/65 outline-none px-1"
           />
           <Button
             type="submit"
