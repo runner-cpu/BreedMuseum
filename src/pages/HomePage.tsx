@@ -31,7 +31,7 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { setSelectedCategory, setSelectedBreedId, setSearchValue } = useMuseum();
+  const { setSelectedCategory, setSelectedBreedId } = useMuseum();
   const { t } = useSettings();
 
   const distinctProvinces = COLLECTION_SUMMARY.provinces;
@@ -97,8 +97,8 @@ const HomePage: React.FC = () => {
 
   const handleHeroSearch = (q: string) => {
     const query = q.trim();
-    setSearchValue(query);
-    // 首页搜索与百科页全局联动
+    // 百科页自行从 URL 读取搜索词；这里不再写入全局状态，
+    // 避免残留的搜索词在之后打开 /map 时造成“莫名被筛选”。
     if (query) {
       navigate(`/encyclopedia?search=${encodeURIComponent(query)}`);
     } else {
@@ -142,7 +142,7 @@ const HomePage: React.FC = () => {
               <ScrollFloat text={t('home.coreData')} />
             </h2>
             <ChromaGrid items={statItems} columns={4} onNavigate={(url) => navigate(url)} />
-            <p className="text-center text-xs text-white/40 mt-8">{t('home.dataSource')}</p>
+            <p className="text-center text-xs text-white/60 mt-8">{t('home.dataSource')}</p>
           </div>
         </section>
 
@@ -206,7 +206,7 @@ const HomePage: React.FC = () => {
                     />
                     <div className="p-2.5">
                       <h3 className="text-sm font-semibold text-white truncate">{breed.name}</h3>
-                      <p className="text-xs text-white/40 mt-0.5 flex items-center gap-1">
+                      <p className="text-xs text-white/60 mt-0.5 flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {breed.province}
                       </p>
@@ -270,15 +270,15 @@ const HomePage: React.FC = () => {
                   <BrandLogo compact className="h-8 w-8" />
                   <span className="font-serif text-white font-semibold">{t('home.footerBrand')}</span>
                 </div>
-                <p className="text-white/50 leading-relaxed text-pretty">{t('home.footerBrandDesc')}</p>
+                <p className="text-white/70 leading-relaxed text-pretty">{t('home.footerBrandDesc')}</p>
               </div>
               <div>
                 <h4 className="text-white font-medium mb-3">{t('home.footerSourceTitle')}</h4>
-                <p className="text-white/50 leading-relaxed text-pretty">{t('home.footerSourceText')}</p>
+                <p className="text-white/70 leading-relaxed text-pretty">{t('home.footerSourceText')}</p>
               </div>
               <div>
                 <h4 className="text-white font-medium mb-3">{t('home.footerLogTitle')}</h4>
-                <ul className="space-y-1.5 text-white/50">
+                <ul className="space-y-1.5 text-white/70">
                   <li>{t('home.footerLog6')}</li>
                   <li>{t('home.footerLog5')}</li>
                   <li>{t('home.footerLog4')}</li>
@@ -286,7 +286,7 @@ const HomePage: React.FC = () => {
                 </ul>
               </div>
             </div>
-            <div className="border-t border-white/10 mt-8 pt-6 text-center text-xs text-white/40">
+            <div className="border-t border-white/10 mt-8 pt-6 text-center text-xs text-white/60">
               {t('home.footerCopyright')} · {t('home.footerContact')}
             </div>
           </div>

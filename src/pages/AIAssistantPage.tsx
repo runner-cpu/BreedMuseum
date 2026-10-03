@@ -76,9 +76,14 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 async function convertToWav(arrayBuffer: ArrayBuffer): Promise<ArrayBuffer> {
   const audioCtx = new AudioContext({ sampleRate: 16000 });
-  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  const pcm = audioBuffer.getChannelData(0);
-  await audioCtx.close();
+  let pcm: Float32Array;
+  try {
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    pcm = audioBuffer.getChannelData(0);
+  } finally {
+    // 解码失败也必须释放 AudioContext，避免每次录音失败泄漏一个实例
+    await audioCtx.close();
+  }
 
   const wav = new ArrayBuffer(44 + pcm.length * 2);
   const v = new DataView(wav);
@@ -171,7 +176,8 @@ function searchLocal(query: string) {
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
     .map(({ breed }) => breed);
-  return { category, province, endangered, matches: (exact.length ? exact : scored.length ? scored : filtered).slice(0, 8) };
+  // 名称与关键词都无命中时返回空列表，由调用方给出诚实的“未找到”回复
+  return { category, province, endangered, matches: (exact.length ? exact : scored.length ? scored : []).slice(0, 8) };
 }
 
 function buildLocalAnswer(query: string, report: boolean) {
@@ -296,7 +302,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
     if (!msg.content || pdfBuilding) return;
     setPdfBuilding(msg.id);
     toast.info(t('ai.pdfBuilding'));
-    const title = (msg.downloadName || '品种报告').replace(/\.md$/i, '');
+    const title = (msg.downloadName || t('ai.reportFileName')).replace(/\.md$/i, '');
     const ok = await downloadPdf(`${title}.pdf`, title, msg.content);
     setPdfBuilding(null);
     if (ok) toast.success(t('ai.pdfDone'));
@@ -370,8 +376,10 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
   useEffect(() => {
     const element = scrollRef.current;
     if (!element) return;
+    // 距底部超过一屏时视为用户正在回读，停止自动跟随
+    if (element.scrollHeight - element.scrollTop - element.clientHeight > element.clientHeight) return;
     if (typeof element.scrollTo === 'function') {
-      element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
+      element.scrollTo({ top: element.scrollHeight, behavior: 'auto' });
     } else {
       element.scrollTop = element.scrollHeight;
     }
@@ -489,7 +497,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
       operationAbortRef.current = controller;
       try {
         if (!backend) {
-          updateMessage(assistantId, { loading: false, content: '图片生成需要配置 AI 服务。你仍可使用本地品种问答和报告。', error: true });
+          updateMessage(assistantId, { loading: false, content: t('ai.imgGenNeedConfig'), error: true });
           return;
         }
         const supabase = await requireSupabaseClient();
@@ -546,7 +554,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
     operationAbortRef.current = controller;
     try {
       if (!backend) {
-        setRecognizeError('图片识别需要配置 AI 服务。你仍可使用本地品种问答和报告。');
+        setRecognizeError(t('ai.recognizeNeedConfig'));
         return;
       }
       const base64 = await fileToBase64(file);
@@ -659,7 +667,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
         await streamText(
           content,
           `你是"中国地方畜禽品种数字博物馆"的专业AI助手。请基于以下真实品种数据，为用户指定的品种或主题生成一份结构化的科普报告，使用 Markdown 格式，包含：一、品种概述；二、产地分布；三、体貌特征；四、生产性能；五、保护现状；六、总结与建议。内容准确、条理清晰。\n\n【品种数据库】${knowledgeBase}`,
-          { downloadable: true, downloadName: `${content.slice(0, 20)}-品种报告.md` },
+          { downloadable: true, downloadName: `${content.slice(0, 20)}-${t('ai.reportFileName')}.md` },
         );
         return;
       }
@@ -848,9 +856,9 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
     <div className="flex h-full min-h-0 w-full flex-col overflow-hidden px-4 py-3">
       {!backend && (
         <section className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50/70 px-4 py-3 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
-          <h2 className="font-semibold">AI 服务尚未配置</h2>
-          <p className="mt-1">当前使用本地静态品种库回答文本问题；图片生成、图片识别和语音转写需要配置 AI 服务。</p>
-          <Link className="mt-2 inline-flex min-h-11 items-center rounded-md underline underline-offset-4" to="/encyclopedia">浏览品种百科</Link>
+          <h2 className="font-semibold">{t('ai.notConfiguredTitle')}</h2>
+          <p className="mt-1">{t('ai.notConfiguredBody')}</p>
+          <Link className="mt-2 inline-flex min-h-11 items-center rounded-md underline underline-offset-4" to="/encyclopedia">{t('ai.browseEncLink')}</Link>
         </section>
       )}
       <AIPrivacyNotice />
@@ -1060,7 +1068,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
                               size="sm"
                               variant="outline"
                               className="h-7 text-xs"
-                              onClick={() => downloadText(msg.downloadName || '内容.md', msg.content)}
+                              onClick={() => downloadText(msg.downloadName || `${t('ai.reportFileName')}.md`, msg.content)}
                             >
                               <Download className="w-3 h-3 mr-1" />
                               {t('common.download')} .md
@@ -1208,7 +1216,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
                   onClick={() => setMode(m.key)}
                   className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs md:text-sm font-medium transition-colors shrink-0 disabled:opacity-50 ${
                     active
-                      ? 'bg-[#2d5016] text-white hover:bg-[#254212]'
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
@@ -1249,7 +1257,8 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
               aria-label={t('ai.placeholder')}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                // 中文输入法确认候选词的 Enter 不应发送消息
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   handleSend(input);
                 }
