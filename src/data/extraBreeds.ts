@@ -50,7 +50,7 @@ export const extraBreeds: Breed[] = [
   {
     id: 'huai-pig',
     name: '槐猪',
-    englishName: 'Huai Pig',
+    englishName: 'Fujian Huai Pig',
     category: '猪',
     province: '福建',
     latitude: 26.08,

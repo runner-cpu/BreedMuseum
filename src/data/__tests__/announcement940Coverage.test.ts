@@ -29,9 +29,14 @@ const expectedNewNames = [
 ] as const;
 
 test('adds every reviewed missing livestock breed exactly once', () => {
-  expect(breeds).toHaveLength(701);
+  expect(breeds).toHaveLength(687);
   for (const name of expectedNewNames) {
-    expect(breeds.filter((breed) => breed.name === name), name).toHaveLength(1);
+    // 同物异名合并后，名录名既可由同名记录代表，也可由 officialName 覆盖的记录代表，
+    // 但每个名录名必须恰好对应一条运行时记录
+    const byName = breeds.filter((breed) => breed.name === name);
+    const byOfficialName = breeds.filter((breed) => getBreedMetadata(breed).officialName === name);
+    const representatives = new Set([...byName, ...byOfficialName].map((breed) => breed.id));
+    expect(representatives.size, name).toBe(1);
   }
 });
 

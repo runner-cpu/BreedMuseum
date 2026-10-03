@@ -111,12 +111,14 @@ const DashboardPage: React.FC = () => {
     [],
   );
 
+  // 批次编号与《品种数据手册》对齐：extraBreeds8 起文件序号与批次号相差一（无第八批），13/14 号文件对应第十四/十五批
   const collectionTimeline = [
     { date: '基础库', value: 124 }, { date: '第1批', value: 154 }, { date: '第2批', value: 177 },
     { date: '第3批', value: 213 }, { date: '第4批', value: 259 }, { date: '第5批', value: 306 },
-    { date: '第6批', value: 350 }, { date: '第7批', value: 465 }, { date: '第8批', value: 473 },
-    { date: '第9批', value: 552 }, { date: '第10批', value: 561 }, { date: '第11批', value: 568 },
-    { date: '第12批', value: 592 }, { date: '第14批', value: 628 }, { date: '当前馆藏', value: COLLECTION_SUMMARY.total },
+    { date: '第6批', value: 350 }, { date: '第7批', value: 465 }, { date: '第9批', value: 473 },
+    { date: '第10批', value: 552 }, { date: '第11批', value: 561 }, { date: '第12批', value: 568 },
+    { date: '第13批', value: 592 }, { date: '第14批', value: 628 }, { date: '第15批', value: 687 },
+    { date: '第16批', value: 710 }, { date: '当前馆藏', value: COLLECTION_SUMMARY.total },
   ];
 
   const timelineLabel = (label: string) => {

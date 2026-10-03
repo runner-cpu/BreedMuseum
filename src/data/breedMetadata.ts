@@ -23,6 +23,21 @@ type BreedMetadataOverride = Partial<Omit<BreedMetadata, 'metricBasis'>>;
 /** Reviewed aliases and identity repairs are added here as records are normalized. */
 export const metadataOverrides: Partial<Record<string, BreedMetadataOverride>> = {
   八眉猪: { aliases: ['互助八眉猪'] },
+  // 同物异名合并后的别名接续与名录名对齐（详见 breeds.ts mergedVariants 注释）
+  南丹瑶鸡: { officialName: '瑶鸡', aliases: ['瑶鸡'] },
+  中原斗鸡: { officialName: '河南斗鸡', aliases: ['河南斗鸡'] },
+  梅花鹿: { officialName: '吉林梅花鹿', aliases: ['吉林梅花鹿'] },
+  藏马: { aliases: ['西藏马'] },
+  皖南牛: { aliases: ['安徽皖南牛'] },
+  恩施黄牛: { aliases: ['湖北恩施黄牛'] },
+  赣中南花猪: { aliases: ['江西赣中南花猪'] },
+  山丹马: { aliases: ['甘肃山丹马'] },
+  塔里木马鹿: { aliases: ['塔河马鹿'] },
+  泰和乌鸡: { aliases: ['泰和乌骨鸡'] },
+  济宁青山羊: { aliases: ['山东济宁青山羊'] },
+  哈尔滨大白兔: { aliases: ['哈尔滨白兔'] },
+  青海高原牦牛: { aliases: ['高原牦牛'] },
+  莆田黑猪: { aliases: ['蒲田猪'] },
   平武牛: { aliases: ['平武黄牛'] },
   徐闻牛: { aliases: ['徐闻黄牛'] },
   雷州牛: { aliases: ['雷州黄牛'] },

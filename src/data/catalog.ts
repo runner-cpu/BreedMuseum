@@ -8,7 +8,8 @@ export type BreedCategory = '猪' | '牛' | '羊' | '鸡' | '鸭' | '马' | '骆
 
 export const categories: BreedCategory[] = ['猪', '牛', '羊', '鸡', '鸭', '马', '骆驼', '兔', '鹅', '鸽', '其他'];
 
-export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '极危', '待核验'];
+// “极危”暂无收录记录，先不在筛选项中暴露，避免空结果；类型保留以便后续补录。
+export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '待核验'];
 
 export const provinces = [
   '黑龙江', '吉林', '辽宁', '内蒙古', '北京', '天津', '河北', '山西',
