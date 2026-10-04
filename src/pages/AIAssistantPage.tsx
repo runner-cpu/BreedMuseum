@@ -855,7 +855,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-hidden px-4 py-3">
       {!backend && (
-        <section className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50/70 px-4 py-3 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
+        <section className="mb-2 rounded-lg border border-amber-300/60 bg-amber-50/70 px-3 py-2 text-xs text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
           <h2 className="font-semibold">{t('ai.notConfiguredTitle')}</h2>
           <p className="mt-1">{t('ai.notConfiguredBody')}</p>
           <Link className="mt-2 inline-flex min-h-11 items-center rounded-md underline underline-offset-4" to="/encyclopedia">{t('ai.browseEncLink')}</Link>
@@ -865,14 +865,14 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="shrink-0 flex items-center gap-2 mb-3"
+        className="shrink-0 flex items-center gap-2 mb-2"
       >
-        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
-          <Bot className="w-5 h-5 text-primary-foreground" />
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+          <Bot className="w-4 h-4 text-primary-foreground" />
         </div>
-        <div className="min-w-0">
-          <h1 className="text-lg font-serif font-bold text-foreground">{t('ai.title')}</h1>
-          <p className="text-xs text-muted-foreground">{t('ai.sub')}</p>
+        <div className="min-w-0 flex items-baseline gap-2">
+          <h1 className="text-base font-serif font-bold text-foreground">{t('ai.title')}</h1>
+          <p className="truncate text-[11px] text-muted-foreground">{t('ai.sub')}</p>
         </div>
       </motion.div>
 
@@ -1029,7 +1029,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[92%] sm:max-w-[75%] rounded-2xl p-3 sm:p-6 md:px-8 md:py-6 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                    className={`max-w-[92%] sm:max-w-[78%] rounded-2xl p-3 sm:p-4 text-sm leading-relaxed whitespace-pre-wrap break-words ${
                       msg.role === 'user'
                         ? 'bg-primary text-primary-foreground rounded-br-sm'
                         : msg.error
@@ -1165,8 +1165,8 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
             })}
           </div>
 
-          {/* 快捷提问（仅对话模式，单行三个卡片） */}
-          {mode === 'chat' && (
+          {/* 快捷提问（仅对话模式的空状态展示，开始对话后让位给消息流） */}
+          {mode === 'chat' && !messages.some((m) => m.role === 'user') && (
             <div className="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
               {quickQuestions.map((q) => (
                 <button
