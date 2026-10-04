@@ -248,6 +248,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'level.濒危': { zh: '濒危', en: 'Endangered' },
   'level.待核验': { zh: '待核验', en: 'Unverified' },
   'ai.notConfiguredTitle': { zh: 'AI 服务尚未配置', en: 'AI service is not configured' },
+  'ai.privacyExpand': { zh: '展开', en: 'Expand' },
   'ai.notConfiguredBody': { zh: '当前使用本地静态品种库回答文本问题；图片生成、图片识别和语音转写需要配置 AI 服务。', en: 'Text questions are answered from the built-in local dataset; image generation, recognition and voice transcription require an AI service.' },
   'ai.browseEncLink': { zh: '浏览品种百科', en: 'Browse the encyclopedia' },
   'ai.imgGenNeedConfig': { zh: '图片生成需要配置 AI 服务。你仍可使用本地品种问答和报告。', en: 'Image generation needs an AI service. Local Q&A and reports still work.' },

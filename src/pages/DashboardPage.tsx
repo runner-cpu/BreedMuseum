@@ -77,6 +77,7 @@ const DashboardPage: React.FC = () => {
   const provinceData = useMemo(() => {
     const map: Record<string, number> = {};
     breeds.forEach((b) => {
+      if (b.province === '待核验') return; // 名录条目式收录暂无产区，不进省份图表
       map[b.province] = (map[b.province] ?? 0) + 1;
     });
     return Object.entries(map)

@@ -44,6 +44,7 @@ import { extraBreeds12 } from './extraBreeds12';
 import { extraBreeds13 } from './extraBreeds13';
 import { extraBreeds14 } from './extraBreeds14';
 import { extraBreeds15 } from './extraBreeds15';
+import { ml2024Breeds } from './ml2024Batch';
 import { breedImageOverrides } from './breedImageOverrides';
 
 const rawBreeds: Breed[] = [
@@ -1921,7 +1922,8 @@ const rawBreeds: Breed[] = [
   ...extraBreeds12,
   ...extraBreeds13,
   ...extraBreeds14,
-  ...extraBreeds15,
+  ...extraBreeds15,
+  ...ml2024Breeds,
 ];
 
 /**

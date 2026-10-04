@@ -1,0 +1,2480 @@
+[
+ [
+  "皖浙花猪",
+  "Wanzhehua Pig",
+  0,
+  "安徽"
+ ],
+ [
+  "官庄花猪",
+  "Guanzhuanghua Pig",
+  0,
+  null
+ ],
+ [
+  "莆田猪",
+  "Putian Pig",
+  0,
+  null
+ ],
+ [
+  "滨湖黑猪",
+  "Binhuhei Pig",
+  0,
+  null
+ ],
+ [
+  "南阳黑猪",
+  "Nanyanghei Pig",
+  0,
+  "河南"
+ ],
+ [
+  "确山黑猪",
+  "Queshanhei Pig",
+  0,
+  null
+ ],
+ [
+  "桂中花猪",
+  "Guizhonghua Pig",
+  0,
+  "广西"
+ ],
+ [
+  "黔北黑猪",
+  "Qianbeihei Pig",
+  0,
+  "贵州"
+ ],
+ [
+  "明光小耳猪",
+  "Mingguangxiaoer Pig",
+  0,
+  null
+ ],
+ [
+  "新淮猪",
+  "Xinhuai Pig",
+  1,
+  null
+ ],
+ [
+  "上海白猪",
+  "Shanghaibai Pig",
+  1,
+  "上海"
+ ],
+ [
+  "北京黑猪",
+  "Beijinghei Pig",
+  1,
+  "北京"
+ ],
+ [
+  "伊犁白猪",
+  "Yilibai Pig",
+  1,
+  "新疆"
+ ],
+ [
+  "三江白猪",
+  "Sanjiangbai Pig",
+  1,
+  "四川"
+ ],
+ [
+  "湖北白猪",
+  "Hubeibai Pig",
+  1,
+  "湖北"
+ ],
+ [
+  "浙江中白猪",
+  "Zhejiangzhongbai Pig",
+  1,
+  "浙江"
+ ],
+ [
+  "苏太猪",
+  "Sutai Pig",
+  1,
+  "江苏"
+ ],
+ [
+  "南昌白猪",
+  "Nanchangbai Pig",
+  1,
+  null
+ ],
+ [
+  "军牧1号白猪",
+  "Junmuhaobai Pig 1",
+  1,
+  null
+ ],
+ [
+  "兰屿小耳猪",
+  "Lanyuxiaoer Pig",
+  1,
+  null
+ ],
+ [
+  "桃园猪",
+  "Taoyuan Pig",
+  1,
+  null
+ ],
+ [
+  "烟台黑猪",
+  "Yantaihei Pig",
+  1,
+  null
+ ],
+ [
+  "丽江猪",
+  "Lijiang Pig",
+  1,
+  "云南"
+ ],
+ [
+  "豫西黑猪",
+  "Yuxihei Pig",
+  1,
+  "河南"
+ ],
+ [
+  "北港猪",
+  "Beigang Pig",
+  1,
+  null
+ ],
+ [
+  "梁山黑猪",
+  "Liangshanhei Pig",
+  1,
+  null
+ ],
+ [
+  "鲁莱黑猪",
+  "Lulaihei Pig",
+  1,
+  "山东"
+ ],
+ [
+  "鲁烟白猪",
+  "Luyanbai Pig",
+  1,
+  "山东"
+ ],
+ [
+  "豫南黑猪",
+  "Yunanhei Pig",
+  1,
+  "河南"
+ ],
+ [
+  "滇陆猪",
+  "Dianlu Pig",
+  1,
+  "云南"
+ ],
+ [
+  "松辽黑猪",
+  "Songliaohei Pig",
+  1,
+  null
+ ],
+ [
+  "苏淮猪",
+  "Suhuai Pig",
+  1,
+  "江苏"
+ ],
+ [
+  "湘村黑猪",
+  "Xiangcunhei Pig",
+  1,
+  "湖南"
+ ],
+ [
+  "苏姜猪",
+  "Sujiang Pig",
+  1,
+  "江苏"
+ ],
+ [
+  "晋汾白猪",
+  "Jinfenbai Pig",
+  1,
+  "山西"
+ ],
+ [
+  "吉神黑猪",
+  "Jishenhei Pig",
+  1,
+  null
+ ],
+ [
+  "苏山猪",
+  "Sushan Pig",
+  1,
+  "江苏"
+ ],
+ [
+  "宣和猪",
+  "Xuanhe Pig",
+  1,
+  null
+ ],
+ [
+  "辽丹黑猪",
+  "Liaodanhei Pig",
+  1,
+  null
+ ],
+ [
+  "川乡黑猪",
+  "Chuanxianghei Pig",
+  1,
+  null
+ ],
+ [
+  "硒都黑猪",
+  "Xidouhei Pig",
+  1,
+  null
+ ],
+ [
+  "山下长黑",
+  "Shanxiazhanghei",
+  1,
+  null
+ ],
+ [
+  "光明猪配套系",
+  "Guangming Pig",
+  2,
+  null
+ ],
+ [
+  "深农猪配套系",
+  "Shennong Pig",
+  2,
+  null
+ ],
+ [
+  "冀合白猪配套系",
+  "Jihebai Pig",
+  2,
+  "河北"
+ ],
+ [
+  "中育猪配套系",
+  "Zhongyu Pig",
+  2,
+  null
+ ],
+ [
+  "华农温氏1号猪配套系",
+  "Huanongwenshihao Pig 1",
+  2,
+  null
+ ],
+ [
+  "滇撒猪配套系",
+  "Diansa Pig",
+  2,
+  "云南"
+ ],
+ [
+  "鲁农1号猪配套系",
+  "Lunonghao Pig 1",
+  2,
+  "山东"
+ ],
+ [
+  "渝荣I号猪配套系",
+  "Yuronghao Pig I",
+  2,
+  null
+ ],
+ [
+  "天府肉猪",
+  "Tianfurou Pig",
+  2,
+  "四川"
+ ],
+ [
+  "太行牛",
+  "Taixing Cattle",
+  0,
+  "河北"
+ ],
+ [
+  "徐州牛",
+  "Xuzhou Cattle",
+  0,
+  null
+ ],
+ [
+  "乡下黑猪",
+  "Xiangxiahei Pig",
+  1,
+  null
+ ],
+ [
+  "天府黑猪",
+  "Tianfuhei Pig",
+  1,
+  null
+ ],
+ [
+  "东北花猪",
+  "Dongbeihua Pig",
+  1,
+  null
+ ],
+ [
+  "龙宝1号猪",
+  "Longbaohao Pig 1",
+  1,
+  null
+ ],
+ [
+  "川藏黑猪",
+  "Chuancanghei Pig",
+  1,
+  null
+ ],
+ [
+  "江泉白猪配套系",
+  "Jiangquanbai Pig",
+  2,
+  null
+ ],
+ [
+  "温氏WS501猪配套系",
+  "Wenshi Pig 501",
+  2,
+  null
+ ],
+ [
+  "湘沙猪",
+  "Xiangsha Pig",
+  1,
+  "湖南"
+ ],
+ [
+  "香雪白猪",
+  "Xiangxuebai Pig",
+  1,
+  null
+ ],
+ [
+  "龙民黑猪配套系",
+  "Longminhei Pig",
+  2,
+  null
+ ],
+ [
+  "蓝思猪配套系",
+  "Lansi Pig",
+  2,
+  null
+ ],
+ [
+  "海聆1号黑猪配套系",
+  "Hailinghaohei Pig 1",
+  2,
+  null
+ ],
+ [
+  "吉安牛",
+  "Jian Cattle",
+  0,
+  null
+ ],
+ [
+  "蒙山牛",
+  "Mengshan Cattle",
+  0,
+  null
+ ],
+ [
+  "甘孜藏牛",
+  "Ganzicang Cattle",
+  0,
+  "四川"
+ ],
+ [
+  "中国荷斯坦牛",
+  "Zhongguohesitan Cattle",
+  1,
+  null
+ ],
+ [
+  "中国西门塔尔牛",
+  "Zhongguoximentaer Cattle",
+  1,
+  null
+ ],
+ [
+  "三河牛",
+  "Sanhe Cattle",
+  1,
+  "内蒙古"
+ ],
+ [
+  "新疆褐牛",
+  "Xinjianghe Cattle",
+  1,
+  "新疆"
+ ],
+ [
+  "中国草原红牛",
+  "Zhongguocaoyuanhong Cattle",
+  1,
+  null
+ ],
+ [
+  "夏南牛",
+  "Xianan Cattle",
+  1,
+  null
+ ],
+ [
+  "盱眙山区水牛",
+  "Xuyishanqushui Cattle",
+  0,
+  null
+ ],
+ [
+  "江淮水牛",
+  "Jianghuaishui Cattle",
+  0,
+  null
+ ],
+ [
+  "福安水牛",
+  "Fuanshui Cattle",
+  0,
+  "福建"
+ ],
+ [
+  "鄱阳湖水牛",
+  "Poyanghushui Cattle",
+  0,
+  null
+ ],
+ [
+  "峡江水牛",
+  "Xiajiangshui Cattle",
+  0,
+  "江西"
+ ],
+ [
+  "信丰山地水牛",
+  "Xinfengshandishui Cattle",
+  0,
+  null
+ ],
+ [
+  "恩施山地水牛",
+  "Enshishandishui Cattle",
+  0,
+  null
+ ],
+ [
+  "富钟水牛",
+  "Fuzhongshui Cattle",
+  0,
+  null
+ ],
+ [
+  "娘亚牦牛",
+  "Niangya Yak",
+  0,
+  null
+ ],
+ [
+  "西藏高山牦牛",
+  "Xizanggaoshan Yak",
+  0,
+  "西藏"
+ ],
+ [
+  "滇东南水牛",
+  "Diandongnanshui Cattle",
+  0,
+  "云南"
+ ],
+ [
+  "盐津水牛",
+  "Yanjinshui Cattle",
+  0,
+  null
+ ],
+ [
+  "陕南水牛",
+  "Shannanshui Cattle",
+  0,
+  null
+ ],
+ [
+  "地中海水牛",
+  "Dizhonghaishui Cattle",
+  0,
+  null
+ ],
+ [
+  "巴州牦牛",
+  "Bazhou Yak",
+  0,
+  null
+ ],
+ [
+  "金川牦牛",
+  "Jinchuan Yak",
+  0,
+  null
+ ],
+ [
+  "昌台牦牛",
+  "Changtai Yak",
+  0,
+  null
+ ],
+ [
+  "类乌齐牦牛",
+  "Leiwuqi Yak",
+  0,
+  null
+ ],
+ [
+  "雪多牦牛",
+  "Xueduo Yak",
+  0,
+  null
+ ],
+ [
+  "查吾拉牦牛",
+  "Chawula Yak",
+  0,
+  null
+ ],
+ [
+  "鲁中山地绵羊",
+  "Luzhongshandi Sheep",
+  0,
+  "山东"
+ ],
+ [
+  "泗水裘皮羊",
+  "Sishuiqiupi Sheep",
+  0,
+  null
+ ],
+ [
+  "迪庆绵羊",
+  "Diqing Sheep",
+  0,
+  null
+ ],
+ [
+  "亚丁牦牛",
+  "Yading Yak",
+  0,
+  null
+ ],
+ [
+  "肃南牦牛",
+  "Sunan Yak",
+  0,
+  null
+ ],
+ [
+  "美仁牦牛",
+  "Meiren Yak",
+  0,
+  null
+ ],
+ [
+  "肃北牦牛",
+  "Subei Yak",
+  0,
+  null
+ ],
+ [
+  "阿什旦牦牛",
+  "Ashendan Yak",
+  0,
+  null
+ ],
+ [
+  "宁黑绵羊",
+  "Ninghei Sheep",
+  0,
+  null
+ ],
+ [
+  "昭通绵羊",
+  "Zhaotong Sheep",
+  0,
+  "云南"
+ ],
+ [
+  "巴尔楚克羊",
+  "Baerchuke Sheep",
+  0,
+  null
+ ],
+ [
+  "柯尔克孜羊",
+  "Keerkezi Sheep",
+  0,
+  null
+ ],
+ [
+  "罗布羊",
+  "Luobu Sheep",
+  0,
+  null
+ ],
+ [
+  "扎什加羊",
+  "Zhashenjia Sheep",
+  0,
+  null
+ ],
+ [
+  "玛格绵羊",
+  "Mage Sheep",
+  0,
+  null
+ ],
+ [
+  "凉山黑绵羊",
+  "Liangshanhei Sheep",
+  0,
+  "四川"
+ ],
+ [
+  "勒通绵羊",
+  "Leitong Sheep",
+  0,
+  null
+ ],
+ [
+  "新疆细毛羊",
+  "Xinjiangximao Sheep",
+  1,
+  "新疆"
+ ],
+ [
+  "东北细毛羊",
+  "Dongbeiximao Sheep",
+  1,
+  null
+ ],
+ [
+  "内蒙古细毛羊",
+  "Neimengguximao Sheep",
+  1,
+  "内蒙古"
+ ],
+ [
+  "敖汉细毛羊",
+  "Aohanximao Sheep",
+  1,
+  null
+ ],
+ [
+  "中国美利奴羊",
+  "Zhongguomeilinu Sheep",
+  1,
+  null
+ ],
+ [
+  "中国卡拉库尔羊",
+  "Zhongguokalakuer Sheep",
+  1,
+  null
+ ],
+ [
+  "新吉细毛羊",
+  "Xinjiximao Sheep",
+  1,
+  null
+ ],
+ [
+  "巴美肉羊",
+  "Bameirou Sheep",
+  1,
+  null
+ ],
+ [
+  "彭波半细毛羊",
+  "Pengbobanximao Sheep",
+  1,
+  null
+ ],
+ [
+  "凉山半细毛羊",
+  "Liangshanbanximao Sheep",
+  1,
+  "四川"
+ ],
+ [
+  "青海毛肉兼用细毛羊",
+  "Qinghaimaoroujianyongximao Sheep",
+  1,
+  "青海"
+ ],
+ [
+  "青海高原毛肉兼用半细毛羊",
+  "Qinghaigaoyuanmaoroujianyongbanximao Sheep",
+  1,
+  "青海"
+ ],
+ [
+  "鄂尔多斯细毛羊",
+  "Eerduosiximao Sheep",
+  1,
+  null
+ ],
+ [
+  "呼伦贝尔细毛羊",
+  "Hulunbeierximao Sheep",
+  1,
+  "内蒙古"
+ ],
+ [
+  "科尔沁细毛羊",
+  "Keerqinximao Sheep",
+  1,
+  "内蒙古"
+ ],
+ [
+  "乌兰察布细毛羊",
+  "Wulanchabuximao Sheep",
+  1,
+  null
+ ],
+ [
+  "兴安毛肉兼用细毛羊",
+  "Xinganmaoroujianyongximao Sheep",
+  1,
+  null
+ ],
+ [
+  "新疆山羊",
+  "Xinjiang Goat",
+  0,
+  "新疆"
+ ],
+ [
+  "乌珠穆沁白山羊",
+  "Wuzhumuqinbai Goat",
+  0,
+  "内蒙古"
+ ],
+ [
+  "闽东山羊",
+  "Mindong Goat",
+  0,
+  "福建"
+ ],
+ [
+  "尧山白山羊",
+  "Yaoshanbai Goat",
+  0,
+  null
+ ],
+ [
+  "鲁北白山羊",
+  "Lubeibai Goat",
+  0,
+  "山东"
+ ],
+ [
+  "东佛里生羊",
+  "Dongfulisheng Sheep",
+  0,
+  null
+ ],
+ [
+  "南丘羊",
+  "Nanqiu Sheep",
+  0,
+  null
+ ],
+ [
+  "阿瓦西羊",
+  "Awaxi Sheep",
+  0,
+  null
+ ],
+ [
+  "酉州乌羊",
+  "Youzhouwu Sheep",
+  0,
+  null
+ ],
+ [
+  "川东白山羊",
+  "Chuandongbai Goat",
+  0,
+  null
+ ],
+ [
+  "川南黑山羊",
+  "Chuannanhei Goat",
+  0,
+  null
+ ],
+ [
+  "川中黑山羊",
+  "Chuanzhonghei Goat",
+  0,
+  null
+ ],
+ [
+  "美姑山羊",
+  "Meigu Goat",
+  0,
+  null
+ ],
+ [
+  "凤庆无角黑山羊",
+  "Fengqingwujiaohei Goat",
+  0,
+  null
+ ],
+ [
+  "罗平黄山羊",
+  "Luopinghuang Goat",
+  0,
+  null
+ ],
+ [
+  "马关无角山羊",
+  "Maguanwujiao Goat",
+  0,
+  "云南"
+ ],
+ [
+  "弥勒红骨山羊",
+  "Milehonggu Goat",
+  0,
+  null
+ ],
+ [
+  "宁黑头山羊",
+  "Ningheitou Goat",
+  0,
+  null
+ ],
+ [
+  "威信白山羊",
+  "Weixinbai Goat",
+  0,
+  null
+ ],
+ [
+  "燕山绒山羊",
+  "Yanshanrong Goat",
+  0,
+  null
+ ],
+ [
+  "南充黑山羊",
+  "Nanchonghei Goat",
+  0,
+  null
+ ],
+ [
+  "关中奶山羊",
+  "Guanzhongnai Goat",
+  1,
+  "陕西"
+ ],
+ [
+  "崂山奶山羊",
+  "Laoshannai Goat",
+  1,
+  null
+ ],
+ [
+  "南江黄羊",
+  "Nanjianghuang Sheep",
+  1,
+  null
+ ],
+ [
+  "文登奶山羊",
+  "Wendengnai Goat",
+  1,
+  null
+ ],
+ [
+  "柴达木绒山羊",
+  "Chaidamurong Goat",
+  1,
+  "青海"
+ ],
+ [
+  "雅安奶山羊",
+  "Yaannai Goat",
+  1,
+  null
+ ],
+ [
+  "罕山白绒山羊",
+  "Hanshanbairong Goat",
+  1,
+  null
+ ],
+ [
+  "阿巴嘎黑马",
+  "Abagahei Horse",
+  0,
+  null
+ ],
+ [
+  "甘孜马",
+  "Ganzi Horse",
+  0,
+  null
+ ],
+ [
+  "临沧长毛山羊",
+  "Lincangchangmao Goat",
+  0,
+  null
+ ],
+ [
+  "兰坪长毛山羊",
+  "Lanpingchangmao Goat",
+  0,
+  null
+ ],
+ [
+  "千秋山羊",
+  "Qianqiu Goat",
+  0,
+  null
+ ],
+ [
+  "洮藏黑山羊",
+  "Taocanghei Goat",
+  0,
+  null
+ ],
+ [
+  "晋岚绒山羊",
+  "Jinlanrong Goat",
+  0,
+  "山西"
+ ],
+ [
+  "简州大耳羊",
+  "Jianzhoudaer Sheep",
+  0,
+  null
+ ],
+ [
+  "云上黑山羊",
+  "Yunshanghei Goat",
+  0,
+  null
+ ],
+ [
+  "疆南绒山羊",
+  "Jiangnanrong Goat",
+  0,
+  null
+ ],
+ [
+  "藏西北白绒山羊",
+  "Cangxibeibairong Goat",
+  0,
+  null
+ ],
+ [
+  "皖临白山羊",
+  "Wanlinbai Goat",
+  0,
+  "安徽"
+ ],
+ [
+  "楚宝黑头羊",
+  "Chubaoheitou Sheep",
+  0,
+  null
+ ],
+ [
+  "努比亚山羊",
+  "Nubiya Goat",
+  0,
+  null
+ ],
+ [
+  "阿尔卑斯奶山羊",
+  "Aerbeisinai Goat",
+  0,
+  null
+ ],
+ [
+  "吐根堡奶山羊",
+  "Tugenbaonai Goat",
+  0,
+  null
+ ],
+ [
+  "永宁马",
+  "Yongning Horse",
+  0,
+  null
+ ],
+ [
+  "云南矮马",
+  "Yunnanai Horse",
+  0,
+  "云南"
+ ],
+ [
+  "晋南驴",
+  "Jinnan Donkey",
+  0,
+  "山西"
+ ],
+ [
+  "临县驴",
+  "Linxian Donkey",
+  0,
+  null
+ ],
+ [
+  "柯尔克孜马",
+  "Keerkezi Horse",
+  0,
+  null
+ ],
+ [
+  "伊吾马",
+  "Yiwu Horse",
+  0,
+  null
+ ],
+ [
+  "张北马",
+  "Zhangbei Horse",
+  0,
+  null
+ ],
+ [
+  "新丽江马",
+  "Xinlijiang Horse",
+  0,
+  null
+ ],
+ [
+  "黑河马",
+  "Heihe Horse",
+  0,
+  null
+ ],
+ [
+  "苏高血马",
+  "Sugaoxue Horse",
+  0,
+  "江苏"
+ ],
+ [
+  "陕北毛驴",
+  "Shanbeimao Donkey",
+  0,
+  "陕西"
+ ],
+ [
+  "中系安哥拉兔",
+  "Zhongxiangela Rabbit",
+  1,
+  null
+ ],
+ [
+  "苏系长毛兔",
+  "Suxichangmao Rabbit",
+  1,
+  "江苏"
+ ],
+ [
+  "西平长毛兔",
+  "Xipingchangmao Rabbit",
+  1,
+  null
+ ],
+ [
+  "吉戎兔",
+  "Jirong Rabbit",
+  1,
+  null
+ ],
+ [
+  "康大1号肉兔",
+  "Kangdahaorou Rabbit 1",
+  2,
+  null
+ ],
+ [
+  "坝上长尾鸡",
+  "Bashangzhangwei Chicken",
+  0,
+  null
+ ],
+ [
+  "如皋黄鸡",
+  "Rugaohuang Chicken",
+  0,
+  null
+ ],
+ [
+  "太湖鸡",
+  "Taihu Chicken",
+  0,
+  "江苏"
+ ],
+ [
+  "江山乌骨鸡",
+  "Jiangshanwugu Chicken",
+  0,
+  null
+ ],
+ [
+  "灵昆鸡",
+  "Lingkun Chicken",
+  0,
+  null
+ ],
+ [
+  "皖北斗鸡",
+  "Wanbeidou Chicken",
+  0,
+  "安徽"
+ ],
+ [
+  "五华鸡",
+  "Wuhua Chicken",
+  0,
+  null
+ ],
+ [
+  "德化黑鸡",
+  "Dehuahei Chicken",
+  0,
+  null
+ ],
+ [
+  "象洞鸡",
+  "Xiangdong Chicken",
+  0,
+  null
+ ],
+ [
+  "齐卡肉兔",
+  "Qikarou Rabbit",
+  0,
+  null
+ ],
+ [
+  "伊高乐肉兔",
+  "Yigaolerou Rabbit",
+  0,
+  null
+ ],
+ [
+  "康乐鸡",
+  "Kangle Chicken",
+  0,
+  null
+ ],
+ [
+  "余干乌骨鸡",
+  "Yuganwugu Chicken",
+  0,
+  null
+ ],
+ [
+  "鲁西斗鸡",
+  "Luxidou Chicken",
+  0,
+  "山东"
+ ],
+ [
+  "浙川乌骨鸡",
+  "Zhechuanwugu Chicken",
+  0,
+  "浙江"
+ ],
+ [
+  "郧阳白羽乌鸡",
+  "Yunyangbaiyuwu Chicken",
+  0,
+  null
+ ],
+ [
+  "东安鸡",
+  "Dongan Chicken",
+  0,
+  null
+ ],
+ [
+  "黄郎鸡",
+  "Huanglang Chicken",
+  0,
+  null
+ ],
+ [
+  "中山沙栏鸡",
+  "Zhongshanshalan Chicken",
+  0,
+  null
+ ],
+ [
+  "广西乌鸡",
+  "Guangxiwu Chicken",
+  0,
+  "广西"
+ ],
+ [
+  "大宁河鸡",
+  "Daninghe Chicken",
+  0,
+  null
+ ],
+ [
+  "泸宁鸡",
+  "Luning Chicken",
+  0,
+  null
+ ],
+ [
+  "凉山岩鹰鸡",
+  "Liangshanyanying Chicken",
+  0,
+  "四川"
+ ],
+ [
+  "乌蒙乌骨鸡",
+  "Wumengwugu Chicken",
+  0,
+  "云南"
+ ],
+ [
+  "竹乡鸡",
+  "Zhuxiang Chicken",
+  0,
+  null
+ ],
+ [
+  "独龙鸡",
+  "Dulong Chicken",
+  0,
+  "云南"
+ ],
+ [
+  "大围山微型鸡",
+  "Daweishanweixing Chicken",
+  0,
+  null
+ ],
+ [
+  "兰坪绒毛鸡",
+  "Lanpingrongmao Chicken",
+  0,
+  null
+ ],
+ [
+  "他留乌骨鸡",
+  "Taliuwugu Chicken",
+  0,
+  null
+ ],
+ [
+  "云龙矮脚鸡",
+  "Yunlongaijiao Chicken",
+  0,
+  null
+ ],
+ [
+  "麻城绿壳蛋鸡",
+  "Machenglvkedan Chicken",
+  0,
+  null
+ ],
+ [
+  "太行鸡",
+  "Taixing Chicken",
+  0,
+  "河北"
+ ],
+ [
+  "广元灰鸡",
+  "Guangyuanhui Chicken",
+  0,
+  null
+ ],
+ [
+  "荆门黑羽绿壳蛋鸡",
+  "Jingmenheiyulvkedan Chicken",
+  0,
+  null
+ ],
+ [
+  "富蕴黑鸡",
+  "Fuyunhei Chicken",
+  0,
+  null
+ ],
+ [
+  "宁高原鸡",
+  "Ninggaoyuan Chicken",
+  0,
+  null
+ ],
+ [
+  "沂蒙鸡",
+  "Yimeng Chicken",
+  0,
+  null
+ ],
+ [
+  "阿克鸡",
+  "Ake Chicken",
+  0,
+  null
+ ],
+ [
+  "雁荡麻鸡",
+  "Yandangma Chicken",
+  0,
+  null
+ ],
+ [
+  "祁门豆花鸡",
+  "Qimendouhua Chicken",
+  0,
+  null
+ ],
+ [
+  "徐海鸡",
+  "Xuhai Chicken",
+  0,
+  null
+ ],
+ [
+  "修水黄羽乌鸡",
+  "Xiushuihuangyuwu Chicken",
+  0,
+  "江西"
+ ],
+ [
+  "粤西卷羽鸡",
+  "Yuexijuanyu Chicken",
+  0,
+  "广东"
+ ],
+ [
+  "维西家乌鸡",
+  "Weixijiawu Chicken",
+  0,
+  null
+ ],
+ [
+  "黑水凤尾鸡",
+  "Heishuifengwei Chicken",
+  0,
+  null
+ ],
+ [
+  "羌山云朵鸡",
+  "Qiangshanyunduo Chicken",
+  0,
+  null
+ ],
+ [
+  "平武红鸡",
+  "Pingwuhong Chicken",
+  0,
+  "四川"
+ ],
+ [
+  "烟台穆糠鸡",
+  "Yantaimukang Chicken",
+  0,
+  null
+ ],
+ [
+  "五峰花鸡",
+  "Wufenghua Chicken",
+  0,
+  null
+ ],
+ [
+  "枣庄孙枝鸡",
+  "Zaozhuangsunzhi Chicken",
+  0,
+  null
+ ],
+ [
+  "莱芜黑鸡",
+  "Laiwuhei Chicken",
+  0,
+  "山东"
+ ],
+ [
+  "新狼山鸡",
+  "Xinlangshan Chicken",
+  1,
+  null
+ ],
+ [
+  "新浦东鸡",
+  "Xinpudong Chicken",
+  1,
+  null
+ ],
+ [
+  "新扬州鸡",
+  "Xinyangzhou Chicken",
+  1,
+  null
+ ],
+ [
+  "京白939",
+  "Jingbai 939",
+  2,
+  null
+ ],
+ [
+  "康达尔黄鸡128配套系",
+  "Kangdaerhuangji 128",
+  2,
+  null
+ ],
+ [
+  "新杨褐壳蛋鸡配套系",
+  "Xinyanghekedan Chicken",
+  2,
+  null
+ ],
+ [
+  "江村黄鸡JH-2号配套系",
+  "Jiangcunhuangjihao 2",
+  2,
+  null
+ ],
+ [
+  "新兴黄鸡ⅡI号配套系",
+  "Xinxinghuangjihao III",
+  2,
+  null
+ ],
+ [
+  "新兴矮脚黄鸡配套系",
+  "Xinxingaijiaohuang Chicken",
+  2,
+  null
+ ],
+ [
+  "岭南黄鸡I号配套系",
+  "Lingnanhuangjihao I",
+  2,
+  null
+ ],
+ [
+  "京星黄鸡100配套系",
+  "Jingxinghuangji 100",
+  2,
+  null
+ ],
+ [
+  "农大3号小型蛋鸡配套系",
+  "Nongdahaoxiaoxingdan Chicken 3",
+  2,
+  null
+ ],
+ [
+  "邵伯鸡配套系",
+  "Shaobo Chicken",
+  2,
+  null
+ ],
+ [
+  "鲁禽1号麻鸡配套系",
+  "Luqinhaoma Chicken 1",
+  2,
+  "山东"
+ ],
+ [
+  "新兴竹丝鸡3号配套系",
+  "Xinxingzhusijihao 3",
+  2,
+  null
+ ],
+ [
+  "新兴麻鸡4号配套系",
+  "Xinxingmajihao 4",
+  2,
+  null
+ ],
+ [
+  "粤禽皇2号鸡配套系",
+  "Yueqinhuanghao Chicken 2",
+  2,
+  "广东"
+ ],
+ [
+  "京红1号蛋鸡配套系",
+  "Jinghonghaodan Chicken 1",
+  2,
+  null
+ ],
+ [
+  "京粉1号蛋鸡配套系",
+  "Jingfenhaodan Chicken 1",
+  2,
+  null
+ ],
+ [
+  "玉龙雪山乌鸡",
+  "Yulongxueshanwu Chicken",
+  2,
+  null
+ ],
+ [
+  "松阳鸡",
+  "Songyang Chicken",
+  2,
+  null
+ ],
+ [
+  "张家界白羽乌鸡",
+  "Zhangjiajiebaiyuwu Chicken",
+  2,
+  null
+ ],
+ [
+  "山鸡",
+  "Shan Chicken",
+  2,
+  null
+ ],
+ [
+  "七百弄鸡",
+  "Qibainong Chicken",
+  2,
+  null
+ ],
+ [
+  "上思大路鸡",
+  "Shangsidalu Chicken",
+  2,
+  null
+ ],
+ [
+  "秀山鸡",
+  "Xiushan Chicken",
+  2,
+  null
+ ],
+ [
+  "武隆凤头黑鸡",
+  "Wulongfengtouhei Chicken",
+  2,
+  null
+ ],
+ [
+  "京海黄鸡",
+  "Jinghaihuang Chicken",
+  2,
+  null
+ ],
+ [
+  "雪域白鸡",
+  "Xueyubai Chicken",
+  2,
+  null
+ ],
+ [
+  "良凤花鸡配套系",
+  "Liangfenghua Chicken",
+  2,
+  null
+ ],
+ [
+  "墟岗黄鸡1号配套系",
+  "Xuganghuangjihao 1",
+  2,
+  null
+ ],
+ [
+  "皖南黄鸡配套系",
+  "Wannanhuang Chicken",
+  2,
+  "安徽"
+ ],
+ [
+  "皖南青脚鸡配套系",
+  "Wannanqingjiao Chicken",
+  2,
+  "安徽"
+ ],
+ [
+  "皖江黄鸡配套系",
+  "Wanjianghuang Chicken",
+  2,
+  "安徽"
+ ],
+ [
+  "皖江麻鸡配套系",
+  "Wanjiangma Chicken",
+  2,
+  "安徽"
+ ],
+ [
+  "雪山鸡配套系",
+  "Xueshan Chicken",
+  2,
+  null
+ ],
+ [
+  "苏禽黄鸡2号配套系",
+  "Suqinhuangjihao 2",
+  2,
+  "江苏"
+ ],
+ [
+  "金陵麻鸡配套系",
+  "Jinlingma Chicken",
+  2,
+  null
+ ],
+ [
+  "金陵黄鸡配套系",
+  "Jinlinghuang Chicken",
+  2,
+  null
+ ],
+ [
+  "岭南黄鸡3号配套系",
+  "Lingnanhuangjihao 3",
+  2,
+  null
+ ],
+ [
+  "金钱麻鸡1号配套系",
+  "Jinqianmajihao 1",
+  2,
+  null
+ ],
+ [
+  "南海黄麻鸡1号",
+  "Nanhaihuangmajihao 1",
+  2,
+  null
+ ],
+ [
+  "弘香鸡",
+  "Hongxiang Chicken",
+  2,
+  null
+ ],
+ [
+  "新广铁脚麻鸡",
+  "Xinguangtiejiaoma Chicken",
+  2,
+  null
+ ],
+ [
+  "新广黄鸡K996",
+  "Xinguanghuangji 996",
+  2,
+  null
+ ],
+ [
+  "大恒699肉鸡配套系",
+  "Dahengrou Chicken 699",
+  2,
+  null
+ ],
+ [
+  "新杨白壳蛋鸡配套系",
+  "Xinyangbaikedan Chicken",
+  2,
+  null
+ ],
+ [
+  "新杨绿壳蛋鸡配套系",
+  "Xinyanglvkedan Chicken",
+  2,
+  null
+ ],
+ [
+  "凤翔青脚麻鸡",
+  "Fengxiangqingjiaoma Chicken",
+  2,
+  null
+ ],
+ [
+  "凤翔乌鸡",
+  "Fengxiangwu Chicken",
+  2,
+  null
+ ],
+ [
+  "五星黄鸡",
+  "Wuxinghuang Chicken",
+  2,
+  null
+ ],
+ [
+  "金种麻黄鸡",
+  "Jinzhongmahuang Chicken",
+  2,
+  null
+ ],
+ [
+  "振宁黄鸡配套系",
+  "Zhenninghuang Chicken",
+  2,
+  null
+ ],
+ [
+  "潭牛鸡配套系",
+  "Tanniu Chicken",
+  2,
+  null
+ ],
+ [
+  "三高青脚黄鸡3号",
+  "Sangaoqingjiaohuangjihao 3",
+  2,
+  null
+ ],
+ [
+  "京粉2号蛋鸡",
+  "Jingfenhaodan Chicken 2",
+  2,
+  null
+ ],
+ [
+  "大午粉1号蛋鸡",
+  "Dawufenhaodan Chicken 1",
+  2,
+  null
+ ],
+ [
+  "苏禽绿壳蛋鸡",
+  "Suqinlvkedan Chicken",
+  2,
+  "江苏"
+ ],
+ [
+  "天露黄鸡",
+  "Tianluhuang Chicken",
+  2,
+  null
+ ],
+ [
+  "天露黑鸡",
+  "Tianluhei Chicken",
+  2,
+  null
+ ],
+ [
+  "光大梅黄1号肉鸡",
+  "Guangdameihuanghaorou Chicken 1",
+  2,
+  null
+ ],
+ [
+  "粤禽皇5号蛋鸡",
+  "Yueqinhuanghaodan Chicken 5",
+  2,
+  "广东"
+ ],
+ [
+  "桂凤二号黄鸡",
+  "Guifengerhaohuang Chicken",
+  2,
+  "广西"
+ ],
+ [
+  "天农麻鸡配套系",
+  "Tiannongma Chicken",
+  2,
+  null
+ ],
+ [
+  "新杨黑羽蛋鸡配套系",
+  "Xinyangheiyudan Chicken",
+  2,
+  null
+ ],
+ [
+  "豫粉1号蛋鸡配套系",
+  "Yufenhaodan Chicken 1",
+  2,
+  "河南"
+ ],
+ [
+  "温氏青脚麻鸡2号配套系",
+  "Wenshiqingjiaomajihao 2",
+  2,
+  null
+ ],
+ [
+  "科朗麻黄鸡配套系",
+  "Kelangmahuang Chicken",
+  2,
+  null
+ ],
+ [
+  "金陵花鸡配套系",
+  "Jinlinghua Chicken",
+  2,
+  null
+ ],
+ [
+  "大午金凤蛋鸡配套系",
+  "Dawujinfengdan Chicken",
+  2,
+  null
+ ],
+ [
+  "京白1号蛋鸡配套系",
+  "Jingbaihaodan Chicken 1",
+  2,
+  null
+ ],
+ [
+  "栗园油鸡蛋鸡配套系",
+  "Liyuanyoujidan Chicken",
+  2,
+  null
+ ],
+ [
+  "黎村黄鸡配套系",
+  "Licunhuang Chicken",
+  2,
+  null
+ ],
+ [
+  "凤达1号蛋鸡配套系",
+  "Fengdahaodan Chicken 1",
+  2,
+  null
+ ],
+ [
+  "欣华2号蛋鸡配套系",
+  "Xinhuahaodan Chicken 2",
+  2,
+  null
+ ],
+ [
+  "鸿光黑鸡配套系",
+  "Hongguanghei Chicken",
+  2,
+  null
+ ],
+ [
+  "参皇鸡1号配套系",
+  "Canhuangjihao 1",
+  2,
+  null
+ ],
+ [
+  "鸿光麻鸡配套系",
+  "Hongguangma Chicken",
+  2,
+  null
+ ],
+ [
+  "天府肉鸡配套系",
+  "Tianfurou Chicken",
+  2,
+  "四川"
+ ],
+ [
+  "文登黑鸭",
+  "Wendenghei Duck",
+  0,
+  null
+ ],
+ [
+  "罗曼肉鸡",
+  "Luomanrou Chicken",
+  0,
+  null
+ ],
+ [
+  "明星肉鸡",
+  "Mingxingrou Chicken",
+  0,
+  null
+ ],
+ [
+  "尼克肉鸡",
+  "Nikerou Chicken",
+  0,
+  null
+ ],
+ [
+  "淮南麻鸭",
+  "Huainanma Duck",
+  0,
+  "安徽"
+ ],
+ [
+  "龙胜翠鸭",
+  "Longshengcui Duck",
+  0,
+  null
+ ],
+ [
+  "融水香鸭",
+  "Rongshuixiang Duck",
+  0,
+  null
+ ],
+ [
+  "建水黄褐鸭",
+  "Jianshuihuanghe Duck",
+  0,
+  null
+ ],
+ [
+  "褐色菜鸭",
+  "Hesecai Duck",
+  0,
+  null
+ ],
+ [
+  "三水白鸭配套系",
+  "Sanshuibai Duck",
+  2,
+  null
+ ],
+ [
+  "仙湖肉鸭配套系",
+  "Xianhurou Duck",
+  2,
+  null
+ ],
+ [
+  "南口1号北京鸭配套系",
+  "Nankouhaobeijing Duck 1",
+  2,
+  "北京"
+ ],
+ [
+  "Z型北京鸭配套系",
+  "Xingbeijing Duck",
+  2,
+  "北京"
+ ],
+ [
+  "苏邮1号蛋鸭",
+  "Suyouhaodan Duck 1",
+  2,
+  "江苏"
+ ],
+ [
+  "国绍I号蛋鸭配套系",
+  "Guoshaohaodan Duck I",
+  2,
+  null
+ ],
+ [
+  "中畜草原白羽肉鸭配套系",
+  "Zhongchucaoyuanbaiyurou Duck",
+  2,
+  null
+ ],
+ [
+  "中新白羽肉鸭配套系",
+  "Zhongxinbaiyurou Duck",
+  2,
+  null
+ ],
+ [
+  "马踏湖鸭",
+  "Matahu Duck",
+  0,
+  null
+ ],
+ [
+  "娄门鸭",
+  "Loumen Duck",
+  0,
+  null
+ ],
+ [
+  "于田麻鸭",
+  "Yutianma Duck",
+  0,
+  null
+ ],
+ [
+  "润州凤头白鸭",
+  "Runzhoufengtoubai Duck",
+  0,
+  null
+ ],
+ [
+  "奉化水鸭",
+  "Fenghuashui Duck",
+  0,
+  null
+ ],
+ [
+  "中山麻鸭",
+  "Zhongshanma Duck",
+  0,
+  null
+ ],
+ [
+  "开江麻鸭",
+  "Kaijiangma Duck",
+  0,
+  null
+ ],
+ [
+  "昆山麻鸭",
+  "Kunshanma Duck",
+  0,
+  null
+ ],
+ [
+  "永顺凤头鸭",
+  "Yongshunfengtou Duck",
+  0,
+  null
+ ],
+ [
+  "神丹2号蛋鸭",
+  "Shendanhaodan Duck 2",
+  0,
+  null
+ ],
+ [
+  "农湖2号蛋鸭",
+  "Nonghuhaodan Duck 2",
+  0,
+  null
+ ],
+ [
+  "京典北京鸭",
+  "Jingdianbeijing Duck",
+  0,
+  "北京"
+ ],
+ [
+  "武禽10肉鸭",
+  "Wuqinrou Duck 10",
+  0,
+  null
+ ],
+ [
+  "天府农华麻羽肉鸭配套系",
+  "Tianfunonghuamayurou Duck",
+  2,
+  null
+ ],
+ [
+  "益扬1号肉鸭配套系",
+  "Yiyanghaorou Duck 1",
+  2,
+  null
+ ],
+ [
+  "桂柳麻鸭配套系",
+  "Guiliuma Duck",
+  2,
+  "广西"
+ ],
+ [
+  "广丰白翎鹅",
+  "Guangfengbailing Goose",
+  0,
+  "江西"
+ ],
+ [
+  "扬州鹅",
+  "Yangzhou Goose",
+  1,
+  null
+ ],
+ [
+  "天府肉鹅",
+  "Tianfurou Goose",
+  2,
+  "四川"
+ ],
+ [
+  "江南白鹅配套系",
+  "Jiangnanbai Goose",
+  2,
+  null
+ ],
+ [
+  "天翔1号肉鸽配套系",
+  "Tianxianghaorou Pigeon 1",
+  2,
+  null
+ ],
+ [
+  "苏威1号肉鸽",
+  "Suweihaorou Pigeon 1",
+  2,
+  "江苏"
+ ],
+ [
+  "神丹1号鹌鹑",
+  "Shendanhao Quail 1",
+  2,
+  null
+ ],
+ [
+  "四平梅花鹿",
+  "Siping Sika Deer",
+  1,
+  null
+ ],
+ [
+  "敖东梅花鹿",
+  "Aodong Sika Deer",
+  1,
+  null
+ ],
+ [
+  "东丰梅花鹿",
+  "Dongfeng Sika Deer",
+  1,
+  null
+ ],
+ [
+  "肃南马鹿",
+  "Sunan Red Deer",
+  0,
+  null
+ ],
+ [
+  "清原马鹿",
+  "Qingyuan Red Deer",
+  1,
+  null
+ ],
+ [
+  "闽南火鸡",
+  "Minnan Turkey",
+  0,
+  "福建"
+ ],
+ [
+  "中国山鸡",
+  "Zhongguoshan Chicken",
+  0,
+  null
+ ],
+ [
+  "左家雉鸡",
+  "Zuojia Pheasant",
+  1,
+  null
+ ],
+ [
+  "中国番鸭",
+  "Zhongguo Muscovy Duck",
+  0,
+  null
+ ],
+ [
+  "温氏白羽番鸭1号",
+  "Wenshibaiyufanyahao 1",
+  2,
+  null
+ ],
+ [
+  "吉林白水貂",
+  "Jilinbai Mink",
+  1,
+  "吉林"
+ ],
+ [
+  "金州黑色十字水貂",
+  "Jinzhouheiseshizi Mink",
+  1,
+  "辽宁"
+ ],
+ [
+  "山东黑褐色标准水貂",
+  "Shandongheihesebiaozhun Mink",
+  1,
+  "山东"
+ ],
+ [
+  "东北黑褐色标准水貂",
+  "Dongbeiheihesebiaozhun Mink",
+  1,
+  null
+ ],
+ [
+  "乌苏里貉",
+  "Wusuli Raccoon Dog",
+  0,
+  "江苏"
+ ],
+ [
+  "吉林白貉",
+  "Jilinbai Raccoon Dog",
+  1,
+  "吉林"
+ ],
+ [
+  "蓝颈鸵鸟",
+  "Lanjing Ostrich",
+  1,
+  null
+ ],
+ [
+  "米黄色水貂",
+  "Mihuangse Mink",
+  1,
+  null
+ ],
+ [
+  "金州黑色标准水貂",
+  "Jinzhouheisebiaozhun Mink",
+  1,
+  "辽宁"
+ ],
+ [
+  "明华黑色水貂",
+  "Minghuaheise Mink",
+  1,
+  null
+ ],
+ [
+  "名威银蓝水貂",
+  "Mingweiyinlan Mink",
+  1,
+  null
+ ],
+ [
+  "珍珠色水貂",
+  "Zhenzhuse Mink",
+  1,
+  null
+ ],
+ [
+  "红眼白水貂",
+  "Hongyanbai Mink",
+  1,
+  null
+ ],
+ [
+  "银黑狐",
+  "Yinhei Fox",
+  1,
+  null
+ ],
+ [
+  "吉左黑貉",
+  "Jizuohei Raccoon Dog",
+  1,
+  null
+ ],
+ [
+  "北方中蜂",
+  "Beifang Honey Bee",
+  0,
+  null
+ ],
+ [
+  "华南中蜂",
+  "Huanan Honey Bee",
+  0,
+  null
+ ],
+ [
+  "华中中蜂",
+  "Huazhong Honey Bee",
+  0,
+  null
+ ],
+ [
+  "云贵高原中蜂",
+  "Yunguigaoyuan Honey Bee",
+  0,
+  null
+ ],
+ [
+  "长白山中蜂",
+  "Changbaishan Honey Bee",
+  0,
+  null
+ ],
+ [
+  "海南中蜂",
+  "Hainan Honey Bee",
+  0,
+  "海南"
+ ],
+ [
+  "滇南中蜂",
+  "Diannan Honey Bee",
+  0,
+  "云南"
+ ],
+ [
+  "阿坝中蜂",
+  "Aba Honey Bee",
+  0,
+  null
+ ],
+ [
+  "喀阡黑环系蜜蜂品系",
+  "Kaqianheihuanxi Honey Bee",
+  2,
+  null
+ ],
+ [
+  "浙农大1号意蜂品系",
+  "Zhenongdahaoyi Bee 1",
+  2,
+  "浙江"
+ ],
+ [
+  "白山5号蜜蜂配套系",
+  "Baishanhao Honey Bee 5",
+  2,
+  null
+ ],
+ [
+  "国蜂213配套系",
+  "Guofeng 213",
+  2,
+  null
+ ],
+ [
+  "大蜜蜂",
+  "Da Honey Bee",
+  3,
+  null
+ ],
+ [
+  "黑大蜜蜂",
+  "Heida Honey Bee",
+  3,
+  null
+ ],
+ [
+  "小蜜蜂",
+  "Xiao Honey Bee",
+  3,
+  null
+ ],
+ [
+  "黑小蜜蜂",
+  "Heixiao Honey Bee",
+  3,
+  null
+ ],
+ [
+  "西藏中蜂",
+  "Xizang Honey Bee",
+  0,
+  "西藏"
+ ],
+ [
+  "浙江浆蜂",
+  "Zhejiangjiang Bee",
+  0,
+  "浙江"
+ ],
+ [
+  "东北黑蜂",
+  "Dongbeihei Bee",
+  0,
+  null
+ ],
+ [
+  "新疆黑蜂",
+  "Xinjianghei Bee",
+  0,
+  "新疆"
+ ],
+ [
+  "珲春黑蜂",
+  "Huichunhei Bee",
+  0,
+  null
+ ],
+ [
+  "西域黑蜂",
+  "Xiyuhei Bee",
+  0,
+  null
+ ],
+ [
+  "巴塘中蜂",
+  "Batang Honey Bee",
+  0,
+  null
+ ],
+ [
+  "松丹蜜蜂配套系",
+  "Songdan Honey Bee",
+  2,
+  null
+ ],
+ [
+  "中蜜一号蜜蜂配套系",
+  "Zhongmiyihao Honey Bee",
+  2,
+  null
+ ],
+ [
+  "熊蜂",
+  "Xiong Bee",
+  3,
+  null
+ ],
+ [
+  "壁蜂",
+  "Bi Bee",
+  3,
+  null
+ ],
+ [
+  "切叶蜂",
+  "Qieye Bee",
+  3,
+  null
+ ],
+ [
+  "无刺蜂",
+  "Wuci Bee",
+  3,
+  null
+ ],
+ [
+  "岭南黄鸡Ⅱ号配套系",
+  "Lingnanhuangjihao II",
+  2,
+  null
+ ]
+]
