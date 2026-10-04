@@ -118,7 +118,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="relative bg-[#0a0a1a]">
+    <div className="relative bg-black">
       {/* 模块一：光标聚光地图英雄区 */}
       <SpotlightHero
         titleTop={t('home.heroTitleTop')}
@@ -262,7 +262,7 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* 品牌页脚 */}
-        <section className="bg-[#050810] text-white/70" aria-label={t('home.footerBrand')}>
+        <section className="bg-black text-white/70" aria-label={t('home.footerBrand')}>
           <div className="max-w-5xl mx-auto px-4 md:px-6 py-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
               <div>

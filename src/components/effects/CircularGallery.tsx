@@ -166,7 +166,7 @@ const CircularGallery = ({
         ))}
       </div>
       {/* 底部渐变遮罩，增强纵深 */}
-      {!staticLayout && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a1a] to-transparent" />}
+      {!staticLayout && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent" />}
     </div>
   );
 };

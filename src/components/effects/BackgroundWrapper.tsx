@@ -8,12 +8,11 @@ interface BackgroundWrapperProps {
 }
 
 /**
- * 星系背景容器：在内容层下方放置星系动态背景（固定深色），
- * 内容层置于其上，营造星空/科技感。
+ * 首页背景容器：纯黑底 + 金色细点纹理，内容层置于其上。
  */
 const BackgroundWrapper = ({ children, className = '', density = 3 }: BackgroundWrapperProps) => {
   return (
-    <div className={`relative bg-museum-ink ${className}`}>
+    <div className={`relative bg-black ${className}`}>
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(#C79A45 0.6px, transparent 0.6px)', backgroundSize: '20px 20px' }} />
       <div className="relative z-10">{children}</div>
     </div>

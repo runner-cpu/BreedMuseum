@@ -59,7 +59,7 @@ const SpotlightHero = ({
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-museum-ink"
+      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-black"
     >
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
