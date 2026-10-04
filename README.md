@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 687 条地方品种记录，提供品种百科、产地地图、数据看板、对比浏览和离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1100 条畜禽品种记录（含名录条目式收录），提供品种百科、产地地图、数据看板、对比浏览和离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -44,28 +44,28 @@
 
 | 指标 | 实测值 |
 | --- | --- |
-| 馆藏条目 | 687 |
-| 唯一 ID / 名称 | 687 / 687 |
-| 覆盖省份 | 30 |
+| 馆藏条目 | 1100 |
+| 唯一 ID / 名称 | 1100 / 1100 |
+| 覆盖省份 | 31 |
 | 分类 | 11 |
 | 第 940 号公告畜禽名称匹配 | 271 / 271 |
-| 项目 SVG 占位图 | 19 |
+| 项目 SVG 占位图 | 432 |
 
 | 类别 | 条目数 |
 | --- | --- |
-| 牛 | 151 |
-| 羊 | 116 |
-| 猪 | 113 |
-| 鸡 | 101 |
-| 马 | 44 |
-| 其他 | 41 |
-| 鸭 | 36 |
-| 鹅 | 32 |
-| 兔 | 26 |
-| 鸽 | 15 |
+| 牛 | 187 |
+| 羊 | 187 |
+| 鸡 | 181 |
+| 其他 | 177 |
+| 猪 | 162 |
+| 鸭 | 56 |
+| 马 | 54 |
+| 鹅 | 35 |
+| 兔 | 33 |
+| 鸽 | 16 |
 | 骆驼 | 12 |
 
-编辑濒危标签统计（非权威保护结论）：普通 421；易危 165；濒危 82；待核验 19。
+编辑濒危标签统计（非权威保护结论）：普通 421；易危 165；濒危 82；待核验 432。
 <!-- data-summary:end -->
 
 Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在未配置后端时使用浏览器内置的本地品种库完成文本问答与报告导出；图片生成、图片识别和语音转写属于可选的第三方服务能力。
@@ -86,7 +86,7 @@ Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在�
 # pnpm -v   # 11.25.0
 ```
 
-- 馆藏数据由 710 条原始记录整理为 687 条全局唯一记录（含 14 对同物异名合并），匹配第 940 号公告中的 271 个畜禽名称。
+- 馆藏数据由 710 条原始记录与《国家畜禽遗传资源品种名录（2024年版）》增量合并整理为 1100 条全局唯一记录（含 14 对同物异名合并），匹配第 940 号公告中的 271 个畜禽名称。
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
