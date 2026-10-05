@@ -15,7 +15,7 @@
   "莆田猪",
   "Putian Pig",
   0,
-  null
+  "福建"
  ],
  [
   "滨湖黑猪",
@@ -33,7 +33,7 @@
   "确山黑猪",
   "Queshanhei Pig",
   0,
-  null
+  "河南"
  ],
  [
   "桂中花猪",
@@ -57,7 +57,7 @@
   "新淮猪",
   "Xinhuai Pig",
   1,
-  null
+  "江苏"
  ],
  [
   "上海白猪",
@@ -81,7 +81,7 @@
   "三江白猪",
   "Sanjiangbai Pig",
   1,
-  "四川"
+  "黑龙江"
  ],
  [
   "湖北白猪",
@@ -105,31 +105,31 @@
   "南昌白猪",
   "Nanchangbai Pig",
   1,
-  null
+  "江西"
  ],
  [
   "军牧1号白猪",
   "Junmuhaobai Pig 1",
   1,
-  null
+  "吉林"
  ],
  [
   "兰屿小耳猪",
   "Lanyuxiaoer Pig",
-  1,
-  null
+  0,
+  "台湾"
  ],
  [
   "桃园猪",
   "Taoyuan Pig",
-  1,
-  null
+  0,
+  "台湾"
  ],
  [
   "烟台黑猪",
   "Yantaihei Pig",
   1,
-  null
+  "山东"
  ],
  [
   "丽江猪",
@@ -153,7 +153,7 @@
   "梁山黑猪",
   "Liangshanhei Pig",
   1,
-  null
+  "山东"
  ],
  [
   "鲁莱黑猪",
@@ -183,7 +183,7 @@
   "松辽黑猪",
   "Songliaohei Pig",
   1,
-  null
+  "吉林"
  ],
  [
   "苏淮猪",
@@ -213,7 +213,7 @@
   "吉神黑猪",
   "Jishenhei Pig",
   1,
-  null
+  "吉林"
  ],
  [
   "苏山猪",
@@ -231,19 +231,19 @@
   "辽丹黑猪",
   "Liaodanhei Pig",
   1,
-  null
+  "辽宁"
  ],
  [
   "川乡黑猪",
   "Chuanxianghei Pig",
   1,
-  null
+  "四川"
  ],
  [
   "硒都黑猪",
   "Xidouhei Pig",
   1,
-  null
+  "湖北"
  ],
  [
   "山下长黑",
@@ -255,13 +255,13 @@
   "光明猪配套系",
   "Guangming Pig",
   2,
-  null
+  "广东"
  ],
  [
   "深农猪配套系",
   "Shennong Pig",
   2,
-  null
+  "广东"
  ],
  [
   "冀合白猪配套系",
@@ -279,7 +279,7 @@
   "华农温氏1号猪配套系",
   "Huanongwenshihao Pig 1",
   2,
-  null
+  "广东"
  ],
  [
   "滇撒猪配套系",
@@ -297,7 +297,7 @@
   "渝荣I号猪配套系",
   "Yuronghao Pig I",
   2,
-  null
+  "重庆"
  ],
  [
   "天府肉猪",
@@ -315,7 +315,7 @@
   "徐州牛",
   "Xuzhou Cattle",
   0,
-  null
+  "江苏"
  ],
  [
   "乡下黑猪",
@@ -327,7 +327,7 @@
   "天府黑猪",
   "Tianfuhei Pig",
   1,
-  null
+  "四川"
  ],
  [
   "东北花猪",
@@ -345,7 +345,7 @@
   "川藏黑猪",
   "Chuancanghei Pig",
   1,
-  null
+  "四川"
  ],
  [
   "江泉白猪配套系",
@@ -357,7 +357,7 @@
   "温氏WS501猪配套系",
   "Wenshi Pig 501",
   2,
-  null
+  "广东"
  ],
  [
   "湘沙猪",
@@ -393,7 +393,7 @@
   "吉安牛",
   "Jian Cattle",
   0,
-  null
+  "江西"
  ],
  [
   "蒙山牛",
@@ -441,19 +441,19 @@
   "夏南牛",
   "Xianan Cattle",
   1,
-  null
+  "河南"
  ],
  [
   "盱眙山区水牛",
   "Xuyishanqushui Cattle",
   0,
-  null
+  "江苏"
  ],
  [
   "江淮水牛",
   "Jianghuaishui Cattle",
   0,
-  null
+  "安徽"
  ],
  [
   "福安水牛",
@@ -465,7 +465,7 @@
   "鄱阳湖水牛",
   "Poyanghushui Cattle",
   0,
-  null
+  "江西"
  ],
  [
   "峡江水牛",
@@ -477,25 +477,25 @@
   "信丰山地水牛",
   "Xinfengshandishui Cattle",
   0,
-  null
+  "江西"
  ],
  [
   "恩施山地水牛",
   "Enshishandishui Cattle",
   0,
-  null
+  "湖北"
  ],
  [
   "富钟水牛",
   "Fuzhongshui Cattle",
   0,
-  null
+  "广西"
  ],
  [
   "娘亚牦牛",
   "Niangya Yak",
   0,
-  null
+  "西藏"
  ],
  [
   "西藏高山牦牛",
@@ -513,55 +513,49 @@
   "盐津水牛",
   "Yanjinshui Cattle",
   0,
-  null
+  "云南"
  ],
  [
   "陕南水牛",
   "Shannanshui Cattle",
   0,
-  null
- ],
- [
-  "地中海水牛",
-  "Dizhonghaishui Cattle",
-  0,
-  null
+  "陕西"
  ],
  [
   "巴州牦牛",
   "Bazhou Yak",
   0,
-  null
+  "新疆"
  ],
  [
   "金川牦牛",
   "Jinchuan Yak",
   0,
-  null
+  "四川"
  ],
  [
   "昌台牦牛",
   "Changtai Yak",
   0,
-  null
+  "四川"
  ],
  [
   "类乌齐牦牛",
   "Leiwuqi Yak",
   0,
-  null
+  "西藏"
  ],
  [
   "雪多牦牛",
   "Xueduo Yak",
   0,
-  null
+  "青海"
  ],
  [
   "查吾拉牦牛",
   "Chawula Yak",
   0,
-  null
+  "西藏"
  ],
  [
   "鲁中山地绵羊",
@@ -579,37 +573,37 @@
   "迪庆绵羊",
   "Diqing Sheep",
   0,
-  null
+  "云南"
  ],
  [
   "亚丁牦牛",
   "Yading Yak",
   0,
-  null
+  "四川"
  ],
  [
   "肃南牦牛",
   "Sunan Yak",
   0,
-  null
+  "甘肃"
  ],
  [
   "美仁牦牛",
   "Meiren Yak",
   0,
-  null
+  "甘肃"
  ],
  [
   "肃北牦牛",
   "Subei Yak",
   0,
-  null
+  "甘肃"
  ],
  [
   "阿什旦牦牛",
   "Ashendan Yak",
   0,
-  null
+  "青海"
  ],
  [
   "宁黑绵羊",
@@ -627,25 +621,25 @@
   "巴尔楚克羊",
   "Baerchuke Sheep",
   0,
-  null
+  "新疆"
  ],
  [
   "柯尔克孜羊",
   "Keerkezi Sheep",
   0,
-  null
+  "新疆"
  ],
  [
   "罗布羊",
   "Luobu Sheep",
   0,
-  null
+  "新疆"
  ],
  [
   "扎什加羊",
   "Zhashenjia Sheep",
   0,
-  null
+  "青海"
  ],
  [
   "玛格绵羊",
@@ -663,7 +657,7 @@
   "勒通绵羊",
   "Leitong Sheep",
   0,
-  null
+  "西藏"
  ],
  [
   "新疆细毛羊",
@@ -687,7 +681,7 @@
   "敖汉细毛羊",
   "Aohanximao Sheep",
   1,
-  null
+  "内蒙古"
  ],
  [
   "中国美利奴羊",
@@ -741,7 +735,7 @@
   "鄂尔多斯细毛羊",
   "Eerduosiximao Sheep",
   1,
-  null
+  "内蒙古"
  ],
  [
   "呼伦贝尔细毛羊",
@@ -798,64 +792,46 @@
   "山东"
  ],
  [
-  "东佛里生羊",
-  "Dongfulisheng Sheep",
-  0,
-  null
- ],
- [
-  "南丘羊",
-  "Nanqiu Sheep",
-  0,
-  null
- ],
- [
-  "阿瓦西羊",
-  "Awaxi Sheep",
-  0,
-  null
- ],
- [
   "酉州乌羊",
   "Youzhouwu Sheep",
   0,
-  null
+  "重庆"
  ],
  [
   "川东白山羊",
   "Chuandongbai Goat",
   0,
-  null
+  "四川"
  ],
  [
   "川南黑山羊",
   "Chuannanhei Goat",
   0,
-  null
+  "四川"
  ],
  [
   "川中黑山羊",
   "Chuanzhonghei Goat",
   0,
-  null
+  "四川"
  ],
  [
   "美姑山羊",
   "Meigu Goat",
   0,
-  null
+  "四川"
  ],
  [
   "凤庆无角黑山羊",
   "Fengqingwujiaohei Goat",
   0,
-  null
+  "云南"
  ],
  [
   "罗平黄山羊",
   "Luopinghuang Goat",
   0,
-  null
+  "云南"
  ],
  [
   "马关无角山羊",
@@ -867,7 +843,7 @@
   "弥勒红骨山羊",
   "Milehonggu Goat",
   0,
-  null
+  "云南"
  ],
  [
   "宁黑头山羊",
@@ -879,7 +855,7 @@
   "威信白山羊",
   "Weixinbai Goat",
   0,
-  null
+  "云南"
  ],
  [
   "燕山绒山羊",
@@ -891,7 +867,7 @@
   "南充黑山羊",
   "Nanchonghei Goat",
   0,
-  null
+  "四川"
  ],
  [
   "关中奶山羊",
@@ -903,19 +879,19 @@
   "崂山奶山羊",
   "Laoshannai Goat",
   1,
-  null
+  "山东"
  ],
  [
   "南江黄羊",
   "Nanjianghuang Sheep",
   1,
-  null
+  "四川"
  ],
  [
   "文登奶山羊",
   "Wendengnai Goat",
   1,
-  null
+  "山东"
  ],
  [
   "柴达木绒山羊",
@@ -927,37 +903,37 @@
   "雅安奶山羊",
   "Yaannai Goat",
   1,
-  null
+  "四川"
  ],
  [
   "罕山白绒山羊",
   "Hanshanbairong Goat",
   1,
-  null
+  "内蒙古"
  ],
  [
   "阿巴嘎黑马",
   "Abagahei Horse",
   0,
-  null
+  "内蒙古"
  ],
  [
   "甘孜马",
   "Ganzi Horse",
   0,
-  null
+  "四川"
  ],
  [
   "临沧长毛山羊",
   "Lincangchangmao Goat",
   0,
-  null
+  "云南"
  ],
  [
   "兰坪长毛山羊",
   "Lanpingchangmao Goat",
   0,
-  null
+  "云南"
  ],
  [
   "千秋山羊",
@@ -981,25 +957,25 @@
   "简州大耳羊",
   "Jianzhoudaer Sheep",
   0,
-  null
+  "四川"
  ],
  [
   "云上黑山羊",
   "Yunshanghei Goat",
   0,
-  null
+  "云南"
  ],
  [
   "疆南绒山羊",
   "Jiangnanrong Goat",
   0,
-  null
+  "新疆"
  ],
  [
   "藏西北白绒山羊",
   "Cangxibeibairong Goat",
   0,
-  null
+  "西藏"
  ],
  [
   "皖临白山羊",
@@ -1011,25 +987,7 @@
   "楚宝黑头羊",
   "Chubaoheitou Sheep",
   0,
-  null
- ],
- [
-  "努比亚山羊",
-  "Nubiya Goat",
-  0,
-  null
- ],
- [
-  "阿尔卑斯奶山羊",
-  "Aerbeisinai Goat",
-  0,
-  null
- ],
- [
-  "吐根堡奶山羊",
-  "Tugenbaonai Goat",
-  0,
-  null
+  "湖北"
  ],
  [
   "永宁马",
@@ -1053,31 +1011,31 @@
   "临县驴",
   "Linxian Donkey",
   0,
-  null
+  "山西"
  ],
  [
   "柯尔克孜马",
   "Keerkezi Horse",
   0,
-  null
+  "新疆"
  ],
  [
   "伊吾马",
   "Yiwu Horse",
   0,
-  null
+  "新疆"
  ],
  [
   "张北马",
   "Zhangbei Horse",
   0,
-  null
+  "河北"
  ],
  [
   "新丽江马",
   "Xinlijiang Horse",
   0,
-  null
+  "云南"
  ],
  [
   "黑河马",
@@ -1089,7 +1047,7 @@
   "苏高血马",
   "Sugaoxue Horse",
   0,
-  "江苏"
+  null
  ],
  [
   "陕北毛驴",
@@ -1113,13 +1071,13 @@
   "西平长毛兔",
   "Xipingchangmao Rabbit",
   1,
-  null
+  "河南"
  ],
  [
   "吉戎兔",
   "Jirong Rabbit",
   1,
-  null
+  "吉林"
  ],
  [
   "康大1号肉兔",
@@ -1131,13 +1089,13 @@
   "坝上长尾鸡",
   "Bashangzhangwei Chicken",
   0,
-  null
+  "河北"
  ],
  [
   "如皋黄鸡",
   "Rugaohuang Chicken",
   0,
-  null
+  "江苏"
  ],
  [
   "太湖鸡",
@@ -1149,13 +1107,13 @@
   "江山乌骨鸡",
   "Jiangshanwugu Chicken",
   0,
-  null
+  "浙江"
  ],
  [
   "灵昆鸡",
   "Lingkun Chicken",
   0,
-  null
+  "浙江"
  ],
  [
   "皖北斗鸡",
@@ -1173,25 +1131,13 @@
   "德化黑鸡",
   "Dehuahei Chicken",
   0,
-  null
+  "福建"
  ],
  [
   "象洞鸡",
   "Xiangdong Chicken",
   0,
-  null
- ],
- [
-  "齐卡肉兔",
-  "Qikarou Rabbit",
-  0,
-  null
- ],
- [
-  "伊高乐肉兔",
-  "Yigaolerou Rabbit",
-  0,
-  null
+  "福建"
  ],
  [
   "康乐鸡",
@@ -1203,7 +1149,7 @@
   "余干乌骨鸡",
   "Yuganwugu Chicken",
   0,
-  null
+  "江西"
  ],
  [
   "鲁西斗鸡",
@@ -1221,25 +1167,25 @@
   "郧阳白羽乌鸡",
   "Yunyangbaiyuwu Chicken",
   0,
-  null
+  "湖北"
  ],
  [
   "东安鸡",
   "Dongan Chicken",
   0,
-  null
+  "湖南"
  ],
  [
   "黄郎鸡",
   "Huanglang Chicken",
   0,
-  null
+  "四川"
  ],
  [
   "中山沙栏鸡",
   "Zhongshanshalan Chicken",
   0,
-  null
+  "广东"
  ],
  [
   "广西乌鸡",
@@ -1251,13 +1197,13 @@
   "大宁河鸡",
   "Daninghe Chicken",
   0,
-  null
+  "重庆"
  ],
  [
   "泸宁鸡",
   "Luning Chicken",
   0,
-  null
+  "四川"
  ],
  [
   "凉山岩鹰鸡",
@@ -1287,7 +1233,7 @@
   "大围山微型鸡",
   "Daweishanweixing Chicken",
   0,
-  null
+  "云南"
  ],
  [
   "兰坪绒毛鸡",
@@ -1299,19 +1245,19 @@
   "他留乌骨鸡",
   "Taliuwugu Chicken",
   0,
-  null
+  "云南"
  ],
  [
   "云龙矮脚鸡",
   "Yunlongaijiao Chicken",
   0,
-  null
+  "云南"
  ],
  [
   "麻城绿壳蛋鸡",
   "Machenglvkedan Chicken",
   0,
-  null
+  "湖北"
  ],
  [
   "太行鸡",
@@ -1323,19 +1269,19 @@
   "广元灰鸡",
   "Guangyuanhui Chicken",
   0,
-  null
+  "四川"
  ],
  [
   "荆门黑羽绿壳蛋鸡",
   "Jingmenheiyulvkedan Chicken",
   0,
-  null
+  "湖北"
  ],
  [
   "富蕴黑鸡",
   "Fuyunhei Chicken",
   0,
-  null
+  "新疆"
  ],
  [
   "宁高原鸡",
@@ -1347,31 +1293,31 @@
   "沂蒙鸡",
   "Yimeng Chicken",
   0,
-  null
+  "山东"
  ],
  [
   "阿克鸡",
   "Ake Chicken",
   0,
-  null
+  "新疆"
  ],
  [
   "雁荡麻鸡",
   "Yandangma Chicken",
   0,
-  null
+  "浙江"
  ],
  [
   "祁门豆花鸡",
   "Qimendouhua Chicken",
   0,
-  null
+  "安徽"
  ],
  [
   "徐海鸡",
   "Xuhai Chicken",
   0,
-  null
+  "江苏"
  ],
  [
   "修水黄羽乌鸡",
@@ -1389,19 +1335,19 @@
   "维西家乌鸡",
   "Weixijiawu Chicken",
   0,
-  null
+  "云南"
  ],
  [
   "黑水凤尾鸡",
   "Heishuifengwei Chicken",
   0,
-  null
+  "四川"
  ],
  [
   "羌山云朵鸡",
   "Qiangshanyunduo Chicken",
   0,
-  null
+  "四川"
  ],
  [
   "平武红鸡",
@@ -1413,19 +1359,19 @@
   "烟台穆糠鸡",
   "Yantaimukang Chicken",
   0,
-  null
+  "山东"
  ],
  [
   "五峰花鸡",
   "Wufenghua Chicken",
   0,
-  null
+  "湖北"
  ],
  [
   "枣庄孙枝鸡",
   "Zaozhuangsunzhi Chicken",
   0,
-  null
+  "山东"
  ],
  [
   "莱芜黑鸡",
@@ -1437,25 +1383,25 @@
   "新狼山鸡",
   "Xinlangshan Chicken",
   1,
-  null
+  "江苏"
  ],
  [
   "新浦东鸡",
   "Xinpudong Chicken",
   1,
-  null
+  "上海"
  ],
  [
   "新扬州鸡",
   "Xinyangzhou Chicken",
   1,
-  null
+  "江苏"
  ],
  [
   "京白939",
   "Jingbai 939",
   2,
-  null
+  "北京"
  ],
  [
   "康达尔黄鸡128配套系",
@@ -1467,13 +1413,13 @@
   "新杨褐壳蛋鸡配套系",
   "Xinyanghekedan Chicken",
   2,
-  null
+  "上海"
  ],
  [
   "江村黄鸡JH-2号配套系",
   "Jiangcunhuangjihao 2",
   2,
-  null
+  "广东"
  ],
  [
   "新兴黄鸡ⅡI号配套系",
@@ -1485,31 +1431,31 @@
   "新兴矮脚黄鸡配套系",
   "Xinxingaijiaohuang Chicken",
   2,
-  null
+  "广东"
  ],
  [
   "岭南黄鸡I号配套系",
   "Lingnanhuangjihao I",
   2,
-  null
+  "广东"
  ],
  [
   "京星黄鸡100配套系",
   "Jingxinghuangji 100",
   2,
-  null
+  "北京"
  ],
  [
   "农大3号小型蛋鸡配套系",
   "Nongdahaoxiaoxingdan Chicken 3",
   2,
-  null
+  "北京"
  ],
  [
   "邵伯鸡配套系",
   "Shaobo Chicken",
   2,
-  null
+  "江苏"
  ],
  [
   "鲁禽1号麻鸡配套系",
@@ -1521,13 +1467,13 @@
   "新兴竹丝鸡3号配套系",
   "Xinxingzhusijihao 3",
   2,
-  null
+  "广东"
  ],
  [
   "新兴麻鸡4号配套系",
   "Xinxingmajihao 4",
   2,
-  null
+  "广东"
  ],
  [
   "粤禽皇2号鸡配套系",
@@ -1539,31 +1485,31 @@
   "京红1号蛋鸡配套系",
   "Jinghonghaodan Chicken 1",
   2,
-  null
+  "北京"
  ],
  [
   "京粉1号蛋鸡配套系",
   "Jingfenhaodan Chicken 1",
   2,
-  null
+  "北京"
  ],
  [
   "玉龙雪山乌鸡",
   "Yulongxueshanwu Chicken",
   2,
-  null
+  "云南"
  ],
  [
   "松阳鸡",
   "Songyang Chicken",
   2,
-  null
+  "浙江"
  ],
  [
   "张家界白羽乌鸡",
   "Zhangjiajiebaiyuwu Chicken",
   2,
-  null
+  "湖南"
  ],
  [
   "山鸡",
@@ -1575,25 +1521,25 @@
   "七百弄鸡",
   "Qibainong Chicken",
   2,
-  null
+  "广西"
  ],
  [
   "上思大路鸡",
   "Shangsidalu Chicken",
   2,
-  null
+  "广西"
  ],
  [
   "秀山鸡",
   "Xiushan Chicken",
   2,
-  null
+  "重庆"
  ],
  [
   "武隆凤头黑鸡",
   "Wulongfengtouhei Chicken",
   2,
-  null
+  "重庆"
  ],
  [
   "京海黄鸡",
@@ -1611,13 +1557,13 @@
   "良凤花鸡配套系",
   "Liangfenghua Chicken",
   2,
-  null
+  "广西"
  ],
  [
   "墟岗黄鸡1号配套系",
   "Xuganghuangjihao 1",
   2,
-  null
+  "广东"
  ],
  [
   "皖南黄鸡配套系",
@@ -1659,13 +1605,13 @@
   "金陵麻鸡配套系",
   "Jinlingma Chicken",
   2,
-  null
+  "江苏"
  ],
  [
   "金陵黄鸡配套系",
   "Jinlinghuang Chicken",
   2,
-  null
+  "江苏"
  ],
  [
   "岭南黄鸡3号配套系",
@@ -1683,7 +1629,7 @@
   "南海黄麻鸡1号",
   "Nanhaihuangmajihao 1",
   2,
-  null
+  "广东"
  ],
  [
   "弘香鸡",
@@ -1695,31 +1641,31 @@
   "新广铁脚麻鸡",
   "Xinguangtiejiaoma Chicken",
   2,
-  null
+  "广东"
  ],
  [
   "新广黄鸡K996",
   "Xinguanghuangji 996",
   2,
-  null
+  "广东"
  ],
  [
   "大恒699肉鸡配套系",
   "Dahengrou Chicken 699",
   2,
-  null
+  "四川"
  ],
  [
   "新杨白壳蛋鸡配套系",
   "Xinyangbaikedan Chicken",
   2,
-  null
+  "上海"
  ],
  [
   "新杨绿壳蛋鸡配套系",
   "Xinyanglvkedan Chicken",
   2,
-  null
+  "上海"
  ],
  [
   "凤翔青脚麻鸡",
@@ -1755,7 +1701,7 @@
   "潭牛鸡配套系",
   "Tanniu Chicken",
   2,
-  null
+  "海南"
  ],
  [
   "三高青脚黄鸡3号",
@@ -1767,13 +1713,13 @@
   "京粉2号蛋鸡",
   "Jingfenhaodan Chicken 2",
   2,
-  null
+  "北京"
  ],
  [
   "大午粉1号蛋鸡",
   "Dawufenhaodan Chicken 1",
   2,
-  null
+  "河北"
  ],
  [
   "苏禽绿壳蛋鸡",
@@ -1815,7 +1761,7 @@
   "天农麻鸡配套系",
   "Tiannongma Chicken",
   2,
-  null
+  "广东"
  ],
  [
   "新杨黑羽蛋鸡配套系",
@@ -1833,7 +1779,7 @@
   "温氏青脚麻鸡2号配套系",
   "Wenshiqingjiaomajihao 2",
   2,
-  null
+  "广东"
  ],
  [
   "科朗麻黄鸡配套系",
@@ -1845,19 +1791,19 @@
   "金陵花鸡配套系",
   "Jinlinghua Chicken",
   2,
-  null
+  "江苏"
  ],
  [
   "大午金凤蛋鸡配套系",
   "Dawujinfengdan Chicken",
   2,
-  null
+  "河北"
  ],
  [
   "京白1号蛋鸡配套系",
   "Jingbaihaodan Chicken 1",
   2,
-  null
+  "北京"
  ],
  [
   "栗园油鸡蛋鸡配套系",
@@ -1914,24 +1860,6 @@
   null
  ],
  [
-  "罗曼肉鸡",
-  "Luomanrou Chicken",
-  0,
-  null
- ],
- [
-  "明星肉鸡",
-  "Mingxingrou Chicken",
-  0,
-  null
- ],
- [
-  "尼克肉鸡",
-  "Nikerou Chicken",
-  0,
-  null
- ],
- [
   "淮南麻鸭",
   "Huainanma Duck",
   0,
@@ -1941,37 +1869,37 @@
   "龙胜翠鸭",
   "Longshengcui Duck",
   0,
-  null
+  "广西"
  ],
  [
   "融水香鸭",
   "Rongshuixiang Duck",
   0,
-  null
+  "广西"
  ],
  [
   "建水黄褐鸭",
   "Jianshuihuanghe Duck",
   0,
-  null
+  "云南"
  ],
  [
   "褐色菜鸭",
   "Hesecai Duck",
   0,
-  null
+  "台湾"
  ],
  [
   "三水白鸭配套系",
   "Sanshuibai Duck",
   2,
-  null
+  "广东"
  ],
  [
   "仙湖肉鸭配套系",
   "Xianhurou Duck",
   2,
-  null
+  "广东"
  ],
  [
   "南口1号北京鸭配套系",
@@ -2013,61 +1941,61 @@
   "马踏湖鸭",
   "Matahu Duck",
   0,
-  null
+  "山东"
  ],
  [
   "娄门鸭",
   "Loumen Duck",
   0,
-  null
+  "江苏"
  ],
  [
   "于田麻鸭",
   "Yutianma Duck",
   0,
-  null
+  "新疆"
  ],
  [
   "润州凤头白鸭",
   "Runzhoufengtoubai Duck",
   0,
-  null
+  "江苏"
  ],
  [
   "奉化水鸭",
   "Fenghuashui Duck",
   0,
-  null
+  "浙江"
  ],
  [
   "中山麻鸭",
   "Zhongshanma Duck",
   0,
-  null
+  "广东"
  ],
  [
   "开江麻鸭",
   "Kaijiangma Duck",
   0,
-  null
+  "四川"
  ],
  [
   "昆山麻鸭",
   "Kunshanma Duck",
   0,
-  null
+  "江苏"
  ],
  [
   "永顺凤头鸭",
   "Yongshunfengtou Duck",
   0,
-  null
+  "湖南"
  ],
  [
   "神丹2号蛋鸭",
   "Shendanhaodan Duck 2",
   0,
-  null
+  "湖北"
  ],
  [
   "农湖2号蛋鸭",
@@ -2091,7 +2019,7 @@
   "天府农华麻羽肉鸭配套系",
   "Tianfunonghuamayurou Duck",
   2,
-  null
+  "四川"
  ],
  [
   "益扬1号肉鸭配套系",
@@ -2115,7 +2043,7 @@
   "扬州鹅",
   "Yangzhou Goose",
   1,
-  null
+  "江苏"
  ],
  [
   "天府肉鹅",
@@ -2145,37 +2073,37 @@
   "神丹1号鹌鹑",
   "Shendanhao Quail 1",
   2,
-  null
+  "湖北"
  ],
  [
   "四平梅花鹿",
   "Siping Sika Deer",
   1,
-  null
+  "吉林"
  ],
  [
   "敖东梅花鹿",
   "Aodong Sika Deer",
   1,
-  null
+  "吉林"
  ],
  [
   "东丰梅花鹿",
   "Dongfeng Sika Deer",
   1,
-  null
+  "吉林"
  ],
  [
   "肃南马鹿",
   "Sunan Red Deer",
   0,
-  null
+  "甘肃"
  ],
  [
   "清原马鹿",
   "Qingyuan Red Deer",
   1,
-  null
+  "辽宁"
  ],
  [
   "闽南火鸡",
@@ -2193,7 +2121,7 @@
   "左家雉鸡",
   "Zuojia Pheasant",
   1,
-  null
+  "吉林"
  ],
  [
   "中国番鸭",
@@ -2205,7 +2133,7 @@
   "温氏白羽番鸭1号",
   "Wenshibaiyufanyahao 1",
   2,
-  null
+  "广东"
  ],
  [
   "吉林白水貂",
@@ -2235,7 +2163,7 @@
   "乌苏里貉",
   "Wusuli Raccoon Dog",
   0,
-  "江苏"
+  "黑龙江"
  ],
  [
   "吉林白貉",
@@ -2295,7 +2223,7 @@
   "吉左黑貉",
   "Jizuohei Raccoon Dog",
   1,
-  null
+  "吉林"
  ],
  [
   "北方中蜂",
@@ -2325,7 +2253,7 @@
   "长白山中蜂",
   "Changbaishan Honey Bee",
   0,
-  null
+  "吉林"
  ],
  [
   "海南中蜂",
@@ -2343,7 +2271,7 @@
   "阿坝中蜂",
   "Aba Honey Bee",
   0,
-  null
+  "四川"
  ],
  [
   "喀阡黑环系蜜蜂品系",
@@ -2409,7 +2337,7 @@
   "东北黑蜂",
   "Dongbeihei Bee",
   0,
-  null
+  "黑龙江"
  ],
  [
   "新疆黑蜂",
@@ -2421,25 +2349,25 @@
   "珲春黑蜂",
   "Huichunhei Bee",
   0,
-  null
+  "吉林"
  ],
  [
   "西域黑蜂",
   "Xiyuhei Bee",
   0,
-  null
+  "新疆"
  ],
  [
   "巴塘中蜂",
   "Batang Honey Bee",
   0,
-  null
+  "四川"
  ],
  [
   "松丹蜜蜂配套系",
   "Songdan Honey Bee",
   2,
-  null
+  "吉林"
  ],
  [
   "中蜜一号蜜蜂配套系",

@@ -29,7 +29,7 @@ const expectedNewNames = [
 ] as const;
 
 test('adds every reviewed missing livestock breed exactly once', () => {
-  expect(breeds).toHaveLength(1100);
+  expect(breeds).toHaveLength(1088);
   for (const name of expectedNewNames) {
     // 同物异名合并后，名录名既可由同名记录代表，也可由 officialName 覆盖的记录代表，
     // 但每个名录名必须恰好对应一条运行时记录
