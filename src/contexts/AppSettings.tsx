@@ -155,7 +155,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'detail.protectionNational': { zh: '国家级保护名录', en: 'National protection list' },
   'detail.protectionNotListed': { zh: '未列入本轮国家级名录', en: 'Not on the current national list' },
   'detail.protectionPending': { zh: '保护状态待进一步核验', en: 'Protection status pending verification' },
-  'detail.provenanceNote': { zh: '公告仅用于核对品种名称和保护名录。体貌、产区点位、文化故事及濒危标签为编辑资料，尚未完成逐项权威核验；雷达分值不是实测数据。', en: 'The announcement is used only to verify breed names and the protection list. Appearance, locality, stories and endangered labels are editorial materials; radar scores are not measured data.' },
+  'detail.provenanceNote': { zh: '品种身份与名录分类已对照国家畜禽遗传资源委员会官方名录资料核验；体貌、产区点位、文化故事及濒危标签为编辑资料，尚未完成逐项权威核验；雷达分值不是实测数据。', en: 'Breed identity and catalog classification are verified against the official national catalog sources; appearance, locality, stories and endangered labels are editorial materials pending item-by-item verification; radar scores are not measured data.' },
   'detail.sourceListLabel': { zh: '数据来源列表', en: 'Data source list' },
   'detail.newWindow': { zh: '（新窗口打开）', en: '(opens in new window)' },
   'compare.csvName': { zh: '品种对比结果.csv', en: 'breed-comparison.csv' },

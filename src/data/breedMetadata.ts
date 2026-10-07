@@ -121,7 +121,7 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
       ? 'national-list'
       : (override?.protectionStatus ?? 'unverified'),
     sourceIds,
-    verifiedAt: override?.verifiedAt ?? '2026-09-27',
+    verifiedAt: override?.verifiedAt ?? (ml2024Names.has(breed.name) ? '2026-10-07' : '2026-09-27'),
     legacyIds: override?.legacyIds,
     imageSource: imageCredit
       ? `${imageCredit.author} · ${imageCredit.license}`
