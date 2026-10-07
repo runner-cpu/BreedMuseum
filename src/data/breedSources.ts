@@ -18,6 +18,15 @@ export const breedSources = {
     verifiedAt: '2026-09-27',
     scope: '国家级畜禽遗传资源保护品种名录名称与分类',
   },
+  'nahs-catalog-2024': {
+    id: 'nahs-catalog-2024',
+    title: '《国家畜禽遗传资源品种名录（2024年版）》及蜂、蚕名录（畜资委办〔2025〕18号）',
+    publisher: '国家畜禽遗传资源委员会办公室',
+    url: 'https://www.nahs.org.cn/gk/tz/202502/t20250210_452797.htm',
+    publishedAt: '2025-02-06',
+    verifiedAt: '2026-10-07',
+    scope: '2024 年版国家畜禽（1090）与蜂（39）名录在册名称、物种与名录子类；官方 PDF 逐页核对，全量 manifest 见 src/data/ml2024Catalog.json',
+  },
   'breed-museum-legacy': {
     id: 'breed-museum-legacy',
     title: '项目既有整理数据集',

@@ -2,6 +2,12 @@ import type { Breed } from './breeds';
 import { NATIONAL_PROTECTED_BREED_NAMES } from './nationalProtectionList';
 import { getBreedSource, type BreedSource } from './breedSources';
 import { breedImageOverrides } from './breedImageOverrides';
+import ml2024Entries from './ml2024Entries.json';
+
+/** 2024 名录增量条目名集合：用于把这些记录挂到官方名录来源。 */
+const ml2024Names = new Set<string>(
+  (ml2024Entries as string[][]).map((entry) => entry[0]),
+);
 
 export type ProtectionStatus = 'national-list' | 'not-on-national-list' | 'unverified';
 export type ImageRights = 'verified' | 'unverified' | 'project-svg';
@@ -57,6 +63,10 @@ export const metadataOverrides: Partial<Record<string, BreedMetadataOverride>> =
   龙岩山麻鸭: { aliases: ['山麻鸭'] },
   敖鲁古雅驯鹿: { aliases: ['驯鹿'] },
   青海毛驴: { aliases: ['青海驴'] },
+  // 2024 名录口径名与既有记录名的变体接续（逐条有官方资料佐证）
+  阿尔泰白头牛: { aliases: ['阿勒泰白头牛'] },
+  和田驴: { aliases: ['和田青驴'] },
+  迪庆黄牛: { aliases: ['迪庆牛'] },
 };
 
 const verifiedAdditionNames = new Set([
@@ -93,9 +103,11 @@ export function getBreedMetadata(breed: Breed): BreedMetadata {
   const listed = protectedNames.has(officialName);
   const recordSourceIds =
     override?.sourceIds ??
-    (verifiedAdditionNames.has(officialName)
-      ? ['moa-notice-940', 'breed-museum-editorial']
-      : ['breed-museum-legacy']);
+    (ml2024Names.has(breed.name)
+      ? ['nahs-catalog-2024']
+      : verifiedAdditionNames.has(officialName)
+        ? ['moa-notice-940', 'breed-museum-editorial']
+        : ['breed-museum-legacy']);
   const sourceIds = listed
     ? Array.from(new Set(['moa-notice-940', ...recordSourceIds]))
     : recordSourceIds;
