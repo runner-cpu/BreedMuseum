@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
+import { hasVerifiedCoordinates } from '@/data/catalog';
 import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
 
@@ -40,14 +41,16 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   }, [breeds]);
 
   const breedPoints = useMemo(() => {
-    const groups = new Map<string, typeof breeds>();
-    breeds.forEach((breed) => {
+    // 产区未核验的记录停在 (0,0) 哨兵坐标，不是真实地理点，不渲染为可聚焦按钮
+    const mappable = breeds.filter(hasVerifiedCoordinates);
+    const groups = new Map<string, typeof mappable>();
+    mappable.forEach((breed) => {
       const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
       const group = groups.get(key) ?? [];
       group.push(breed);
       groups.set(key, group);
     });
-    return breeds.flatMap((breed) => {
+    return mappable.flatMap((breed) => {
       const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
       const group = groups.get(key) ?? [breed];
       const index = group.findIndex((item) => item.id === breed.id);

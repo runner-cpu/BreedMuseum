@@ -1,4 +1,5 @@
 import { categories, endangeredLevels, type Breed } from './breeds';
+import { isKnownProvince, isSentinelCoordinate, UNVERIFIED_PROVINCE } from './catalog';
 
 export type AuditCode =
   | 'duplicate-id'
@@ -8,6 +9,8 @@ export type AuditCode =
   | 'invalid-category'
   | 'invalid-endangered-level'
   | 'invalid-radar'
+  | 'invalid-province'
+  | 'sentinel-coordinate'
   | 'missing-source'
   | 'ambiguous-alias';
 
@@ -90,6 +93,26 @@ export function auditBreedDataset(
         code: 'invalid-coordinate',
         breedId: breed.id,
         message: String(breed.longitude) + ',' + String(breed.latitude),
+      });
+    }
+
+    // 省份必须是 34 个行政区词汇之一；“待核验”是合法的产区未核验哨兵，不是省份。
+    // 空值由 missing-field 负责，不在此重复报告。
+    if (breed.province && breed.province !== UNVERIFIED_PROVINCE && !isKnownProvince(breed.province)) {
+      issues.push({
+        code: 'invalid-province',
+        breedId: breed.id,
+        message: breed.province,
+      });
+    }
+
+    // 已核验省份的记录不得停留在 (0,0) 哨兵坐标；
+    // 反之“待核验”省份 +(0,0) 是登记的缺省状态，不视为问题。
+    if (isSentinelCoordinate(breed.longitude, breed.latitude) && isKnownProvince(breed.province)) {
+      issues.push({
+        code: 'sentinel-coordinate',
+        breedId: breed.id,
+        message: breed.province + ' @ 0,0',
       });
     }
 

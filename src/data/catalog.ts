@@ -18,3 +18,26 @@ export const provinces = [
   '上海', '台湾', '河南', '湖北', '湖南', '广东', '广西', '海南',
   '香港', '澳门',
 ];
+
+/**
+ * 产区未核验的哨兵值：名录条目式收录在产区核实前统一使用。
+ * 它不是行政区名，不参与省份筛选、省份计数与地图落点。
+ */
+export const UNVERIFIED_PROVINCE = '待核验';
+
+export const isKnownProvince = (province: string): boolean =>
+  (provinces as readonly string[]).includes(province);
+
+/** (0,0) 是“产区未核验”的坐标哨兵，不是真实地理点。 */
+export const isSentinelCoordinate = (longitude: number, latitude: number): boolean =>
+  longitude === 0 && latitude === 0;
+
+/**
+ * 坐标是否可落点展示：省份已核验且不位于哨兵坐标。
+ * 地图与审计共用这一判定，避免 (0,0) 被当成真实位置渲染。
+ */
+export const hasVerifiedCoordinates = (breed: {
+  province: string;
+  longitude: number;
+  latitude: number;
+}): boolean => isKnownProvince(breed.province) && !isSentinelCoordinate(breed.longitude, breed.latitude);

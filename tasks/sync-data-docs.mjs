@@ -3,8 +3,10 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 export function summarizeBreeds(items, resolveMetadata = () => ({ protectionStatus: 'unverified' })) {
   const count = field => items.reduce((counts, item) => { counts[item[field]] = (counts[item[field]] ?? 0) + 1; return counts; }, {});
+  // “待核验”是产区未核验哨兵，不是行政区名：不计入覆盖省份数
+  const realProvinces = items.map(b => b.province).filter(p => p !== '待核验');
   return { total: items.length, uniqueIds: new Set(items.map(b => b.id)).size, uniqueNames: new Set(items.map(b => b.name)).size,
-    provinceCount: new Set(items.map(b => b.province)).size, categoryCounts: count('category'), endangeredCounts: count('endangered'), provinceCounts: count('province'),
+    provinceCount: new Set(realProvinces).size, categoryCounts: count('category'), endangeredCounts: count('endangered'), provinceCounts: count('province'),
     nationalProtectionCount: items.filter(b => resolveMetadata(b).protectionStatus === 'national-list').length,
     placeholderCount: items.filter(b => b.image === '/brand/breed-placeholder.svg').length };
 }

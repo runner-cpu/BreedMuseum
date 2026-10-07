@@ -7,7 +7,7 @@ const breed: Breed = {
   id: 'accessible-breed',
   name: 'Accessible breed',
   englishName: 'Accessible breed',
-  province: 'Test province',
+  province: '云南',
   longitude: 110,
   latitude: 35,
   category: 'Test',
@@ -17,6 +17,15 @@ const breed: Breed = {
   radar: { meat: null, milk: null, reproduction: null, labor: null, adaptability: null },
   story: '',
   image: '',
+};
+
+const unverified: Breed = {
+  ...breed,
+  id: 'unverified-breed',
+  name: 'Unverified breed',
+  province: '待核验',
+  longitude: 0,
+  latitude: 0,
 };
 
 const defaultProps = {
@@ -54,5 +63,12 @@ describe('ChinaMap accessibility', () => {
 
     expect(defaultProps.onBreedClick).toHaveBeenCalledTimes(2);
     expect(defaultProps.onBreedClick).toHaveBeenLastCalledWith(breed);
+  });
+
+  it('never renders unverified (0,0) sentinel records as focusable points', () => {
+    render(<ChinaMap {...defaultProps} breeds={[breed, unverified]} />);
+
+    expect(screen.getByRole('button', { name: /Accessible breed/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Unverified breed/ })).not.toBeInTheDocument();
   });
 });

@@ -7,7 +7,7 @@ const valid: Breed = {
   id: 'test-cattle',
   name: 'Test Cattle',
   englishName: 'Test Cattle',
-  province: 'Test Province',
+  province: '云南',
   longitude: 102.7,
   latitude: 25,
   category: categories[0],
@@ -74,5 +74,29 @@ describe('auditBreedDataset', () => {
     ]);
 
     expect(issues.map((issue) => issue.code)).toContain('invalid-radar');
+  });
+
+  it('rejects provinces outside the administrative vocabulary but accepts the unverified sentinel', () => {
+    const issues = auditBreedDataset([
+      { ...valid, id: 'a', name: 'A', province: '东区' },
+      { ...valid, id: 'b', name: 'B', province: '待核验', longitude: 0, latitude: 0 },
+      { ...valid, id: 'c', name: 'C', province: '云南' },
+    ]);
+
+    const byId = new Map(issues.map((issue) => [issue.breedId, issue.code]));
+    expect(byId.get('a')).toBe('invalid-province');
+    expect(byId.get('b')).toBeUndefined();
+    expect(byId.get('c')).toBeUndefined();
+  });
+
+  it('flags verified-province records parked at the (0,0) sentinel coordinate', () => {
+    const issues = auditBreedDataset([
+      { ...valid, id: 'parked', name: 'Parked', province: '云南', longitude: 0, latitude: 0 },
+      { ...valid, id: 'placed', name: 'Placed', province: '云南', longitude: 102.7, latitude: 25 },
+    ]);
+
+    const byId = new Map(issues.map((issue) => [issue.breedId, issue.code]));
+    expect(byId.get('parked')).toBe('sentinel-coordinate');
+    expect(byId.get('placed')).toBeUndefined();
   });
 });
