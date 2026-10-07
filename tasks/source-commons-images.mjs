@@ -138,11 +138,21 @@ if (!existsSync(PLAN_FILE)) {
   console.error(`缺少 ${PLAN_FILE}`);
   process.exit(1);
 }
+// 只允许 Wikimedia 域名的 https 下载；拒绝其余主机与本地/内网地址
+const ALLOWED_HOSTS = /^(upload\.wikimedia\.org|commons\.wikimedia\.org)$/;
+const assertSafeUrl = (raw) => {
+  const url = new URL(raw);
+  if (url.protocol !== 'https:' || !ALLOWED_HOSTS.test(url.hostname)) {
+    throw new Error(`不允许的下载地址: ${raw}`);
+  }
+  return url;
+};
 const plan = JSON.parse(await readFile(PLAN_FILE, 'utf8'));
 await mkdir(OUTPUT_DIR, { recursive: true });
 const overrides = {};
 for (const entry of plan) {
-  const ext = path.extname(new URL(entry.file).pathname) || '.jpg';
+  const url = assertSafeUrl(entry.file);
+  const ext = path.extname(url.pathname) || '.jpg';
   const fileName = `${entry.id}${ext}`;
   const target = path.join(OUTPUT_DIR, fileName);
   const res = await fetch(entry.file, { headers: { 'User-Agent': 'BreedMuseum/1.0 (student competition entry)' } });

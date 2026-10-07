@@ -27,6 +27,22 @@ export function buildImageIndexRows(items, resolveMetadata) {
     ['品种ID', '品种名称', '类别', '图片URL', '来源状态', '作者', '授权', '是否AI生成'],
     ...items.map((breed) => {
       const metadata = resolveMetadata(breed);
+      if (metadata.imageRights === 'verified') {
+        // imageSource 形如 “作者 · 许可”；本地镜像图片记录真实署名
+        const separator = metadata.imageSource?.lastIndexOf(' · ') ?? -1;
+        const author = separator > 0 ? metadata.imageSource.slice(0, separator) : (metadata.imageSource ?? '');
+        const license = separator > 0 ? metadata.imageSource.slice(separator + 3) : '';
+        return [
+          breed.id,
+          breed.name,
+          breed.category,
+          breed.image,
+          '本地镜像；Wikimedia Commons 已核验授权',
+          author,
+          license,
+          '否',
+        ];
+      }
       const isProjectSvg = metadata.imageRights === 'project-svg';
       return [
         breed.id,
