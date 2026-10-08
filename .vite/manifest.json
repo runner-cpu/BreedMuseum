@@ -1,13 +1,13 @@
 {
-  "_AccessibleChartSummary-BlPqGMYI.js": {
-    "file": "assets/AccessibleChartSummary-BlPqGMYI.js",
+  "_AccessibleChartSummary-B3WLklF5.js": {
+    "file": "assets/AccessibleChartSummary-B3WLklF5.js",
     "name": "AccessibleChartSummary",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_AppSettings-Fe-LpURH.js": {
-    "file": "assets/AppSettings-Fe-LpURH.js",
+  "_AppSettings-5wolByXR.js": {
+    "file": "assets/AppSettings-5wolByXR.js",
     "name": "AppSettings",
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
@@ -15,29 +15,29 @@
       "_preload-helper-uBIymjUX.js"
     ]
   },
-  "_BreedImage-lTVHRJ4T.js": {
-    "file": "assets/BreedImage-lTVHRJ4T.js",
+  "_BreedImage-CdAVqzTY.js": {
+    "file": "assets/BreedImage-CdAVqzTY.js",
     "name": "BreedImage",
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
-      "_AppSettings-Fe-LpURH.js",
+      "_AppSettings-5wolByXR.js",
       "_utils-DOQQTBMN.js",
       "_publicAsset-C53js1nF.js"
     ]
   },
-  "_arrow-right-CzqWLQyH.js": {
-    "file": "assets/arrow-right-CzqWLQyH.js",
+  "_arrow-right-DXPrUmRl.js": {
+    "file": "assets/arrow-right-DXPrUmRl.js",
     "name": "arrow-right",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_breedLookup-xuQqyndP.js": {
-    "file": "assets/breedLookup-xuQqyndP.js",
+  "_breedLookup-zLbIzGjS.js": {
+    "file": "assets/breedLookup-zLbIzGjS.js",
     "name": "breedLookup",
     "imports": [
-      "_AppSettings-Fe-LpURH.js",
+      "_AppSettings-5wolByXR.js",
       "_breedSearch-DZVN9u8O.js"
     ]
   },
@@ -81,21 +81,21 @@
       "_react-BQVaxoBa.js"
     ]
   },
-  "_download-C8BD_NkT.js": {
-    "file": "assets/download-C8BD_NkT.js",
+  "_download-BQTvwLZh.js": {
+    "file": "assets/download-BQTvwLZh.js",
     "name": "download",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_es2015-WmDy4h_k.js": {
-    "file": "assets/es2015-WmDy4h_k.js",
+  "_es2015-0haN7-ja.js": {
+    "file": "assets/es2015-0haN7-ja.js",
     "name": "es2015",
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
-      "_AppSettings-Fe-LpURH.js",
+      "_AppSettings-5wolByXR.js",
       "_dist-C4XwUJ-_.js",
       "_tslib.es6-Tae09705.js"
     ]
@@ -107,18 +107,18 @@
       "_categoryIcons-Di_CCt5c.js"
     ]
   },
-  "_external-link-BprvxhB3.js": {
-    "file": "assets/external-link-BprvxhB3.js",
+  "_external-link-AdFM5v-3.js": {
+    "file": "assets/external-link-AdFM5v-3.js",
     "name": "external-link",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_file-text-BLzWNK1T.js": {
-    "file": "assets/file-text-BLzWNK1T.js",
+  "_file-text-CNc-k5bC.js": {
+    "file": "assets/file-text-CNc-k5bC.js",
     "name": "file-text",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
   "_generateCategoricalChart-81qQLMU4.js": {
@@ -130,18 +130,18 @@
       "_utils-DOQQTBMN.js"
     ]
   },
-  "_map-pin-_KUmGxQq.js": {
-    "file": "assets/map-pin-_KUmGxQq.js",
+  "_map-pin-DQ9ZYQF1.js": {
+    "file": "assets/map-pin-DQ9ZYQF1.js",
     "name": "map-pin",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_mountain-DzqJ1E_M.js": {
-    "file": "assets/mountain-DzqJ1E_M.js",
+  "_mountain-CATqGi9I.js": {
+    "file": "assets/mountain-CATqGi9I.js",
     "name": "mountain",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
   "_preload-helper-uBIymjUX.js": {
@@ -163,13 +163,13 @@
       "_rolldown-runtime-B0Z9INg1.js"
     ]
   },
-  "_react-CKorc33w.js": {
-    "file": "assets/react-CKorc33w.js",
+  "_react-I-pZ1-ja.js": {
+    "file": "assets/react-I-pZ1-ja.js",
     "name": "react",
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
-      "_AppSettings-Fe-LpURH.js",
+      "_AppSettings-5wolByXR.js",
       "index.html"
     ]
   },
@@ -177,25 +177,25 @@
     "file": "assets/rolldown-runtime-B0Z9INg1.js",
     "name": "rolldown-runtime"
   },
-  "_sparkles-BzoLSE9B.js": {
-    "file": "assets/sparkles-BzoLSE9B.js",
+  "_sparkles-CwVGcW7u.js": {
+    "file": "assets/sparkles-CwVGcW7u.js",
     "name": "sparkles",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_thermometer-Dcs7_sZ3.js": {
-    "file": "assets/thermometer-Dcs7_sZ3.js",
+  "_thermometer-Dyx1xO1A.js": {
+    "file": "assets/thermometer-Dyx1xO1A.js",
     "name": "thermometer",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
-  "_triangle-alert-B_zAuq9W.js": {
-    "file": "assets/triangle-alert-B_zAuq9W.js",
+  "_triangle-alert-Dg__ZIjA.js": {
+    "file": "assets/triangle-alert-Dg__ZIjA.js",
     "name": "triangle-alert",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
   "_tslib.es6-Tae09705.js": {
@@ -206,15 +206,15 @@
     "file": "assets/utils-DOQQTBMN.js",
     "name": "utils"
   },
-  "_x-DeHS5BcM.js": {
-    "file": "assets/x-DeHS5BcM.js",
+  "_x-CFi1CMrC.js": {
+    "file": "assets/x-CFi1CMrC.js",
     "name": "x",
     "imports": [
-      "_AppSettings-Fe-LpURH.js"
+      "_AppSettings-5wolByXR.js"
     ]
   },
   "index.html": {
-    "file": "assets/index-CmCef5EM.js",
+    "file": "assets/index-B-gzaaJt.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -223,12 +223,12 @@
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
       "_preload-helper-uBIymjUX.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_x-DeHS5BcM.js",
+      "_AppSettings-5wolByXR.js",
+      "_x-CFi1CMrC.js",
       "_dist-C4XwUJ-_.js",
       "_utils-DOQQTBMN.js",
       "_publicAsset-C53js1nF.js",
-      "_es2015-WmDy4h_k.js"
+      "_es2015-0haN7-ja.js"
     ],
     "dynamicImports": [
       "src/pages/HomePage.tsx",
@@ -242,7 +242,7 @@
       "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js"
     ],
     "css": [
-      "assets/index-mmJ0ZYWt.css"
+      "assets/index-Nd3dOeW2.css"
     ]
   },
   "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js": {
@@ -305,7 +305,7 @@
     ]
   },
   "src/pages/AIAssistantPage.tsx": {
-    "file": "assets/AIAssistantPage-7FswVZum.js",
+    "file": "assets/AIAssistantPage-CpZdjPvg.js",
     "name": "AIAssistantPage",
     "src": "src/pages/AIAssistantPage.tsx",
     "isDynamicEntry": true,
@@ -314,15 +314,15 @@
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
       "_preload-helper-uBIymjUX.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_arrow-right-CzqWLQyH.js",
-      "_file-text-BLzWNK1T.js",
-      "_download-C8BD_NkT.js",
-      "_external-link-BprvxhB3.js",
-      "_map-pin-_KUmGxQq.js",
-      "_sparkles-BzoLSE9B.js",
+      "_AppSettings-5wolByXR.js",
+      "_arrow-right-DXPrUmRl.js",
+      "_file-text-CNc-k5bC.js",
+      "_download-BQTvwLZh.js",
+      "_external-link-AdFM5v-3.js",
+      "_map-pin-DQ9ZYQF1.js",
+      "_sparkles-CwVGcW7u.js",
       "_publicAsset-C53js1nF.js",
-      "_react-CKorc33w.js",
+      "_react-I-pZ1-ja.js",
       "index.html",
       "_breeds-BUEMQppS.js"
     ],
@@ -333,7 +333,7 @@
     ]
   },
   "src/pages/ComparePage.tsx": {
-    "file": "assets/ComparePage-CPH9evcU.js",
+    "file": "assets/ComparePage-BdEtW0mX.js",
     "name": "ComparePage",
     "src": "src/pages/ComparePage.tsx",
     "isDynamicEntry": true,
@@ -341,14 +341,14 @@
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_download-C8BD_NkT.js",
-      "_breedLookup-xuQqyndP.js",
-      "_x-DeHS5BcM.js",
-      "_react-CKorc33w.js",
+      "_AppSettings-5wolByXR.js",
+      "_download-BQTvwLZh.js",
+      "_breedLookup-zLbIzGjS.js",
+      "_x-CFi1CMrC.js",
+      "_react-I-pZ1-ja.js",
       "index.html",
-      "_AccessibleChartSummary-BlPqGMYI.js",
-      "_BreedImage-lTVHRJ4T.js",
+      "_AccessibleChartSummary-B3WLklF5.js",
+      "_BreedImage-CdAVqzTY.js",
       "_categoryIcons-Di_CCt5c.js",
       "_breedSearch-DZVN9u8O.js",
       "_export-BFOBxXEN.js",
@@ -356,7 +356,7 @@
     ]
   },
   "src/pages/DashboardPage.tsx": {
-    "file": "assets/DashboardPage-CgAcQSnQ.js",
+    "file": "assets/DashboardPage-BT6pUNJp.js",
     "name": "DashboardPage",
     "src": "src/pages/DashboardPage.tsx",
     "isDynamicEntry": true,
@@ -364,22 +364,22 @@
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_arrow-right-CzqWLQyH.js",
-      "_download-C8BD_NkT.js",
-      "_mountain-DzqJ1E_M.js",
+      "_AppSettings-5wolByXR.js",
+      "_arrow-right-DXPrUmRl.js",
+      "_download-BQTvwLZh.js",
+      "_mountain-CATqGi9I.js",
       "_utils-DOQQTBMN.js",
-      "_react-CKorc33w.js",
+      "_react-I-pZ1-ja.js",
       "index.html",
       "_breeds-BUEMQppS.js",
-      "_AccessibleChartSummary-BlPqGMYI.js",
+      "_AccessibleChartSummary-B3WLklF5.js",
       "_categoryIcons-Di_CCt5c.js",
       "_export-BFOBxXEN.js",
       "_generateCategoricalChart-81qQLMU4.js"
     ]
   },
   "src/pages/EncyclopediaPage.tsx": {
-    "file": "assets/EncyclopediaPage-BrvFNmEK.js",
+    "file": "assets/EncyclopediaPage-DBsfc9um.js",
     "name": "EncyclopediaPage",
     "src": "src/pages/EncyclopediaPage.tsx",
     "isDynamicEntry": true,
@@ -387,17 +387,17 @@
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_download-C8BD_NkT.js",
-      "_map-pin-_KUmGxQq.js",
-      "_x-DeHS5BcM.js",
+      "_AppSettings-5wolByXR.js",
+      "_download-BQTvwLZh.js",
+      "_map-pin-DQ9ZYQF1.js",
+      "_x-CFi1CMrC.js",
       "_dist-C4XwUJ-_.js",
       "_utils-DOQQTBMN.js",
-      "_es2015-WmDy4h_k.js",
-      "_react-CKorc33w.js",
+      "_es2015-0haN7-ja.js",
+      "_react-I-pZ1-ja.js",
       "index.html",
       "_breeds-BUEMQppS.js",
-      "_BreedImage-lTVHRJ4T.js",
+      "_BreedImage-CdAVqzTY.js",
       "_categoryIcons-Di_CCt5c.js",
       "_breedSearch-DZVN9u8O.js",
       "_export-BFOBxXEN.js",
@@ -405,31 +405,31 @@
     ]
   },
   "src/pages/HomePage.tsx": {
-    "file": "assets/HomePage-C6uUli2d.js",
+    "file": "assets/HomePage-CfqpWtr2.js",
     "name": "HomePage",
     "src": "src/pages/HomePage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_arrow-right-CzqWLQyH.js",
-      "_file-text-BLzWNK1T.js",
-      "_download-C8BD_NkT.js",
-      "_map-pin-_KUmGxQq.js",
-      "_sparkles-BzoLSE9B.js",
-      "_thermometer-Dcs7_sZ3.js",
+      "_AppSettings-5wolByXR.js",
+      "_arrow-right-DXPrUmRl.js",
+      "_file-text-CNc-k5bC.js",
+      "_download-BQTvwLZh.js",
+      "_map-pin-DQ9ZYQF1.js",
+      "_sparkles-CwVGcW7u.js",
+      "_thermometer-Dyx1xO1A.js",
       "_publicAsset-C53js1nF.js",
-      "_react-CKorc33w.js",
+      "_react-I-pZ1-ja.js",
       "index.html",
       "_breeds-BUEMQppS.js",
-      "_BreedImage-lTVHRJ4T.js",
+      "_BreedImage-CdAVqzTY.js",
       "_categoryIcons-Di_CCt5c.js",
       "_chinaMap-B2uV82fl.js"
     ]
   },
   "src/pages/MapPage.tsx": {
-    "file": "assets/MapPage-Y8o5pjdg.js",
+    "file": "assets/MapPage-DxBwR1_O.js",
     "name": "MapPage",
     "src": "src/pages/MapPage.tsx",
     "isDynamicEntry": true,
@@ -437,16 +437,16 @@
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
       "_dist-DfxosGrw.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_external-link-BprvxhB3.js",
-      "_breedLookup-xuQqyndP.js",
-      "_map-pin-_KUmGxQq.js",
-      "_triangle-alert-B_zAuq9W.js",
+      "_AppSettings-5wolByXR.js",
+      "_external-link-AdFM5v-3.js",
+      "_breedLookup-zLbIzGjS.js",
+      "_map-pin-DQ9ZYQF1.js",
+      "_triangle-alert-Dg__ZIjA.js",
       "_utils-DOQQTBMN.js",
       "index.html",
       "_breeds-BUEMQppS.js",
-      "_AccessibleChartSummary-BlPqGMYI.js",
-      "_BreedImage-lTVHRJ4T.js",
+      "_AccessibleChartSummary-B3WLklF5.js",
+      "_BreedImage-CdAVqzTY.js",
       "_categoryIcons-Di_CCt5c.js",
       "_chinaMap-B2uV82fl.js",
       "_breedSearch-DZVN9u8O.js",
@@ -454,37 +454,37 @@
     ]
   },
   "src/pages/PasturePage.tsx": {
-    "file": "assets/PasturePage-YMOdnoKg.js",
+    "file": "assets/PasturePage-D9j0z1cN.js",
     "name": "PasturePage",
     "src": "src/pages/PasturePage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_arrow-right-CzqWLQyH.js",
-      "_mountain-DzqJ1E_M.js",
-      "_thermometer-Dcs7_sZ3.js",
-      "_triangle-alert-B_zAuq9W.js",
-      "_react-CKorc33w.js",
+      "_AppSettings-5wolByXR.js",
+      "_arrow-right-DXPrUmRl.js",
+      "_mountain-CATqGi9I.js",
+      "_thermometer-Dyx1xO1A.js",
+      "_triangle-alert-Dg__ZIjA.js",
+      "_react-I-pZ1-ja.js",
       "_breeds-BUEMQppS.js"
     ]
   },
   "src/pages/RecommendPage.tsx": {
-    "file": "assets/RecommendPage-Dn2jvjdF.js",
+    "file": "assets/RecommendPage-wQ82xlop.js",
     "name": "RecommendPage",
     "src": "src/pages/RecommendPage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-B0Z9INg1.js",
       "_react-BQVaxoBa.js",
-      "_AppSettings-Fe-LpURH.js",
-      "_arrow-right-CzqWLQyH.js",
-      "_mountain-DzqJ1E_M.js",
-      "_sparkles-BzoLSE9B.js",
-      "_react-CKorc33w.js",
+      "_AppSettings-5wolByXR.js",
+      "_arrow-right-DXPrUmRl.js",
+      "_mountain-CATqGi9I.js",
+      "_sparkles-CwVGcW7u.js",
+      "_react-I-pZ1-ja.js",
       "_breeds-BUEMQppS.js",
-      "_BreedImage-lTVHRJ4T.js"
+      "_BreedImage-CdAVqzTY.js"
     ]
   }
 }
