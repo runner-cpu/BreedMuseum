@@ -23,6 +23,9 @@ describe('breedRecommend', () => {
     for (const rec of results) {
       expect(rec.reasons.length).toBeGreaterThan(0);
       expect(rec.score).toBeLessThanOrEqual(100);
+      // 决策路径必须完整暴露三项拆解，供结果页展示
+      expect(rec.factors.map((f) => f.label)).toEqual(['海拔匹配', '用途匹配', '模式匹配']);
+      expect(rec.factors.every((f) => f.detail.length > 0)).toBe(true);
     }
   });
 

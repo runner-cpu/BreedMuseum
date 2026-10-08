@@ -31,6 +31,14 @@ const SPECIES_BREED_HINTS: Record<PastureSpecies, string[]> = {
 const GAUGE_MIN = 5;
 const GAUGE_MAX = 35;
 
+/** 四级图例的区间文案（按当前畜种阈值实时生成） */
+const LEVEL_RANGE_TEXT: Record<StressLevel, (s: typeof SPECIES_CONFIG[PastureSpecies]) => string> = {
+  comfort: (s) => `< ${s.comfortMax}`,
+  alert: (s) => `${s.comfortMax}–${s.alertMax}`,
+  danger: (s) => `${s.alertMax}–${s.extremeFrom}`,
+  extreme: (s) => `≥ ${s.extremeFrom}`,
+};
+
 /** 半圆仪表盘：分区随畜种阈值动态划分 + 指针 + 有效 THI 数值 */
 const ThiGauge: React.FC<{ value: number; level: StressLevel; species: typeof SPECIES_CONFIG[PastureSpecies] }> = ({ value, level, species }) => {
   const clamped = Math.min(GAUGE_MAX, Math.max(GAUGE_MIN, value));
@@ -239,21 +247,87 @@ const PasturePage: React.FC = () => {
 
         {/* 结果面板 */}
         <section aria-label={t('pasture.resultPanel')} className="space-y-4">
+          {/* 大数字 + 分级徽章 + 四级图例 + 公式悬浮说明 */}
+          <div
+            className="rounded-xl border p-4 md:p-6"
+            style={{ borderColor: LEVEL_COLORS[result.level], backgroundColor: `${LEVEL_COLORS[result.level]}14` }}
+          >
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">{t('pasture.effectiveThi')}</p>
+                <p className="font-serif text-5xl md:text-6xl font-bold leading-none tabular-nums" style={{ color: LEVEL_COLORS[result.level] }}>
+                  {result.effective.toFixed(1)}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span
+                  className="inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-white"
+                  style={{ backgroundColor: LEVEL_COLORS[result.level] }}
+                >
+                  {LEVEL_LABELS[result.level]}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {t('pasture.rawThi')} {result.base.toFixed(1)} · {t('pasture.altitudeAdj')} −{result.altitudeAdjustment.toFixed(1)} · {t('pasture.ageAdj')} +{result.ageAdjustment.toFixed(1)}
+                </span>
+              </div>
+              <div className="ml-auto self-start">
+                <details className="group text-xs">
+                  <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-muted-foreground hover:text-foreground">
+                    <Info className="w-3.5 h-3.5" />
+                    {t('pasture.formulaToggle')}
+                  </summary>
+                  <p className="mt-2 max-w-xs rounded-lg border border-border bg-background p-3 leading-relaxed text-muted-foreground md:max-w-sm">
+                    {t('pasture.formula')}
+                  </p>
+                </details>
+              </div>
+            </div>
+            {/* 四级图例：当前档位高亮 */}
+            <ul className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2" aria-label={t('pasture.legendLabel')}>
+              {(['comfort', 'alert', 'danger', 'extreme'] as StressLevel[]).map((lv) => (
+                <li
+                  key={lv}
+                  aria-current={lv === result.level ? 'true' : undefined}
+                  className={
+                    'flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs ' +
+                    (lv === result.level ? 'border-current font-semibold text-foreground' : 'border-border text-muted-foreground')
+                  }
+                  style={lv === result.level ? { borderColor: LEVEL_COLORS[lv], color: LEVEL_COLORS[lv] } : undefined}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: LEVEL_COLORS[lv] }} aria-hidden="true" />
+                  {LEVEL_LABELS[lv]}
+                  <span className="ml-auto tabular-nums">{LEVEL_RANGE_TEXT[lv](result.species)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="bg-card border border-border rounded-xl p-4 md:p-6">
             <ThiGauge value={result.effective} level={result.level} species={result.species} />
-            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-              <dt className="text-muted-foreground">{t('pasture.rawThi')}</dt>
-              <dd className="text-right tabular-nums text-foreground">{result.base.toFixed(1)}</dd>
-              <dt className="text-muted-foreground">{t('pasture.altitudeAdj')}</dt>
-              <dd className="text-right tabular-nums text-foreground">−{result.altitudeAdjustment.toFixed(1)}</dd>
-              <dt className="text-muted-foreground">{t('pasture.ageAdj')}</dt>
-              <dd className="text-right tabular-nums text-foreground">+{result.ageAdjustment.toFixed(1)}</dd>
-              <dt className="text-muted-foreground">{t('pasture.thresholds')}</dt>
-              <dd className="text-right tabular-nums text-foreground">
-                {result.species.comfortMax} / {result.species.alertMax} / {result.species.extremeFrom}
-              </dd>
-            </dl>
-            <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">{t('pasture.formula')}</p>
+          </div>
+
+          {/* 决策流程图：输入 → 公式 → 畜种修正 → 等级判定 → 建议 */}
+          <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+            <h2 className="text-sm font-semibold text-foreground mb-3">{t('pasture.pipelineTitle')}</h2>
+            <ol className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs" aria-label={t('pasture.pipelineTitle')}>
+              {[
+                t('pasture.pipeStep1'),
+                t('pasture.pipeStep2'),
+                t('pasture.pipeStep3'),
+                t('pasture.pipeStep4'),
+                t('pasture.pipeStep5'),
+              ].map((step, index) => (
+                <li key={step} className="relative rounded-lg border border-border bg-background px-3 py-2.5 leading-relaxed">
+                  <span
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                    style={{ backgroundColor: index === 3 ? LEVEL_COLORS[result.level] : '#6b8fb5' }}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="ml-1.5 text-foreground/90">{step}</span>
+                </li>
+              ))}
+            </ol>
           </div>
 
           <div className="bg-card border border-border rounded-xl p-4 md:p-6" aria-live="polite">

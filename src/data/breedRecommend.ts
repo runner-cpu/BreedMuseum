@@ -33,6 +33,8 @@ export interface BreedRule {
 export interface Recommendation {
   breed: Breed;
   score: number;
+  /** 面向展示的三条决策路径拆解（海拔 / 用途 / 模式） */
+  factors: Array<{ label: string; detail: string; matched: boolean }>;
   reasons: string[];
 }
 
@@ -157,28 +159,46 @@ export function recommendBreeds(input: RecommendInput, limit = 5): Recommendatio
     if (!breed) continue;
 
     const reasons: string[] = [];
+    const factors: Recommendation['factors'] = [];
     const fit = altitudeFit(rule.altitudeRange, band.range);
     let score = fit.score;
+    factors.push({
+      label: '海拔匹配',
+      detail: `：适宜区间 ${rule.altitudeRange[0]}–${rule.altitudeRange[1]} 米，当前${band.label}${fit.reason ? '（边缘适配）' : ''}`,
+      matched: !fit.reason,
+    });
     if (fit.reason) reasons.push(fit.reason);
 
-    if (rule.purposes.includes(input.purpose)) {
+    const purposeMatched = rule.purposes.includes(input.purpose);
+    if (purposeMatched) {
       score += 35;
       reasons.push(`生产方向匹配：${PURPOSE_LABELS[input.purpose]}（${rule.note}）`);
     } else {
       score += 8;
       reasons.push(`生产方向为次要匹配：该品种以${rule.purposes.map((p) => PURPOSE_LABELS[p]).join('、')}见长`);
     }
+    factors.push({
+      label: '用途匹配',
+      detail: `：目标${PURPOSE_LABELS[input.purpose]}，该品种以${rule.purposes.map((p) => PURPOSE_LABELS[p]).join('、')}为主`,
+      matched: purposeMatched,
+    });
 
-    if (rule.modes.includes(input.mode)) {
+    const modeMatched = rule.modes.includes(input.mode);
+    if (modeMatched) {
       score += 25;
       reasons.push(`饲养模式匹配：${MODE_LABELS[input.mode]}`);
     } else {
       score += 6;
       reasons.push(`饲养模式需要调整：该品种通常采用${rule.modes.map((m) => MODE_LABELS[m]).join('或')}`);
     }
+    factors.push({
+      label: '模式匹配',
+      detail: `：当前${MODE_LABELS[input.mode]}，该品种通常${rule.modes.map((m) => MODE_LABELS[m]).join('或')}`,
+      matched: modeMatched,
+    });
 
     if (score < 35) continue;
-    results.push({ breed, score: Math.min(100, Math.round(score)), reasons });
+    results.push({ breed, score: Math.min(100, Math.round(score)), factors, reasons });
   }
 
   return results

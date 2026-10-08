@@ -13,6 +13,7 @@ import {
   type RecommendInput,
 } from '@/data/breedRecommend';
 import { useSettings } from '@/contexts/AppSettings';
+import { BreedImage } from '@/components/common/BreedImage';
 
 const PurposeIcon: Record<Purpose, string> = {
   meat: '🥩',
@@ -146,20 +147,47 @@ const RecommendPage: React.FC = () => {
                   transition={{ delay: index * 0.06 }}
                   className="bg-card border border-border rounded-xl p-4 md:p-5"
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Award className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
-                    <h3 className="text-base font-semibold text-foreground">{rec.breed.name}</h3>
-                    <span className="text-xs text-muted-foreground">{rec.breed.category} · {rec.breed.province}</span>
-                    <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary tabular-nums">
-                      {t('recommend.matchScore')} {rec.score}
-                    </span>
+                  <div className="flex flex-wrap items-start gap-3 md:gap-4">
+                    {/* 品种图：复用全站图片容错与占位回退 */}
+                    <BreedImage
+                      src={rec.breed.image}
+                      alt={rec.breed.name}
+                      className="h-20 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted"
+                      imgClassName="object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Award className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+                        <h3 className="text-base font-semibold text-foreground">{rec.breed.name}</h3>
+                        <span className="text-xs text-muted-foreground">{rec.breed.category} · {rec.breed.province}</span>
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary tabular-nums">
+                          {t('recommend.matchScore')} {rec.score}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-muted" role="img" aria-label={`${t('recommend.matchScore')} ${rec.score} / 100`}>
+                        <div className="h-full rounded-full bg-primary" style={{ width: `${rec.score}%` }} />
+                      </div>
+                      {/* 决策路径：海拔 / 用途 / 模式三条拆解 */}
+                      <ul className="mt-3 space-y-1.5 text-sm">
+                        {rec.factors.map((factor) => (
+                          <li key={factor.label} className="flex items-start gap-2">
+                            <span
+                              className={
+                                'mt-0.5 inline-flex h-4 shrink-0 items-center rounded px-1.5 text-[10px] font-bold ' +
+                                (factor.matched ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground')
+                              }
+                            >
+                              {factor.matched ? '✓' : '△'}
+                            </span>
+                            <span className="text-foreground/90">
+                              <strong className="font-medium">{factor.label}</strong>
+                              {factor.detail}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-muted" role="img" aria-label={`${t('recommend.matchScore')} ${rec.score} / 100`}>
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${rec.score}%` }} />
-                  </div>
-                  <ul className="mt-3 space-y-1.5 text-sm text-foreground/90 list-disc pl-5">
-                    {rec.reasons.map((reason) => <li key={reason}>{reason}</li>)}
-                  </ul>
                   <button
                     type="button"
                     onClick={() => navigate(`/map?breed_id=${rec.breed.id}`)}
