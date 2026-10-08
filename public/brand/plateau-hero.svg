@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="三江源高原牧场插画">
+  <title>三江源高原牧场插画</title>
+  <desc>项目原创矢量插画：雪山、高原草甸、河流源头与牦牛剪影，用作首页沉浸式背景。版权归项目所有。</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#050b14"/>
+      <stop offset="42%" stop-color="#0d1c2e"/>
+      <stop offset="72%" stop-color="#2a3a4c"/>
+      <stop offset="100%" stop-color="#4a4436"/>
+    </linearGradient>
+    <radialGradient id="dawn" cx="0.68" cy="0.52" r="0.46">
+      <stop offset="0%" stop-color="#f0b96a" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#c8843f" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#c8843f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="snowFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fa7c4" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#2b3b4f" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="snowMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8c9dd" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#22303f" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16222f"/>
+      <stop offset="100%" stop-color="#0a1119"/>
+    </linearGradient>
+    <linearGradient id="meadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#243020"/>
+      <stop offset="55%" stop-color="#141c14"/>
+      <stop offset="100%" stop-color="#080c08"/>
+    </linearGradient>
+    <linearGradient id="river" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cfe0ef" stop-opacity="0.05"/>
+      <stop offset="55%" stop-color="#dce9f4" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#f2d9a6" stop-opacity="0.75"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#dawn)"/>
+  <circle cx="1318" cy="546" r="52" fill="#f4d79c" opacity="0.9"/>
+  <circle cx="1318" cy="546" r="130" fill="#f0b96a" opacity="0.22" filter="url(#glow)"/>
+
+  <g stroke="#cfe0ef" stroke-opacity="0.28" stroke-width="2" stroke-linecap="round">
+    <path d="M300 208h56" opacity="0.5"/><path d="M396 246h34" opacity="0.35"/>
+    <path d="M820 168h44" opacity="0.4"/><path d="M1508 236h40" opacity="0.32"/>
+    <path d="M1700 170h30" opacity="0.26"/><path d="M1040 262h30" opacity="0.22"/>
+  </g>
+
+  <path d="M0 596 214 468l122 96 168-152 214 190 178-134 196 158 208-186 178 170 148-120 146 138 138-96 0 0V1080H0Z"
+        fill="url(#snowFar)"/>
+  <path d="M0 700 168 590l140 96 196-142 176 150 210-124 168 148 216-134 180 140 158-108 146 128 130-88v20Z"
+        fill="url(#snowMid)" opacity="0.85"/>
+  <path d="M0 774 152 690l164 86 178-96 200 108 186-92 168 104 206-98 174 100 152-84 150 96 116-62v84H0Z"
+        fill="url(#ridge)"/>
+
+  <path d="M0 834c260-36 420-12 640 26s420 48 640 6 420-38 640 8v206H0Z" fill="url(#meadow)"/>
+  <g filter="url(#soft)" opacity="0.75">
+    <ellipse cx="1360" cy="892" rx="240" ry="16" fill="#f0b96a" opacity="0.16"/>
+    <ellipse cx="620" cy="946" rx="200" ry="14" fill="#8fa7c4" opacity="0.12"/>
+  </g>
+
+  <path d="M1240 1080c-26-120 8-198 96-262 76-56 138-118 224-158 96-44 176-32 240 8 62 38 84 106 72 172-8 44-32 84-72 118-46 40-92 74-128 122-24 32-40 66-48 100Z"
+        fill="url(#river)" opacity="0.85"/>
+  <path d="M1310 1080c-14-104 18-172 92-228 68-52 128-108 206-144" fill="none" stroke="#eaf3fb" stroke-opacity="0.4" stroke-width="4" stroke-linecap="round"/>
+
+  <g fill="#05080b" opacity="0.92">
+    <g transform="translate(430 906) scale(1.1)">
+      <path d="M0 34c0-12 8-22 22-22h84c14 0 22 10 22 22v22H0Z"/>
+      <path d="M6 34c-8-2-12-8-12-16 0-10 6-16 14-16 4 0 8 2 10 6"/>
+      <path d="M128 40c6 0 10-4 10-10s-4-10-10-10"/>
+      <path d="M14 56v22M42 56v22M92 56v22M118 56v22" stroke="#05080b" stroke-width="9" stroke-linecap="round"/>
+      <path d="M22 18 4-6" stroke="#05080b" stroke-width="7" stroke-linecap="round"/>
+      <path d="M48 16 40-10" stroke="#05080b" stroke-width="6" stroke-linecap="round"/>
+      <path d="M140 34c14-6 24-4 30 6" fill="none" stroke="#05080b" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(1120 966) scale(0.82)" opacity="0.85">
+      <path d="M0 34c0-12 8-22 22-22h84c14 0 22 10 22 22v22H0Z"/>
+      <path d="M6 34c-8-2-12-8-12-16 0-10 6-16 14-16 4 0 8 2 10 6"/>
+      <path d="M128 40c6 0 10-4 10-10s-4-10-10-10"/>
+      <path d="M14 56v22M42 56v22M92 56v22M118 56v22" stroke="#05080b" stroke-width="9" stroke-linecap="round"/>
+      <path d="M22 18 4-6" stroke="#05080b" stroke-width="7" stroke-linecap="round"/>
+      <path d="M140 34c14-6 24-4 30 6" fill="none" stroke="#05080b" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(1560 962) scale(0.66)" opacity="0.75">
+      <ellipse cx="60" cy="44" rx="58" ry="30"/>
+      <path d="M30 64v20M60 66v20M92 64v20" stroke="#05080b" stroke-width="9" stroke-linecap="round"/>
+      <path d="M118 30c12-8 20-8 26 0" fill="none" stroke="#05080b" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g opacity="0.85">
+    <path d="M236 250c14 0 24 10 24 22s-10 22-24 22-24-10-24-22 10-22 24-22Z" fill="none" stroke="#cfe0ef" stroke-opacity="0.32" stroke-width="2.5"/>
+    <path d="M292 300c10 0 18 8 18 18s-8 18-18 18-18-8-18-18 8-18 18-18Z" fill="none" stroke="#cfe0ef" stroke-opacity="0.22" stroke-width="2"/>
+    <path d="M198 316c8 0 14 6 14 14s-6 14-14 14-14-6-14-14 6-14 14-14Z" fill="none" stroke="#cfe0ef" stroke-opacity="0.18" stroke-width="2"/>
+  </g>
+</svg>
