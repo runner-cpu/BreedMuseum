@@ -11,6 +11,9 @@ import {
   Database,
   Cpu,
   Mail,
+  Thermometer,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
 import { featuredBreeds } from '@/data/featuredBreeds';
@@ -84,6 +87,34 @@ const HomePage: React.FC = () => {
     { icon: <Download className="w-5 h-5" />, title: t('home.fExport'), description: t('home.fExportDesc'), label: 'DATA', to: '/dashboard' },
   ];
 
+  // 三大核心入口：地图底座 + 环境决策台 + 品种推荐
+  const coreEntries = [
+    {
+      icon: <MapIcon className="w-6 h-6" />,
+      title: t('home.entryMap'),
+      description: t('home.entryMapDesc'),
+      to: '/map',
+      accent: '#6b8fb5',
+      isNew: false,
+    },
+    {
+      icon: <Thermometer className="w-6 h-6" />,
+      title: t('home.entryPasture'),
+      description: t('home.entryPastureDesc'),
+      to: '/pasture',
+      accent: '#d4a853',
+      isNew: true,
+    },
+    {
+      icon: <Sparkles className="w-6 h-6" />,
+      title: t('home.entryRecommend'),
+      description: t('home.entryRecommendDesc'),
+      to: '/recommend',
+      accent: '#7aa87a',
+      isNew: true,
+    },
+  ];
+
   const categoryCounts = useMemo(
     () => {
       const counts = new Map<string, number>();
@@ -135,7 +166,51 @@ const HomePage: React.FC = () => {
 
       {/* 其余区域：星系动态背景（首页固定深色，密度x3） */}
       <BackgroundWrapper density={3}>
-        {/* 模块二：核心数据看板（ChromaGrid） */}
+        {/* 模块二：三大核心入口（地图 / 环境决策台 / 品种推荐） */}
+        <section className="py-16 md:py-20" aria-label={t('home.entryTitle')}>
+          <div className="max-w-5xl mx-auto px-4 md:px-6">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-8 border-l-4 border-[#d4a853] pl-3">
+              <ScrollFloat text={t('home.entryTitle')} />
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {coreEntries.map((entry) => (
+                <button
+                  key={entry.to}
+                  type="button"
+                  onClick={() => navigate(entry.to)}
+                  className="group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 p-6 text-left transition-all hover:border-white/40 hover:bg-white/10"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 top-0 h-1"
+                    style={{ backgroundColor: entry.accent }}
+                  />
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-white"
+                      style={{ backgroundColor: entry.accent }}
+                    >
+                      {entry.icon}
+                    </span>
+                    <h3 className="text-base font-semibold text-white">{entry.title}</h3>
+                    {entry.isNew && (
+                      <span className="ml-auto rounded-full bg-[#d4a853] px-2 py-0.5 text-[10px] font-bold text-[#1a3a2a]">
+                        {t('home.entryNew')}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-3 text-sm text-white/65 leading-relaxed text-pretty">{entry.description}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium" style={{ color: entry.accent }}>
+                    {t('home.entryOpen')}
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 模块三：核心数据看板（ChromaGrid） */}
         <section className="py-16 md:py-20">
           <div className="max-w-5xl mx-auto px-4 md:px-6">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-8 border-l-4 border-[#d4a853] pl-3">
@@ -146,7 +221,7 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 模块三：品种类别速览 */}
+        {/* 模块四：品种类别速览 */}
         <section className="py-16 md:py-20">
           <div className="max-w-5xl mx-auto px-4 md:px-6">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-8 border-l-4 border-[#d4a853] pl-3">

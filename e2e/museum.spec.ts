@@ -15,7 +15,7 @@ test.beforeEach(async ({ page, baseURL }) => {
   });
 });
 test.afterEach(async ({ page }) => { expect(errors.get(page)).toEqual([]); });
-for (const path of ['/', '/map', '/dashboard', '/encyclopedia', '/compare', '/ai', '/not-a-route']) {
+for (const path of ['/', '/map', '/dashboard', '/encyclopedia', '/compare', '/ai', '/pasture', '/recommend', '/not-a-route']) {
   test('public route ' + path + ' loads without backend', async ({ page, baseURL }) => {
     await page.goto('/#' + path);
     await expect(page.locator('main h1')).toHaveCount(1);
@@ -60,12 +60,12 @@ test('source detail and compare work across routes', async ({ page }, testInfo) 
   await page.getByRole('button', { name: '移除河田鸡' }).click();
   await expect(page.getByRole('button', { name: '浏览百科并选择品种' })).toBeVisible();
 });
-test('mobile menu exposes all six destinations and closes by keyboard', async ({ page }, testInfo) => {
+test('mobile menu exposes all eight destinations and closes by keyboard', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile');
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(6);
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(8);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
   await page.getByRole('button', { name: '打开品种搜索' }).click();
   await menu.getByRole('searchbox').fill('河田鸡');
@@ -74,6 +74,37 @@ test('mobile menu exposes all six destinations and closes by keyboard', async ({
   await page.getByRole('button', { name: /畜种筛选/ }).click();
   await page.getByRole('dialog').getByRole('button', { name: /^牛/ }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+test('homepage stats show real values without scrolling', async ({ page }) => {
+  await page.goto('/#/');
+  // 首屏数据看板：数字必须直接是真实值（历史 CountUp 归零 bug 回归门禁）
+  const stats = page.locator('p.tabular-nums');
+  await expect(stats.first()).toHaveText(/\d+/);
+  await expect(stats.nth(0)).toHaveText('1186');
+  await expect(stats.nth(1)).toHaveText('31');
+  await expect(stats.nth(2)).toHaveText('11');
+});
+test('pasture console computes THI and updates stress level', async ({ page }) => {
+  await page.goto('/#/pasture');
+  await expect(page.locator('main h1')).toBeVisible();
+  // 默认牦牛 18℃ / 55% / 3200m → 有效 THI 落到舒适区间
+  const levelBadge = page.locator('figcaption', { hasText: '应激等级：' });
+  await expect(levelBadge).toHaveText(/应激等级：舒适/);
+  const gauge = page.getByRole('img', { name: /有效 THI/ });
+  await expect(gauge).toBeVisible();
+  // 调高温度后进入警戒/危险档，建议区域随之更新
+  const temp = page.getByRole('slider', { name: '日间温度' });
+  await temp.fill('30');
+  await expect(levelBadge).toHaveText(/应激等级：危险|应激等级：极端/);
+  await expect(page.getByRole('heading', { name: /管理建议 · 应激等级/ })).toBeVisible();
+});
+test('breed advisor returns scored plateau recommendations', async ({ page }) => {
+  await page.goto('/#/recommend');
+  await page.getByRole('button', { name: '生成推荐' }).click();
+  await expect(page.getByRole('heading', { name: '推荐结果' })).toBeVisible();
+  const items = page.locator('ol > li');
+  await expect(items.first()).toBeVisible();
+  await expect(items.first().getByText(/适应性评分 \d+/)).toBeVisible();
 });
 test('charts expose readable tables and dark theme works', async ({ page }, testInfo) => {
   await page.goto('/#/dashboard');

@@ -14,6 +14,14 @@ export const routes: RouteConfig[] = [
     zh: { title: '品种分布地图', description: '按省份、畜种或名称查找地方品种，阅读品种详情与数据来源。' },
     en: { title: 'Breed Distribution Map', description: 'Find Chinese breeds by province, category, name and aliases.' },
   } },
+  { path: '/pasture', Component: lazy(() => import('./pages/PasturePage')), meta: {
+    zh: { title: '高原牧场环境决策台', description: '输入温度、湿度、海拔与畜龄，前端即时计算温湿指数 THI 与热应激等级，输出放牧与补饲管理建议。' },
+    en: { title: 'Plateau Pasture Environment Console', description: 'Compute the temperature-humidity index and heat-stress level in the browser and get grazing advice.' },
+  } },
+  { path: '/recommend', Component: lazy(() => import('./pages/RecommendPage')), meta: {
+    zh: { title: '品种智能推荐引擎', description: '按海拔区间、养殖目的与饲养模式，从馆藏高原畜种中匹配适应性评分最高的品种与理由。' },
+    en: { title: 'Breed Recommendation Engine', description: 'Match highland breeds by altitude, production goal and husbandry mode with rule-based scores.' },
+  } },
   { path: '/dashboard', Component: lazy(() => import('./pages/DashboardPage')), meta: {
     zh: { title: '畜禽品种数据看板', description: '查看站内收录品种的类别、省份和编辑分级统计，以及可读数据表。' },
     en: { title: 'Breed Data Dashboard', description: 'View category and province statistics derived from the museum collection.' },

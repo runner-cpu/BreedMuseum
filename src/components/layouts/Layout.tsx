@@ -27,6 +27,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const showCategories = pathname === '/map' || pathname === '/encyclopedia';
   const navItems = [
     { to: '/', label: t('nav.home') }, { to: '/map', label: t('nav.map') },
+    { to: '/pasture', label: t('nav.pasture') }, { to: '/recommend', label: t('nav.recommend') },
     { to: '/dashboard', label: t('nav.dashboard') }, { to: '/encyclopedia', label: t('nav.encyclopedia') },
     { to: '/compare', label: t('compare.title') }, { to: '/ai', label: t('nav.ai') },
   ];

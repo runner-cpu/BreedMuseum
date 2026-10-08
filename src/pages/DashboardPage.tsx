@@ -18,7 +18,7 @@ import {
   Line,
   CartesianGrid,
 } from 'recharts';
-import { Download, FileDown } from 'lucide-react';
+import { Download, FileDown, Mountain, ArrowRight } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { categoryColors } from '@/lib/categoryIcons';
@@ -148,10 +148,23 @@ const DashboardPage: React.FC = () => {
 
   const stats = [
     { label: t('dash.total'), value: breeds.length },
-    { label: t('dash.provinces'), value: new Set(breeds.map((b) => b.province)).size },
+    { label: t('dash.provinces'), value: new Set(breeds.filter((b) => b.province !== '待核验').map((b) => b.province)).size },
     { label: t('dash.endangered'), value: breeds.filter((b) => b.endangered === '濒危' || b.endangered === '极危').length },
     { label: t('dash.normal'), value: breeds.filter((b) => b.endangered === '普通').length },
   ];
+
+  // 青海 / 青藏高原专区：突出主场资源贡献
+  const plateauProvinces = ['青海', '西藏'];
+  const plateauBreeds = breeds.filter((b) => plateauProvinces.includes(b.province));
+  const qinghaiBreeds = breeds.filter((b) => b.province === '青海');
+  const plateauByCategory = categories
+    .map((cat) => ({
+      name: cat,
+      value: plateauBreeds.filter((b) => b.category === cat).length,
+      color: categoryColors[cat] ?? '#95A5A6',
+    }))
+    .filter((d) => d.value > 0)
+    .sort((a, b) => b.value - a.value);
 
   const handlePieClick = useCallback(
     (cat: string) => {
@@ -272,6 +285,48 @@ const DashboardPage: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* 青海 / 青藏高原专区 */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-4 md:p-5"
+        aria-label={t('dash.plateauTitle')}
+      >
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Mountain className="w-4 h-4 text-primary" />
+            {t('dash.plateauTitle')}
+          </h2>
+          <span className="text-sm text-muted-foreground">
+            {t('dash.plateauQinghai')} <strong className="text-primary tabular-nums">{qinghaiBreeds.length}</strong>
+            <span className="mx-2 text-border">|</span>
+            {t('dash.plateauTotal')} <strong className="text-primary tabular-nums">{plateauBreeds.length}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={() => navigate('/encyclopedia?province=' + encodeURIComponent('青海'))}
+            className="ml-auto min-h-11 inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm hover:bg-secondary transition-colors"
+          >
+            {t('dash.plateauOpen')}
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {plateauByCategory.slice(0, 8).map((item) => (
+            <button
+              key={item.name}
+              type="button"
+              onClick={() => navigate('/encyclopedia?province=' + encodeURIComponent('青海') + '&category=' + encodeURIComponent(item.name))}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs hover:bg-secondary transition-colors"
+            >
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} aria-hidden="true" />
+              {item.name}
+              <span className="tabular-nums text-muted-foreground">{item.value}</span>
+            </button>
+          ))}
+        </div>
+      </motion.section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <ChartCard

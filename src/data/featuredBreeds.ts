@@ -2,23 +2,24 @@ import { breeds, type Breed } from './breeds';
 
 /**
  * 首页“精选品种”展示名单。
- * 手工遴选兼顾类别与产区代表性的名品；若数据变更导致条目缺失，
+ * 第一序列为青海主场代表（高原牦牛、藏羊、大通马、柴达木双峰驼等），
+ * 其余兼顾类别与产区代表性；若数据变更导致条目缺失，
  * 以“真实配图 + 故事完整度 + 指标完备度”的确定性评分自动补足，
  * 保证该模块始终展示资料最完善的记录而非数据批次末尾的待核验条目。
  */
 const curatedIds = [
+  'qinghai-plateau-yak', // 青海高原牦牛 · 青海 · 牛
+  'oula-sheep', // 欧拉羊 · 甘肃 · 羊
+  'qinghai-black-sheep', // 青海黑藏羊 · 青海 · 羊
+  'datong-horse', // 大通马 · 青海 · 马
+  'chaidamu-bactrian-camel', // 柴达木双峰驼 · 青海 · 骆驼
+  'huzhu-pig', // 互助猪 · 青海 · 猪
+  'haidong-chicken', // 海东鸡 · 青海 · 鸡
   'qinchuan-cattle', // 秦川牛 · 陕西 · 牛
   'meishan-pig', // 梅山猪 · 江苏 · 猪
-  'hu-sheep', // 湖羊 · 浙江 · 羊
-  'beijing-oil-chicken', // 北京油鸡 · 北京 · 鸡
   'beijing-duck', // 北京鸭 · 北京 · 鸭
   'shitou-goose', // 狮头鹅 · 广东 · 鹅
   'tan-sheep', // 滩羊 · 宁夏 · 羊
-  'xinjiang-horse', // 伊犁马 · 新疆 · 马
-  'alashan-camel', // 阿拉善双峰驼 · 内蒙古 · 骆驼
-  'haerbin-white-rabbit', // 哈尔滨大白兔 · 黑龙江 · 兔
-  'shiqi-pigeon', // 石岐鸽 · 广东 · 鸽
-  'hebei-donkey', // 德州驴 · 山东 · 其他
 ] as const;
 
 export const FEATURED_BREED_COUNT = 12;
