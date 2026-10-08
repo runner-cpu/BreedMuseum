@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { breeds, categories } from '@/data/breeds';
 import { featuredBreeds } from '@/data/featuredBreeds';
+import { breedSources } from '@/data/breedSources';
+import { getBreedMetadata } from '@/data/breedMetadata';
 import { categoryColors } from '@/lib/categoryIcons';
 import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
@@ -125,6 +127,21 @@ const HomePage: React.FC = () => {
   );
 
   const highlightedBreeds = featuredBreeds;
+
+  // 三江源故事与数据权威性：统计全部由运行时数据推导，避免手写数字漂移
+  const storyStats = useMemo(() => {
+    const qinghai = breeds.filter((b) => b.province === '青海');
+    const plateau = breeds.filter((b) => b.province === '青海' || b.province === '西藏');
+    const endangered = qinghai.filter((b) => b.endangered === '濒危' || b.endangered === '极危');
+    const protectedListed = qinghai.filter((b) => getBreedMetadata(b).protectionStatus === 'national-list');
+    return {
+      qinghai: qinghai.length,
+      plateau: plateau.length,
+      endangered: endangered.length,
+      protectedListed: protectedListed.length,
+    };
+  }, []);
+  const catalogSource = breedSources['nahs-catalog-2024'];
 
   const handleHeroSearch = (q: string) => {
     const query = q.trim();
@@ -297,7 +314,49 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 模块六：关于本项目 */}
+        {/* 模块六：三江源故事 + 数据权威性 */}
+        <section className="py-16 md:py-20" aria-label={t('home.storyTitle')}>
+          <div className="max-w-5xl mx-auto px-4 md:px-6">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-6 border-l-4 border-[#d4a853] pl-3">
+              <ScrollFloat text={t('home.storyTitle')} />
+            </h2>
+            <div className="rounded-2xl border border-white/12 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-6 md:p-8">
+              <p className="text-sm md:text-[15px] text-white/75 leading-relaxed text-pretty">{t('home.storyBody')}</p>
+              <dl className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: t('home.storyStatBreeds'), value: storyStats.qinghai },
+                  { label: t('home.storyStatPlateau'), value: storyStats.plateau },
+                  { label: t('home.storyStatProtected'), value: storyStats.protectedListed },
+                  { label: t('home.storyStatEndangered'), value: storyStats.endangered },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl border border-white/10 bg-black/30 px-4 py-3">
+                    <dt className="text-xs text-white/55">{item.label}</dt>
+                    <dd className="mt-1 font-serif text-2xl md:text-3xl font-bold text-[#e8c98a] tabular-nums">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-white/10 pt-4 text-xs text-white/60">
+                <span className="inline-flex items-center gap-1.5 font-medium text-white/80">
+                  <Database className="w-3.5 h-3.5 text-[#d4a853]" />
+                  {t('home.authTitle')}
+                </span>
+                <span>{t('home.authBody')}</span>
+                {catalogSource?.url && (
+                  <a
+                    href={catalogSource.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[#e8c98a] underline underline-offset-2 hover:text-white"
+                  >
+                    {t('home.authLink404')}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 模块七：关于本项目 */}
         <section className="py-16 md:py-20">
           <div className="max-w-5xl mx-auto px-4 md:px-6">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-8 border-l-4 border-[#d4a853] pl-3">

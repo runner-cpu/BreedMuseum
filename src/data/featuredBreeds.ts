@@ -2,24 +2,23 @@ import { breeds, type Breed } from './breeds';
 
 /**
  * 首页“精选品种”展示名单。
- * 第一序列为青海主场代表（高原牦牛、藏羊、大通马、柴达木双峰驼等），
- * 其余兼顾类别与产区代表性；若数据变更导致条目缺失，
- * 以“真实配图 + 故事完整度 + 指标完备度”的确定性评分自动补足，
- * 保证该模块始终展示资料最完善的记录而非数据批次末尾的待核验条目。
+ * 全部选用青海主场代表（高原牦牛、环湖牦牛、欧拉羊、藏羊系、大通马、
+ * 柴达木双峰驼等），突出青藏高原种质资源差异；条目缺失时以
+ * “真实配图 + 故事完整度 + 指标完备度”的确定性评分自动补足。
  */
 const curatedIds = [
   'qinghai-plateau-yak', // 青海高原牦牛 · 青海 · 牛
-  'oula-sheep', // 欧拉羊 · 甘肃 · 羊
+  'huanhu-yak', // 环湖牦牛 · 青海 · 牛
+  'oula-sheep', // 欧拉羊 · 甘肃（环青海湖牧区毗邻）· 羊
   'qinghai-black-sheep', // 青海黑藏羊 · 青海 · 羊
+  'zeku-sheep', // 泽库羊（藏羊）· 青海 · 羊
   'datong-horse', // 大通马 · 青海 · 马
   'chaidamu-bactrian-camel', // 柴达木双峰驼 · 青海 · 骆驼
+  'chaidamurong-goat', // 柴达木绒山羊 · 青海 · 羊
   'huzhu-pig', // 互助猪 · 青海 · 猪
   'haidong-chicken', // 海东鸡 · 青海 · 鸡
-  'qinchuan-cattle', // 秦川牛 · 陕西 · 牛
-  'meishan-pig', // 梅山猪 · 江苏 · 猪
-  'beijing-duck', // 北京鸭 · 北京 · 鸭
-  'shitou-goose', // 狮头鹅 · 广东 · 鹅
-  'tan-sheep', // 滩羊 · 宁夏 · 羊
+  'qinghai-donkey', // 青海毛驴 · 青海 · 其他
+  'guide-black-sheep', // 贵德黑裘皮羊 · 青海 · 羊
 ] as const;
 
 export const FEATURED_BREED_COUNT = 12;
