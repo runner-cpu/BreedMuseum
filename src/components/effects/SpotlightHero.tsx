@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Search } from 'lucide-react';
 import { provincePaths, mapViewBox } from '@/data/chinaMap';
 import { useSettings } from '@/contexts/AppSettings';
+import { publicAsset } from '@/lib/publicAsset';
 import { Button } from '@/components/ui/button';
 
 // 各省份高亮配色（聚光时显示的彩色地图）
@@ -61,6 +62,16 @@ const SpotlightHero = ({
       onMouseMove={onMove}
       className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-black"
     >
+      {/* 底图：高原牧场大场景插画（项目原创 SVG，浅色地图轮廓压在其上） */}
+      <img
+        src={publicAsset('brand/plateau-hero.svg')}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {/* 压暗层：保证标题与地图线条在亮部仍可读 */}
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/80" />
+
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
         <svg
@@ -107,7 +118,7 @@ const SpotlightHero = ({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="font-serif font-bold text-white text-balance leading-tight"
+          className="font-serif font-bold text-white text-balance leading-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.65)]"
         >
           <span className="block text-3xl md:text-6xl">{titleTop}</span>
           <span className="block text-3xl md:text-6xl bg-gradient-to-r from-[#d4a853] via-[#e8c98a] to-[#d4a853] bg-clip-text text-transparent">
