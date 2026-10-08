@@ -1,4 +1,13 @@
-"""将 Markdown 文档转换为排版整洁的 PDF（支持中文、标题、表格、列表）。"""
+"""将 Markdown 文档转换为排版整洁的 PDF（支持中文、标题、表格、列表）。
+
+用法（在项目根目录执行，参数是下方 DOC_TARGETS 中的目标名，不是文件路径）：
+    python tasks/md_to_pdf.py                 # 生成全部登记文档
+    python tasks/md_to_pdf.py 网站说明书       # 只生成指定目标
+
+安全约束：脚本不接受任意文件路径。可转换的输入/输出仅限下方
+DOC_TARGETS 登记的 docs/ 目录内文件，且强制 .md 读、.pdf 写。
+"""
+import os
 import re
 import sys
 from html import escape
@@ -30,6 +39,30 @@ styles = {
 }
 
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 白名单：命令行只接受这里的“目标名”，脚本自身拼出项目内的真实路径，
+# 用户输入永远不参与路径拼接，路径穿越在结构上不可达。
+DOC_TARGETS = {
+    '网站说明书': ('docs/网站说明书.md', 'docs/网站说明书.pdf'),
+    '品种数据手册': ('docs/品种数据手册.md', 'docs/品种数据手册.pdf'),
+}
+
+
+def _target_paths(name: str) -> tuple[str, str]:
+    """把目标名解析为项目内的 (md, pdf) 绝对路径；未登记的名字直接拒绝。"""
+    target = DOC_TARGETS.get(name)
+    if target is None:
+        allowed = '、'.join(DOC_TARGETS)
+        raise SystemExit(f'未登记的目标名: {name!r}（可选: {allowed}）')
+    md_rel, pdf_rel = target
+    md_abs = os.path.join(PROJECT_ROOT, md_rel)
+    pdf_abs = os.path.join(PROJECT_ROOT, pdf_rel)
+    if not os.path.isfile(md_abs):
+        raise SystemExit(f'输入文件不存在: {md_rel}')
+    return md_abs, pdf_abs
+
+
 def inline(text: str) -> str:
     links = []
     def keep_link(match):
@@ -46,6 +79,8 @@ def inline(text: str) -> str:
 
 
 def convert(md_path: str, pdf_path: str):
+    """渲染转换。参数只允许来自 _target_paths() 的白名单解析结果，
+    不应由命令行等外部输入直接提供。"""
     lines = open(md_path, encoding='utf-8').read().splitlines()
     story = []
     i = 0
@@ -142,4 +177,7 @@ def convert(md_path: str, pdf_path: str):
 
 
 if __name__ == '__main__':
-    convert(sys.argv[1], sys.argv[2])
+    names = sys.argv[1:] or list(DOC_TARGETS)
+    for name in names:
+        md_file, pdf_file = _target_paths(name)
+        convert(md_file, pdf_file)
