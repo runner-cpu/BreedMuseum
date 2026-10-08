@@ -219,6 +219,15 @@ const isAbortError = (error: unknown): boolean =>
   (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') ||
   (error instanceof Error && error.name === 'AbortError');
 
+/**
+ * 下载文件名白名单化：去除路径分隔符与控制字符，只保留安全字符，
+ * 防止 AI/用户来源的字符串携带 `..`、反斜杠或伪造扩展名进入下载属性。
+ */
+export const sanitizeDownloadName = (name: string): string => {
+  const cleaned = name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\.+/g, '.').trim();
+  return cleaned.length > 0 ? cleaned : 'report';
+};
+
 const downloadText = (filename: string, text: string) => {
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -302,7 +311,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
     if (!msg.content || pdfBuilding) return;
     setPdfBuilding(msg.id);
     toast.info(t('ai.pdfBuilding'));
-    const title = (msg.downloadName || t('ai.reportFileName')).replace(/\.md$/i, '');
+    const title = sanitizeDownloadName((msg.downloadName || t('ai.reportFileName')).replace(/\.md$/i, ''));
     const ok = await downloadPdf(`${title}.pdf`, title, msg.content);
     setPdfBuilding(null);
     if (ok) toast.success(t('ai.pdfDone'));
@@ -1043,15 +1052,18 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
                           <img src={msg.mediaUrl} alt={t('common.aiImage')} className="w-full h-auto" />
                         </div>
                         <p className="text-xs text-muted-foreground">{t('common.aiImage')}</p>
-                        <a
-                          href={msg.mediaUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                        >
-                          <Download className="w-3 h-3" />
-                          {t('common.downloadImage')}
-                        </a>
+                        {/* 生成结果 URL 来自服务端响应，仅放行 http(s)/data 图片协议 */}
+                        {/^(https?:|data:image\/)/i.test(msg.mediaUrl) && (
+                          <a
+                            href={msg.mediaUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          >
+                            <Download className="w-3 h-3" />
+                            {t('common.downloadImage')}
+                          </a>
+                        )}
                       </div>
                     ) : (
                       <>
@@ -1068,7 +1080,7 @@ const ConfiguredAssistant: React.FC<{ backend?: BackendConfig }> = ({ backend })
                               size="sm"
                               variant="outline"
                               className="h-7 text-xs"
-                              onClick={() => downloadText(msg.downloadName || `${t('ai.reportFileName')}.md`, msg.content)}
+                              onClick={() => downloadText(sanitizeDownloadName(msg.downloadName || `${t('ai.reportFileName')}.md`), msg.content)}
                             >
                               <Download className="w-3 h-3 mr-1" />
                               {t('common.download')} .md

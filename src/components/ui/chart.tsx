@@ -65,6 +65,9 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+// 仅放行 CSS 颜色/渐变值；杜绝 config 值把 `}` 等字符带进样式块提前闭合选择器
+const SAFE_COLOR_VALUE = /^[#a-zA-Z0-9_(),.\s%/-]+$/u
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
@@ -86,7 +89,9 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    return color && SAFE_COLOR_VALUE.test(color)
+      ? `  --color-${key}: ${color};`
+      : null
   })
   .join("\n")}
 }
