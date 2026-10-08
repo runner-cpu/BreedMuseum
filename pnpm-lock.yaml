@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  source-map-js@>=1.0.0 <1.2.2: '>=1.2.2'
+
 importers:
 
   .:
@@ -94,7 +97,7 @@ importers:
         version: 1.2.16(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@sentry/react':
         specifier: ^9.47.1
-        version: 9.47.1(react@18.3.1)
+        version: 9.47.2(react@18.3.1)
       '@supabase/supabase-js':
         specifier: 2.103.1
         version: 2.103.1
@@ -127,7 +130,7 @@ importers:
         version: 0.576.0(react@18.3.1)
       miaoda-react-devkit:
         specifier: 0.1.1-beta.22
-        version: 0.1.1-beta.22(@sentry/core@9.47.1)(@sentry/react@9.47.1(react@18.3.1))(miaoda-sc-plugin@1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)))(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7))
+        version: 0.1.1-beta.22(@sentry/core@9.47.2)(@sentry/react@9.47.2(react@18.3.1))(miaoda-sc-plugin@1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)))(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7))
       miaoda-sc-plugin:
         specifier: 1.0.73
         version: 1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7))
@@ -1253,32 +1256,32 @@ packages:
       rollup:
         optional: true
 
-  '@sentry-internal/browser-utils@9.47.1':
-    resolution: {integrity: sha512-twv6YhrUlPkvKz4/iQDH4KHgcv9t4cMjmZPf4/dCSCXn4/GOjzjx2d74c1w+1KOdS7lcsQzI+MtbK6SeYLiGfQ==}
+  '@sentry-internal/browser-utils@9.47.2':
+    resolution: {integrity: sha512-LKRDMpyCZ+tUmhWYN6kaYlO/4X5pF5k5q5UcsoJtDQc/1vXZ6fM5AaGHseAnDTzie/Rblm46S/gEo84bVvblFg==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@9.47.1':
-    resolution: {integrity: sha512-xJ4vKvIpAT8e+Sz80YrsNinPU0XV7jPxPjdZ4ex8R2mMvx7pM0gq8JiR/sIVmNiOE0WiUDr6VwLDE8j2APSRMA==}
+  '@sentry-internal/feedback@9.47.2':
+    resolution: {integrity: sha512-daa2anVNapDNT6IATGM7yJgM+azDTcY9UHknlxKVQVRiRYnir8pUnQa6gYErYqUJeAHrZedE+eEk4M5RG/t3hA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@9.47.1':
-    resolution: {integrity: sha512-r9nve+l5+elGB9NXSN1+PUgJy790tXN1e8lZNH2ziveoU91jW4yYYt34mHZ30fU9tOz58OpaRMj3H3GJ/jYZVA==}
+  '@sentry-internal/replay-canvas@9.47.2':
+    resolution: {integrity: sha512-MWkpf0TSGmc0+uQlylrhCMreFFKMonRPNnyqcGbyI7CDmPRrL5TDYSS2bUF4BmA5d5N1vYF934/tkpONKjM71Q==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@9.47.1':
-    resolution: {integrity: sha512-O9ZEfySpstGtX1f73m3NbdbS2utwPikaFt6sgp74RG4ZX4LlXe99VAjKR464xKECpYsLmj2bYpiK4opURF0pBA==}
+  '@sentry-internal/replay@9.47.2':
+    resolution: {integrity: sha512-8SKV9tB/bY1c4QtsWrOZfWHwFffCr8s03Nl1e6vmlqEfLX5AGoeHsQneXbm7xmqUahr25QyyGAgUDZZrfefrgw==}
     engines: {node: '>=18'}
 
-  '@sentry/browser@9.47.1':
-    resolution: {integrity: sha512-at5JOLziw5QpVYytxTDU6xijdV6lDQ/Rxp/qXJaHXud3gIK4suv2cXW+tupJfwoUoHFCnDNfccjCmPmP0yRqiA==}
+  '@sentry/browser@9.47.2':
+    resolution: {integrity: sha512-dqs+whBtZwXElSkU4JFgRSsERJmHX/EhC9TeevFvkv6aTtx//7qOhuhhIzA/FO7Td8OAKt6TmbLjGOmXhDk9Mg==}
     engines: {node: '>=18'}
 
-  '@sentry/core@9.47.1':
-    resolution: {integrity: sha512-KX62+qIt4xgy8eHKHiikfhz2p5fOciXd0Cl+dNzhgPFq8klq4MGMNaf148GB3M/vBqP4nw/eFvRMAayFCgdRQw==}
+  '@sentry/core@9.47.2':
+    resolution: {integrity: sha512-WYEP2ZHkTQMP7Gg5frzrQy1475TnK5Qv8wgvHiTlNerYaEBCNpAeWjUltTgfCQ8Hbv1iq4inca7Kqmmyv9gLnQ==}
     engines: {node: '>=18'}
 
-  '@sentry/react@9.47.1':
-    resolution: {integrity: sha512-Anqt0hG1R+nktlwEiDc2FmD+6DUGMJOLuArgr7q1cSCdPbK2Gb1eZ2rF57Ui+CDo9XLvlX9QP2is/M08rrVe3w==}
+  '@sentry/react@9.47.2':
+    resolution: {integrity: sha512-rr5pGh4u1kCqesuGALTfZGJT8138CpT94zwbDy9hD9K0SWbntnMTV0KhCI+sq9xfpgN2pgyZXwHB6GmciU39EA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -2727,8 +2730,8 @@ packages:
       '@types/react':
         optional: true
 
-  source-map-js@1.2.1:
-    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+  source-map-js@1.2.2:
+    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
 
   source-map@0.6.1:
@@ -4050,38 +4053,38 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.7
 
-  '@sentry-internal/browser-utils@9.47.1':
+  '@sentry-internal/browser-utils@9.47.2':
     dependencies:
-      '@sentry/core': 9.47.1
+      '@sentry/core': 9.47.2
 
-  '@sentry-internal/feedback@9.47.1':
+  '@sentry-internal/feedback@9.47.2':
     dependencies:
-      '@sentry/core': 9.47.1
+      '@sentry/core': 9.47.2
 
-  '@sentry-internal/replay-canvas@9.47.1':
+  '@sentry-internal/replay-canvas@9.47.2':
     dependencies:
-      '@sentry-internal/replay': 9.47.1
-      '@sentry/core': 9.47.1
+      '@sentry-internal/replay': 9.47.2
+      '@sentry/core': 9.47.2
 
-  '@sentry-internal/replay@9.47.1':
+  '@sentry-internal/replay@9.47.2':
     dependencies:
-      '@sentry-internal/browser-utils': 9.47.1
-      '@sentry/core': 9.47.1
+      '@sentry-internal/browser-utils': 9.47.2
+      '@sentry/core': 9.47.2
 
-  '@sentry/browser@9.47.1':
+  '@sentry/browser@9.47.2':
     dependencies:
-      '@sentry-internal/browser-utils': 9.47.1
-      '@sentry-internal/feedback': 9.47.1
-      '@sentry-internal/replay': 9.47.1
-      '@sentry-internal/replay-canvas': 9.47.1
-      '@sentry/core': 9.47.1
+      '@sentry-internal/browser-utils': 9.47.2
+      '@sentry-internal/feedback': 9.47.2
+      '@sentry-internal/replay': 9.47.2
+      '@sentry-internal/replay-canvas': 9.47.2
+      '@sentry/core': 9.47.2
 
-  '@sentry/core@9.47.1': {}
+  '@sentry/core@9.47.2': {}
 
-  '@sentry/react@9.47.1(react@18.3.1)':
+  '@sentry/react@9.47.2(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 9.47.1
-      '@sentry/core': 9.47.1
+      '@sentry/browser': 9.47.2
+      '@sentry/core': 9.47.2
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
@@ -4573,7 +4576,7 @@ snapshots:
   css-tree@3.2.1:
     dependencies:
       mdn-data: 2.27.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   css.escape@1.5.1: {}
 
@@ -4987,14 +4990,14 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  miaoda-react-devkit@0.1.1-beta.22(@sentry/core@9.47.1)(@sentry/react@9.47.1(react@18.3.1))(miaoda-sc-plugin@1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)))(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)):
+  miaoda-react-devkit@0.1.1-beta.22(@sentry/core@9.47.2)(@sentry/react@9.47.2(react@18.3.1))(miaoda-sc-plugin@1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)))(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7)):
     dependencies:
       '@babel/parser': 7.29.9
       '@babel/traverse': 7.29.8
       '@babel/types': 7.29.8
     optionalDependencies:
-      '@sentry/core': 9.47.1
-      '@sentry/react': 9.47.1(react@18.3.1)
+      '@sentry/core': 9.47.2
+      '@sentry/react': 9.47.2(react@18.3.1)
       miaoda-sc-plugin: 1.0.73(vite@8.3.1(@types/node@26.6.3)(jiti@1.21.7))
       vite: 8.3.1(@types/node@26.6.3)(jiti@1.21.7)
     transitivePeerDependencies:
@@ -5154,7 +5157,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.19
       picocolors: 1.1.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   pretty-format@27.5.1:
     dependencies:
@@ -5421,7 +5424,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  source-map-js@1.2.1: {}
+  source-map-js@1.2.2: {}
 
   source-map@0.6.1: {}
 
