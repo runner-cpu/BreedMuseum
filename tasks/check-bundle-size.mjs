@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -9,6 +9,26 @@ export const ENTRY_BUDGET = Object.freeze({ rawBytes: 650 * 1024, gzipBytes: 220
 // than an entry-only limit because shared vendor/data chunks are first-load
 // costs too.
 export const AGGREGATE_BUDGET = Object.freeze({ rawBytes: 1100 * 1024, gzipBytes: 320 * 1024 });
+// First-load CSS and the largest lazy chunks are real user-facing costs too:
+// CSS blocks first paint, and the breeds data chunk is the shared payload for
+// the encyclopedia/map/dashboard routes. Budgets sit above current actuals
+// with headroom for normal growth but block step-change regressions.
+export const CSS_BUDGET = Object.freeze({ rawBytes: 90 * 1024, gzipBytes: 16 * 1024 });
+export const LAZY_CHUNK_BUDGET = Object.freeze({ rawBytes: 750 * 1024, gzipBytes: 180 * 1024 });
+
+export function evaluateCss({ rawBytes, gzipBytes }) {
+  const reasons = [];
+  if (rawBytes > CSS_BUDGET.rawBytes) reasons.push('css exceeds 90 KiB raw');
+  if (gzipBytes > CSS_BUDGET.gzipBytes) reasons.push('gzip css exceeds 16 KiB');
+  return { ok: reasons.length === 0, reasons };
+}
+
+export function evaluateLazyChunk(file, { rawBytes, gzipBytes }) {
+  const reasons = [];
+  if (rawBytes > LAZY_CHUNK_BUDGET.rawBytes) reasons.push(file + ' exceeds 750 KiB raw');
+  if (gzipBytes > LAZY_CHUNK_BUDGET.gzipBytes) reasons.push('gzip ' + file + ' exceeds 180 KiB');
+  return { ok: reasons.length === 0, reasons };
+}
 
 export function evaluateEntry({ rawBytes, gzipBytes }) {
   const reasons = [];
@@ -48,7 +68,38 @@ export async function checkBundle(folder = 'dist') {
     aggregate.gzipBytes += gzipSync(bytes).byteLength;
   }
   const aggregateResult = evaluateAggregate(aggregate);
-  const reasons = [...entryResult.reasons, ...aggregateResult.reasons];
+  const entryReasons = [...entryResult.reasons, ...aggregateResult.reasons];
+
+  // CSS 与懒加载 chunk 预算：覆盖首屏样式和最大的路由级数据块
+  const cssFiles = await readdir(join(folder, 'assets'));
+  const cssReasons = [];
+  const cssReport = [];
+  for (const file of cssFiles.filter((f) => f.endsWith('.css'))) {
+    const bytes = await readFile(join(folder, 'assets', file));
+    const sizes = { rawBytes: bytes.byteLength, gzipBytes: gzipSync(bytes).byteLength };
+    const result = evaluateCss(sizes);
+    cssReport.push({ file, ...sizes, ok: result.ok });
+    cssReasons.push(...result.reasons);
+  }
+
+  const dynamicKeys = new Set();
+  for (const value of Object.values(manifest)) {
+    for (const key of value.dynamicImports ?? []) dynamicKeys.add(key);
+  }
+  const staticFilesSet = new Set(staticFiles);
+  const lazyReasons = [];
+  const lazyReport = [];
+  for (const key of dynamicKeys) {
+    const item = manifest[key];
+    if (!item || staticFilesSet.has(item.file)) continue;
+    const bytes = await readFile(join(folder, item.file));
+    const sizes = { rawBytes: bytes.byteLength, gzipBytes: gzipSync(bytes).byteLength };
+    const result = evaluateLazyChunk(item.file, sizes);
+    lazyReport.push({ file: item.file, ...sizes, ok: result.ok });
+    lazyReasons.push(...result.reasons);
+  }
+
+  const reasons = [...entryReasons, ...cssReasons, ...lazyReasons];
   console.log(
     JSON.stringify(
       {
@@ -62,6 +113,8 @@ export async function checkBundle(folder = 'dist') {
         staticGraphBudget: AGGREGATE_BUDGET,
         staticGraphOk: aggregateResult.ok,
         staticGraphReasons: aggregateResult.reasons,
+        css: { budget: CSS_BUDGET, files: cssReport },
+        lazyChunks: { budget: LAZY_CHUNK_BUDGET, files: lazyReport },
         staticFiles,
       },
       null,
