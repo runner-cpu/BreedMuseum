@@ -52,7 +52,8 @@ export function buildImageIndexRows(items, resolveMetadata) {
         isProjectSvg ? '项目 SVG 占位' : '历史外链；来源权利待核验',
         isProjectSvg ? '本项目' : '',
         isProjectSvg ? '项目原生 SVG' : '',
-        isProjectSvg ? '否（矢量代码）' : '未核验',
+        // 历史外链整组保守标注：可能混入早期生成式配图且尚未逐张核验
+        isProjectSvg ? '否（矢量代码）' : '疑似生成式；未核验',
       ];
     }),
   ];

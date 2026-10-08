@@ -21,6 +21,9 @@ test('image index uses explicit placeholder and unverified-rights statuses', () 
 
   expect(rows[1][4]).toBe('项目 SVG 占位');
   expect(rows[2][4]).toBe('历史外链；来源权利待核验');
+  // 历史外链在“是否AI生成”列保守标注，供公开索引与隐私页口径一致
+  expect(rows[1][7]).toBe('否（矢量代码）');
+  expect(rows[2][7]).toBe('疑似生成式；未核验');
 });
 test('image index CSV preserves the requested newline and BOM convention', () => {
   const rows = [['列1', '列2'], ['a', 'b']];
