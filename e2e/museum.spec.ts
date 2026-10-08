@@ -60,12 +60,12 @@ test('source detail and compare work across routes', async ({ page }, testInfo) 
   await page.getByRole('button', { name: '移除河田鸡' }).click();
   await expect(page.getByRole('button', { name: '浏览百科并选择品种' })).toBeVisible();
 });
-test('mobile menu exposes all eight destinations and closes by keyboard', async ({ page }, testInfo) => {
+test('mobile menu exposes all seven destinations and closes by keyboard', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile');
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(8);
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(7);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
   await page.getByRole('button', { name: '打开品种搜索' }).click();
   await menu.getByRole('searchbox').fill('河田鸡');
@@ -83,7 +83,7 @@ test('homepage stats show real values without scrolling', async ({ page }) => {
   await expect(stats.nth(0)).toHaveText('1186'); // 已收录品种
   await expect(stats.nth(1)).toHaveText('66'); // 青藏高原品种（青海 + 西藏）
   await expect(stats.nth(2)).toHaveText('31'); // 覆盖省份
-  await expect(stats.nth(3)).toHaveText('82'); // 濒危 / 极危
+  await expect(stats.nth(3)).toHaveText('13'); // 国家级保护品种（940号公告）
 });
 test('homepage core entry cards show preview thumbnails', async ({ page }) => {
   await page.goto('/#/');

@@ -11,6 +11,12 @@ export const COLLECTION_SUMMARY = {
   categories: 11,
   /** 青藏高原口径：青海 + 西藏 */
   plateau: 66,
+  /** 青海地方品种数 */
+  qinghai: 28,
+  /** 西藏地方品种数 */
+  xizang: 38,
+  /** 青藏高原口径下收录于农业农村部第940号公告的品种数（青海7 + 西藏6） */
+  plateauNationalProtected: 13,
   editorialEndangered: 82,
   nationalProtectedMatches: 271,
 } as const;

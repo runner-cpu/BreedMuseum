@@ -85,7 +85,7 @@ const HomePage: React.FC = () => {
   const { t } = useSettings();
 
   const distinctProvinces = COLLECTION_SUMMARY.provinces;
-  const endangeredCount = COLLECTION_SUMMARY.editorialEndangered;
+  const plateauProtected = COLLECTION_SUMMARY.plateauNationalProtected;
   const plateauCount = COLLECTION_SUMMARY.plateau;
 
   // 首屏四大核心数字（真实运行时值，滚动计数动画）
@@ -118,12 +118,12 @@ const HomePage: React.FC = () => {
       countUp: true,
     },
     {
-      title: String(endangeredCount),
-      subtitle: t('home.statEndangeredLabel'),
-      handle: t('home.statEndangeredSub'),
-      borderColor: '#e0533a',
-      gradient: 'linear-gradient(145deg, #4a1e16, #1a0a08)',
-      url: '/map',
+      title: String(plateauProtected),
+      subtitle: t('home.statProtectedLabel'),
+      handle: t('home.statProtectedSub'),
+      borderColor: '#d4a853',
+      gradient: 'linear-gradient(145deg, #3d2f12, #1a1206)',
+      url: '/dashboard',
       countUp: true,
     },
   ];
