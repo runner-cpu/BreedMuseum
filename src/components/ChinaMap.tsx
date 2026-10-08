@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
+import { getBreedMetadata } from '@/data/breedMetadata';
 import { hasVerifiedCoordinates } from '@/data/catalog';
 import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
@@ -129,7 +130,9 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         {breedPoints.map(({ breed, x, y }) => {
           const isSelected = selectedBreed?.id === breed.id;
           const isPulsing = pulseId === breed.id;
+          const isProtected = getBreedMetadata(breed).protectionStatus === 'national-list';
           const color = categoryColors[breed.category] ?? 'hsl(var(--primary))';
+          const dotColor = isProtected ? '#d4a853' : color;
           return (
             <g
               key={breed.id}
@@ -154,6 +157,18 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 }
               }}
             >
+              {/* 国家级保护品种：常驻金色呼吸脉冲圈 */}
+              {isProtected && (
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={6}
+                  fill="none"
+                  stroke="#d4a853"
+                  strokeWidth={1.5}
+                  className="protected-pulse"
+                />
+              )}
               {/* 跳转定位脉冲光晕 */}
               {isPulsing && (
                 <circle
@@ -170,12 +185,21 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               <circle
                 cx={x}
                 cy={y}
-                r={isSelected ? 7 : 5}
-                fill={color}
-                stroke="hsl(var(--card))"
-                strokeWidth={2}
+                r={isSelected ? 7 : isProtected ? 6 : 5}
+                fill={dotColor}
+                stroke={isProtected ? '#fff5d6' : 'hsl(var(--card))'}
+                strokeWidth={isProtected ? 2 : 2}
                 className="transition-all duration-200"
               />
+              {/* 国家级保护品种：小金星标识 */}
+              {isProtected && (
+                <path
+                  d={`M ${x} ${y - 11} l 1.2 2.4 2.6.4 -1.9 1.8.5 2.6 -2.4 -1.3 -2.4 1.3.5 -2.6 -1.9 -1.8 2.6 -.4 z`}
+                  fill="#d4a853"
+                  stroke="#7a5a1a"
+                  strokeWidth={0.4}
+                />
+              )}
               {isSelected && (
                 <circle
                   cx={x}
@@ -189,12 +213,13 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               )}
               <text
                 x={x}
-                y={y - 10}
+                y={y - (isProtected ? -16 : 10)}
                 textAnchor="middle"
-                fontSize={10}
-                fill="hsl(var(--foreground))"
-                fontWeight={600}
-                className={`pointer-events-none transition-opacity duration-200 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                fontSize={isProtected ? 10 : 10}
+                fill={isProtected ? '#d4a853' : 'hsl(var(--foreground))'}
+                fontWeight={isProtected ? 700 : 600}
+                className={`pointer-events-none transition-opacity duration-200 ${isSelected || isProtected ? 'opacity-100' : 'opacity-0'}`}
+                style={isProtected ? { textShadow: '0 1px 3px rgba(0,0,0,0.8)' } : undefined}
               >
                 {breed.name}
               </text>
