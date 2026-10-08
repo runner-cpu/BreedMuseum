@@ -39,6 +39,55 @@ const LEVEL_RANGE_TEXT: Record<StressLevel, (s: typeof SPECIES_CONFIG[PastureSpe
   extreme: (s) => `≥ ${s.extremeFrom}`,
 };
 
+/**
+ * 绿→黄→橙→红分级色带：按当前畜种阈值划分四段宽度，
+ * 指针指示有效 THI 所在位置，一眼看出处于哪一档。
+ */
+const GradeBar: React.FC<{ value: number; level: StressLevel; species: typeof SPECIES_CONFIG[PastureSpecies] }> = ({ value, level, species }) => {
+  const { t } = useSettings();
+  const segments: Array<{ lv: StressLevel; from: number; to: number }> = [
+    { lv: 'comfort', from: GAUGE_MIN, to: species.comfortMax },
+    { lv: 'alert', from: species.comfortMax, to: species.alertMax },
+    { lv: 'danger', from: species.alertMax, to: species.extremeFrom },
+    { lv: 'extreme', from: species.extremeFrom, to: GAUGE_MAX },
+  ];
+  const span = GAUGE_MAX - GAUGE_MIN;
+  const clamped = Math.min(GAUGE_MAX, Math.max(GAUGE_MIN, value));
+  const pointer = ((clamped - GAUGE_MIN) / span) * 100;
+
+  return (
+    <div aria-label={t('pasture.gradeBarLabel')} role="img">
+      <div className="relative">
+        <div className="flex h-4 w-full overflow-hidden rounded-full">
+          {segments.map((seg) => (
+            <div
+              key={seg.lv}
+              className="h-full"
+              style={{
+                width: `${((seg.to - seg.from) / span) * 100}%`,
+                backgroundColor: LEVEL_COLORS[seg.lv],
+                opacity: seg.lv === level ? 1 : 0.35,
+              }}
+            />
+          ))}
+        </div>
+        <span
+          aria-hidden="true"
+          className="absolute -top-1 h-6 w-1 -translate-x-1/2 rounded-full bg-foreground ring-2 ring-background"
+          style={{ left: `${pointer}%` }}
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground tabular-nums">
+        <span>{GAUGE_MIN}</span>
+        <span>{species.comfortMax}</span>
+        <span>{species.alertMax}</span>
+        <span>{species.extremeFrom}</span>
+        <span>{GAUGE_MAX}</span>
+      </div>
+    </div>
+  );
+};
+
 /** 半圆仪表盘：分区随畜种阈值动态划分 + 指针 + 有效 THI 数值 */
 const ThiGauge: React.FC<{ value: number; level: StressLevel; species: typeof SPECIES_CONFIG[PastureSpecies] }> = ({ value, level, species }) => {
   const clamped = Math.min(GAUGE_MAX, Math.max(GAUGE_MIN, value));
@@ -282,8 +331,12 @@ const PasturePage: React.FC = () => {
                 </details>
               </div>
             </div>
+            {/* 绿→黄→橙→红分级色带：指针指示当前有效 THI 所处档位 */}
+            <div className="mt-5">
+              <GradeBar value={result.effective} level={result.level} species={result.species} />
+            </div>
             {/* 四级图例：当前档位高亮 */}
-            <ul className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2" aria-label={t('pasture.legendLabel')}>
+            <ul className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2" aria-label={t('pasture.legendLabel')}>
               {(['comfort', 'alert', 'danger', 'extreme'] as StressLevel[]).map((lv) => (
                 <li
                   key={lv}
@@ -335,9 +388,29 @@ const PasturePage: React.FC = () => {
               <AlertTriangle className="w-4 h-4" style={{ color: LEVEL_COLORS[result.level] }} />
               {t('pasture.adviceTitle').replace('{level}', LEVEL_LABELS[result.level])}
             </h2>
-            <ul className="mt-3 space-y-2 text-sm text-foreground/90 list-disc pl-5">
-              {advice.map((item) => <li key={item}>{item}</li>)}
-            </ul>
+            {/* 三条优先管理动作：编号卡片，一眼可执行 */}
+            <p className="mt-3 text-xs font-medium text-muted-foreground">{t('pasture.adviceTop3')}</p>
+            <ol className="mt-2 space-y-2">
+              {advice.slice(0, 3).map((item, index) => (
+                <li key={item} className="flex items-start gap-2.5 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground/90">
+                  <span
+                    className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                    style={{ backgroundColor: LEVEL_COLORS[result.level] }}
+                  >
+                    {index + 1}
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+            {advice.length > 3 && (
+              <div className="mt-4 border-t border-border pt-3">
+                <p className="text-xs font-medium text-muted-foreground">{t('pasture.adviceMore')}</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-foreground/80 list-disc pl-5">
+                  {advice.slice(3).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            )}
             {result.notes.length > 0 && (
               <ul className="mt-4 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
                 {result.notes.map((note) => (

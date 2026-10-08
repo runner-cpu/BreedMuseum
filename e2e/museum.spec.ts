@@ -77,12 +77,19 @@ test('mobile menu exposes all eight destinations and closes by keyboard', async 
 });
 test('homepage stats show real values without scrolling', async ({ page }) => {
   await page.goto('/#/');
-  // 首屏数据看板：数字必须直接是真实值（历史 CountUp 归零 bug 回归门禁）
+  // 首屏数据看板：四个核心数字必须直接是真实值（历史 CountUp 归零 bug 回归门禁）
   const stats = page.locator('p.tabular-nums');
   await expect(stats.first()).toHaveText(/\d+/);
-  await expect(stats.nth(0)).toHaveText('1186');
-  await expect(stats.nth(1)).toHaveText('31');
-  await expect(stats.nth(2)).toHaveText('11');
+  await expect(stats.nth(0)).toHaveText('1186'); // 已收录品种
+  await expect(stats.nth(1)).toHaveText('66'); // 青藏高原品种（青海 + 西藏）
+  await expect(stats.nth(2)).toHaveText('31'); // 覆盖省份
+  await expect(stats.nth(3)).toHaveText('82'); // 濒危 / 极危
+});
+test('homepage core entry cards show preview thumbnails', async ({ page }) => {
+  await page.goto('/#/');
+  await expect(page.getByRole('img', { name: /牧场决策台预览/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /品种推荐预览/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /品种地图预览/ })).toBeVisible();
 });
 test('pasture console computes THI and updates stress level', async ({ page }) => {
   await page.goto('/#/pasture');
@@ -92,11 +99,16 @@ test('pasture console computes THI and updates stress level', async ({ page }) =
   await expect(levelBadge).toHaveText(/应激等级：舒适/);
   const gauge = page.getByRole('img', { name: /有效 THI/ });
   await expect(gauge).toBeVisible();
-  // 调高温度后进入警戒/危险档，建议区域随之更新
+  // 绿→黄→橙→红分级色带必须存在
+  await expect(page.getByRole('img', { name: '热应激分级色带' })).toBeVisible();
+  // 调高温度后进入警戒/危险档，三条优先建议随之更新
   const temp = page.getByRole('slider', { name: '日间温度' });
   await temp.fill('30');
   await expect(levelBadge).toHaveText(/应激等级：危险|应激等级：极端/);
   await expect(page.getByRole('heading', { name: /管理建议 · 应激等级/ })).toBeVisible();
+  await expect(page.getByText('三条优先管理动作')).toBeVisible();
+  const top3 = page.locator('ol li').filter({ hasText: /通风|放牧|补饲/ });
+  expect(await top3.count()).toBeGreaterThanOrEqual(3);
 });
 test('breed advisor returns scored plateau recommendations', async ({ page }) => {
   await page.goto('/#/recommend');
@@ -105,6 +117,10 @@ test('breed advisor returns scored plateau recommendations', async ({ page }) =>
   const items = page.locator('ol > li');
   await expect(items.first()).toBeVisible();
   await expect(items.first().getByText(/适应性评分 \d+/)).toBeVisible();
+  // 决策路径：海拔 / 用途 / 模式三条匹配理由必须出现
+  await expect(items.first().getByText('海拔匹配')).toBeVisible();
+  await expect(items.first().getByText('用途匹配')).toBeVisible();
+  await expect(items.first().getByText('模式匹配')).toBeVisible();
 });
 test('charts expose readable tables and dark theme works', async ({ page }, testInfo) => {
   await page.goto('/#/dashboard');

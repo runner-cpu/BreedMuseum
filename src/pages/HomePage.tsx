@@ -33,6 +33,51 @@ import { BreedImage } from '@/components/common/BreedImage';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 
+/** 入口卡缩略预览：THI 色带 + 大数字（纯 CSS/SVG，截图级示意） */
+const ThiPreview: React.FC = () => (
+  <svg viewBox="0 0 200 110" aria-hidden="true" className="h-full w-full">
+    <rect x="0" y="0" width="200" height="110" rx="8" fill="#101820" />
+    <text x="14" y="34" fontSize="26" fontWeight="700" fill="#f97316">27.4</text>
+    <text x="72" y="34" fontSize="11" fill="#9ca3af">THI</text>
+    <rect x="14" y="46" width="172" height="10" rx="5" fill="#1f2937" />
+    <rect x="14" y="46" width="60" height="10" rx="5" fill="#22c55e" />
+    <rect x="74" y="46" width="44" height="10" fill="#eab308" />
+    <rect x="118" y="46" width="40" height="10" fill="#f97316" />
+    <rect x="158" y="46" width="28" height="10" rx="5" fill="#dc2626" />
+    <circle cx="138" cy="51" r="6" fill="#fff" stroke="#101820" strokeWidth="2" />
+    <text x="14" y="80" fontSize="10" fill="#9ca3af">温度 30℃ · 湿度 60% · 海拔 3200m</text>
+    <text x="14" y="96" fontSize="10" fill="#f97316">危险：停止午间放牧 · 通风 · 夜间补饲</text>
+  </svg>
+);
+
+/** 入口卡缩略预览：适配评分进度条 + 三条匹配 */
+const ScorePreview: React.FC = () => (
+  <svg viewBox="0 0 200 110" aria-hidden="true" className="h-full w-full">
+    <rect x="0" y="0" width="200" height="110" rx="8" fill="#101820" />
+    <text x="14" y="30" fontSize="12" fontWeight="700" fill="#e5e7eb">环湖牦牛</text>
+    <text x="150" y="30" fontSize="12" fontWeight="700" fill="#7aa87a">100 分</text>
+    <rect x="14" y="38" width="172" height="8" rx="4" fill="#1f2937" />
+    <rect x="14" y="38" width="172" height="8" rx="4" fill="#7aa87a" />
+    <text x="14" y="62" fontSize="10" fill="#9ca3af">✓ 海拔匹配　✓ 用途匹配　✓ 模式匹配</text>
+    <text x="14" y="80" fontSize="10" fill="#6b7280">适宜区间 3000–5000 米 · 肉用 · 放牧</text>
+    <text x="14" y="98" fontSize="10" fill="#7aa87a">点击查看品种详情 →</text>
+  </svg>
+);
+
+/** 入口卡缩略预览：地图散点 + 濒危红点 */
+const MapPreview: React.FC = () => (
+  <svg viewBox="0 0 200 110" aria-hidden="true" className="h-full w-full">
+    <rect x="0" y="0" width="200" height="110" rx="8" fill="#101820" />
+    <path d="M30 30 L70 18 L110 26 L150 22 L170 40 L150 70 L110 88 L70 82 L36 62 Z" fill="#1f2937" stroke="#3b4a5a" strokeWidth="1.5" />
+    <circle cx="60" cy="46" r="3.5" fill="#6b8fb5" />
+    <circle cx="92" cy="40" r="3.5" fill="#6b8fb5" />
+    <circle cx="118" cy="58" r="3.5" fill="#6b8fb5" />
+    <circle cx="84" cy="66" r="3.5" fill="#6b8fb5" />
+    <circle cx="136" cy="44" r="4" fill="#e0533a" />
+    <circle cx="104" cy="34" r="4" fill="#e0533a" />
+    <text x="14" y="102" fontSize="10" fill="#9ca3af">31 省 · 青海 28 · 红点为濒危品种</text>
+  </svg>
+);
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +86,9 @@ const HomePage: React.FC = () => {
 
   const distinctProvinces = COLLECTION_SUMMARY.provinces;
   const endangeredCount = COLLECTION_SUMMARY.editorialEndangered;
+  const plateauCount = COLLECTION_SUMMARY.plateau;
 
+  // 首屏四大核心数字（真实运行时值，滚动计数动画）
   const statItems: ChromaItem[] = [
     {
       title: String(COLLECTION_SUMMARY.total),
@@ -53,21 +100,21 @@ const HomePage: React.FC = () => {
       countUp: true,
     },
     {
-      title: String(distinctProvinces),
-      subtitle: t('home.statProvincesLabel'),
-      handle: `${distinctProvinces}${t('home.statProvincesSub')}`,
-      borderColor: '#10B981',
+      title: String(plateauCount),
+      subtitle: t('home.statPlateauLabel'),
+      handle: t('home.statPlateauSub'),
+      borderColor: '#22c55e',
       gradient: 'linear-gradient(145deg, #0f3d2e, #06140f)',
-      url: '/map',
+      url: '/dashboard',
       countUp: true,
     },
     {
-      title: String(COLLECTION_SUMMARY.categories),
-      subtitle: t('home.statCategoriesLabel'),
-      handle: `${COLLECTION_SUMMARY.categories}${t('home.statCategoriesSub')}`,
-      borderColor: '#d4a853',
-      gradient: 'linear-gradient(145deg, #4a3a14, #1a1408)',
-      url: '/encyclopedia',
+      title: String(distinctProvinces),
+      subtitle: t('home.statProvincesLabel'),
+      handle: `${distinctProvinces}${t('home.statProvincesSub')}`,
+      borderColor: '#38bdf8',
+      gradient: 'linear-gradient(145deg, #123a52, #061620)',
+      url: '/map',
       countUp: true,
     },
     {
@@ -89,31 +136,37 @@ const HomePage: React.FC = () => {
     { icon: <Download className="w-5 h-5" />, title: t('home.fExport'), description: t('home.fExportDesc'), label: 'DATA', to: '/dashboard' },
   ];
 
-  // 三大核心入口：地图底座 + 环境决策台 + 品种推荐
+  // 三大核心入口（牧场决策 / 品种推荐 / 品种地图），各带一张缩略预览图
   const coreEntries = [
     {
-      icon: <MapIcon className="w-6 h-6" />,
-      title: t('home.entryMap'),
-      description: t('home.entryMapDesc'),
-      to: '/map',
-      accent: '#6b8fb5',
-      isNew: false,
-    },
-    {
-      icon: <Thermometer className="w-6 h-6" />,
+      icon: <Thermometer className="w-5 h-5" />,
       title: t('home.entryPasture'),
       description: t('home.entryPastureDesc'),
       to: '/pasture',
       accent: '#d4a853',
       isNew: true,
+      preview: <ThiPreview />,
+      alt: t('home.entryPastureAlt'),
     },
     {
-      icon: <Sparkles className="w-6 h-6" />,
+      icon: <Sparkles className="w-5 h-5" />,
       title: t('home.entryRecommend'),
       description: t('home.entryRecommendDesc'),
       to: '/recommend',
       accent: '#7aa87a',
       isNew: true,
+      preview: <ScorePreview />,
+      alt: t('home.entryRecommendAlt'),
+    },
+    {
+      icon: <MapIcon className="w-5 h-5" />,
+      title: t('home.entryMap'),
+      description: t('home.entryMapDesc'),
+      to: '/map',
+      accent: '#6b8fb5',
+      isNew: false,
+      preview: <MapPreview />,
+      alt: t('home.entryMapAlt'),
     },
   ];
 
@@ -195,31 +248,37 @@ const HomePage: React.FC = () => {
                   key={entry.to}
                   type="button"
                   onClick={() => navigate(entry.to)}
-                  className="group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 p-6 text-left transition-all hover:border-white/40 hover:bg-white/10"
+                  className="group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 text-left transition-all hover:border-white/40 hover:bg-white/10"
                 >
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-0 top-0 h-1"
+                    className="absolute inset-x-0 top-0 h-1 z-10"
                     style={{ backgroundColor: entry.accent }}
                   />
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-white"
-                      style={{ backgroundColor: entry.accent }}
-                    >
-                      {entry.icon}
-                    </span>
-                    <h3 className="text-base font-semibold text-white">{entry.title}</h3>
-                    {entry.isNew && (
-                      <span className="ml-auto rounded-full bg-[#d4a853] px-2 py-0.5 text-[10px] font-bold text-[#1a3a2a]">
-                        {t('home.entryNew')}
+                  {/* 缩略预览：一眼看出模块长什么样 */}
+                  <span className="block aspect-[20/11] w-full overflow-hidden border-b border-white/10 bg-black/40" role="img" aria-label={entry.alt}>
+                    {entry.preview}
+                  </span>
+                  <span className="block p-5">
+                    <span className="flex items-center gap-3">
+                      <span
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
+                        style={{ backgroundColor: entry.accent }}
+                      >
+                        {entry.icon}
                       </span>
-                    )}
-                  </div>
-                  <p className="mt-3 text-sm text-white/65 leading-relaxed text-pretty">{entry.description}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium" style={{ color: entry.accent }}>
-                    {t('home.entryOpen')}
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      <span className="text-base font-semibold text-white">{entry.title}</span>
+                      {entry.isNew && (
+                        <span className="ml-auto rounded-full bg-[#d4a853] px-2 py-0.5 text-[10px] font-bold text-[#1a3a2a]">
+                          {t('home.entryNew')}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-3 block text-sm text-white/65 leading-relaxed text-pretty">{entry.description}</span>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium" style={{ color: entry.accent }}>
+                      {t('home.entryOpen')}
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
                   </span>
                 </button>
               ))}
@@ -235,6 +294,7 @@ const HomePage: React.FC = () => {
             </h2>
             <ChromaGrid items={statItems} columns={4} onNavigate={(url) => navigate(url)} />
             <p className="text-center text-xs text-white/60 mt-8">{t('home.dataSource')}</p>
+            <p className="text-center text-[11px] text-white/45 mt-2">{t('home.statsFootnote')}</p>
           </div>
         </section>
 

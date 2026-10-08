@@ -9,6 +9,8 @@ export const COLLECTION_SUMMARY = {
   total: 1186,
   provinces: 31,
   categories: 11,
+  /** 青藏高原口径：青海 + 西藏 */
+  plateau: 66,
   editorialEndangered: 82,
   nationalProtectedMatches: 271,
 } as const;

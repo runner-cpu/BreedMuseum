@@ -75,4 +75,11 @@ describe('pastureThi', () => {
     }
     expect(Object.keys(AGE_LABELS)).toEqual(['adult', 'young', 'old']);
   });
+
+  it('keeps the danger top-3 advice on ventilation, grazing and night feeding', () => {
+    const [first, second, third] = LEVEL_ADVICE.danger;
+    expect(first).toMatch(/通风|喷淋/);
+    expect(second).toMatch(/放牧/);
+    expect(third).toMatch(/补饲/);
+  });
 });
