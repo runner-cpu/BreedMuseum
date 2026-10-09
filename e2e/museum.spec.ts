@@ -60,12 +60,13 @@ test('source detail and compare work across routes', async ({ page }, testInfo) 
   await page.getByRole('button', { name: '移除河田鸡' }).click();
   await expect(page.getByRole('button', { name: '浏览百科并选择品种' })).toBeVisible();
 });
-test('mobile menu exposes all seven destinations and closes by keyboard', async ({ page }, testInfo) => {
+test('mobile menu exposes the four primary destinations and closes by keyboard', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile');
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(7);
+  // 导航精简为 4 项：首页 / 热应激预警 / 种质地图 / 品种百科
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(4);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
   await page.getByRole('button', { name: '打开品种搜索' }).click();
   await menu.getByRole('searchbox').fill('河田鸡');
@@ -77,19 +78,22 @@ test('mobile menu exposes all seven destinations and closes by keyboard', async 
 });
 test('homepage stats show real values without scrolling', async ({ page }) => {
   await page.goto('/#/');
-  // 首屏数据看板：四个核心数字必须直接是真实值（历史 CountUp 归零 bug 回归门禁）
-  const stats = page.locator('p.tabular-nums');
-  await expect(stats.first()).toHaveText(/\d+/);
-  await expect(stats.nth(0)).toHaveText('1186'); // 已收录品种
-  await expect(stats.nth(1)).toHaveText('66'); // 青藏高原品种（青海 + 西藏）
-  await expect(stats.nth(2)).toHaveText('31'); // 覆盖省份
-  await expect(stats.nth(3)).toHaveText('13'); // 国家级保护品种（940号公告）
+  // 屏④ 家底：核心数字必须是真实值（历史 CountUp 归零 bug 回归门禁）
+  const breeds = page.getByTestId('plateau-breed-count');
+  const protectedCount = page.getByTestId('plateau-protected-count');
+  await expect(breeds).toHaveText(/\d+/);
+  await expect(breeds).toHaveText('66'); // 青藏高原品种（青海 + 西藏）
+  await expect(protectedCount).toHaveText('13'); // 国家级保护品种（940号公告）
 });
-test('homepage core entry cards show preview thumbnails', async ({ page }) => {
+test('homepage story screens render with the embedded console', async ({ page }) => {
   await page.goto('/#/');
-  await expect(page.getByRole('img', { name: /牧场决策台预览/ })).toBeVisible();
-  await expect(page.getByRole('img', { name: /品种推荐预览/ })).toBeVisible();
-  await expect(page.getByRole('img', { name: /品种地图预览/ })).toBeVisible();
+  // 五屏叙事：痛点 → THI 曲线 → 内嵌决策台 → 家底 → 行动
+  await expect(page.getByRole('heading', { name: '高原的夏天，正在变热' })).toBeVisible();
+  await expect(page.getByRole('img', { name: /THI 曲线/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: '青藏高原品种分布与国家级保护星' })).toBeVisible();
+  // 决策台内嵌在叙事流里：调温度 → 三条优先动作
+  await page.getByRole('slider', { name: '日间温度' }).fill('30');
+  await expect(page.getByText('三条优先管理动作').first()).toBeVisible();
 });
 test('pasture console computes THI and updates stress level', async ({ page }) => {
   await page.goto('/#/pasture');

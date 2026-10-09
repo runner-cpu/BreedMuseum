@@ -1,4 +1,4 @@
-import { Download, MapPin, Search, SearchX, Shuffle, X } from 'lucide-react';
+import { Download, MapPin, Search, SearchX, Shuffle, Sparkles, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -340,6 +340,18 @@ const EncyclopediaPage: React.FC = () => {
           )}
         />
       )}
+
+      {/* 折叠入口：从百科进入推荐引擎与数据看板（导航精简后仍可发现） */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-dashed border-border p-4 text-sm">
+        <span className="text-muted-foreground">{t('enc.advisorHint')}</span>
+        <Button variant="outline" size="sm" onClick={() => navigate('/recommend')}>
+          <Sparkles className="w-4 h-4 mr-1.5" />
+          {t('enc.openAdvisor')}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
+          {t('enc.openDashboard')}
+        </Button>
+      </div>
     </div>
   );
 };

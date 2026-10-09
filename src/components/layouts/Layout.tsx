@@ -26,10 +26,10 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const [filterOpen, setFilterOpen] = useState(false);
   const showCategories = pathname === '/map' || pathname === '/encyclopedia';
   const navItems = [
-    { to: '/', label: t('nav.home') }, { to: '/map', label: t('nav.map') },
-    { to: '/pasture', label: t('nav.pasture') }, { to: '/recommend', label: t('nav.recommend') },
-    { to: '/dashboard', label: t('nav.dashboard') }, { to: '/encyclopedia', label: t('nav.encyclopedia') },
-    { to: '/compare', label: t('compare.title') },
+    { to: '/', label: t('nav.home') },
+    { to: '/pasture', label: t('nav.heatStress') },
+    { to: '/map', label: t('nav.germplasmMap') },
+    { to: '/encyclopedia', label: t('nav.encyclopedia') },
   ];
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   useEffect(() => { setMenuOpen(false); setFilterOpen(false); }, [pathname]);

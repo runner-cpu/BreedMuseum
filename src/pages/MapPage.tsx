@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import BreedDetail from '@/components/BreedDetail';
 import { ChinaMap } from '@/components/ChinaMap';
@@ -13,6 +13,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export default function MapPage() {
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const { t } = useSettings();
   const { selectedCategory, selectedProvince, setSelectedProvince, selectedBreedId, setSelectedBreedId,
     setSelectedCategory, searchValue, setSearchValue, triggerPulse, pulseId, toggleCompare, isInCompare } = useMuseum();
@@ -96,6 +97,17 @@ export default function MapPage() {
         {(searchValue || selectedCategory || selectedProvince) && <button type="button" onClick={reset} className="min-h-11 rounded-lg px-3 text-sm text-primary underline underline-offset-4">{t('map.clearFilters')}</button>}
       </div>
       <p className="text-xs text-muted-foreground">{t('map.pointsNote')}</p>
+      {/* 折叠入口：从地图进入数据看板（导航精简后仍可发现） */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-border p-3 text-xs">
+        <span className="text-muted-foreground">{t('map.dashboardHint')}</span>
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard')}
+          className="min-h-9 rounded-lg border border-primary/40 px-3 text-xs text-primary hover:bg-secondary"
+        >
+          {t('map.openDashboard')}
+        </button>
+      </div>
     </section>
     {desktop && <aside aria-label={t('map.detailAria')} className="hidden lg:block lg:w-[350px] xl:w-[390px] shrink-0 border-l border-border/30 bg-card overflow-hidden">{detail}</aside>}
     <Sheet open={detailOpen && !desktop} onOpenChange={setDetailOpen}>
