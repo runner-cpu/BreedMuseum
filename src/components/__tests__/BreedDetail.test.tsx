@@ -52,7 +52,7 @@ test('detail explains unavailable metrics instead of drawing a radar chart', () 
     </SettingsProvider>,
   );
 
-  expect(screen.getByText('性能指标待补充')).toBeInTheDocument();
+  expect(screen.getByText('指标待核验')).toBeInTheDocument();
   expect(screen.getByText('指标尚无可核验数据')).toBeInTheDocument();
   expect(screen.queryByText('编辑归一化指标（0–100）')).not.toBeInTheDocument();
 });

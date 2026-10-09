@@ -61,6 +61,10 @@ export const MODE_LABELS: Record<HusbandryMode, string> = {
 /**
  * 规则表：覆盖青藏高原及周边（青海、西藏、甘肃、四川、云南、新疆）
  * 馆藏品种。其余品种不参与推荐，避免给出无依据结论。
+ *
+ * 2026-10 瘦身：删除低海拔农区品种规则（滩羊、小尾寒羊、湖羊、蒙古羊、
+ * 哈萨克羊、阿勒泰羊、辽宁绒山羊、中卫山羊、太行山羊、内蒙古绒山羊、
+ * 河西绒山羊、伊犁马），使推荐结果全部落在高原与高寒辐射带产区。
  */
 export const BREED_RULES: BreedRule[] = [
   // —— 牦牛 ——
@@ -97,28 +101,16 @@ export const BREED_RULES: BreedRule[] = [
   { id: 'zhashenjia-sheep', altitudeRange: [3000, 4400], purposes: ['meat', 'wool'], modes: ['grazing'], note: '扎什加羊为玉树产区藏羊群体。' },
   { id: 'liangshanhei-sheep', altitudeRange: [2000, 3600], purposes: ['meat'], modes: ['grazing'], note: '凉山黑绵羊适应川西南山地放牧。' },
   { id: 'diqing-sheep', altitudeRange: [2600, 4000], purposes: ['meat', 'wool'], modes: ['grazing'], note: '迪庆绵羊适应滇西北高原。' },
-  { id: 'tan-sheep', altitudeRange: [1000, 2200], purposes: ['wool', 'meat'], modes: ['grazing', 'shed'], note: '滩羊以二毛裘皮闻名，适宜中低海拔干旱区。' },
-  { id: 'small-tail-han-sheep', altitudeRange: [0, 1800], purposes: ['meat'], modes: ['shed', 'grazing'], note: '小尾寒羊繁殖率高，适合农区舍饲。' },
-  { id: 'hu-sheep', altitudeRange: [0, 1500], purposes: ['wool', 'meat'], modes: ['shed'], note: '湖羊适合南方舍饲，羔皮与肉用兼顾。' },
-  { id: 'mongolian-sheep', altitudeRange: [800, 2000], purposes: ['meat', 'wool'], modes: ['grazing'], note: '蒙古羊为北方草原代表品种。' },
-  { id: 'kazakh-sheep', altitudeRange: [800, 2500], purposes: ['meat', 'wool'], modes: ['grazing'], note: '哈萨克羊适应新疆草原与山地放牧。' },
-  { id: 'aletai-sheep', altitudeRange: [800, 2500], purposes: ['meat'], modes: ['grazing'], note: '阿勒泰羊以脂臀型肉用特征著称。' },
 
   // —— 山羊 ——
   { id: 'chaidamu-goat', altitudeRange: [2600, 4000], purposes: ['meat', 'wool'], modes: ['grazing'], note: '柴达木山羊适应柴达木盆地干旱高寒环境。' },
   { id: 'chaidamurong-goat', altitudeRange: [2600, 4000], purposes: ['wool'], modes: ['grazing', 'shed'], note: '柴达木绒山羊以羊绒品质见长。' },
-  { id: 'hexi-cashmere-goat', altitudeRange: [1400, 3000], purposes: ['wool'], modes: ['grazing', 'shed'], note: '河西绒山羊适应祁连山沿线。' },
-  { id: 'neimenggu-cashmere-goat', altitudeRange: [900, 2000], purposes: ['wool'], modes: ['grazing'], note: '内蒙古绒山羊为优质羊绒主产群体。' },
-  { id: 'liaoning-cashmere-goat', altitudeRange: [0, 1200], purposes: ['wool'], modes: ['shed', 'grazing'], note: '辽宁绒山羊产绒量高，适合农区养殖。' },
-  { id: 'zhongwei-goat', altitudeRange: [1000, 2000], purposes: ['wool', 'meat'], modes: ['grazing'], note: '中卫山羊以沙毛裘皮著称。' },
-  { id: 'taihang-goat', altitudeRange: [200, 1600], purposes: ['milk', 'meat'], modes: ['shed', 'grazing'], note: '太行山羊适应华北山区，乳肉兼用。' },
 
   // —— 马 / 骆驼 ——
   { id: 'datong-horse', altitudeRange: [2200, 4000], purposes: ['labor'], modes: ['grazing', 'shed'], note: '大通马适应青藏高原东部，乘挽兼用。' },
   { id: 'yushu-horse', altitudeRange: [3200, 4800], purposes: ['labor'], modes: ['grazing'], note: '玉树马为三江源高海拔乘用马。' },
   { id: 'menyuan-horse', altitudeRange: [2400, 3800], purposes: ['labor'], modes: ['grazing', 'shed'], note: '门源马适应祁连山冷凉牧区。' },
   { id: 'chaidamu-horse', altitudeRange: [2600, 3800], purposes: ['labor'], modes: ['grazing'], note: '柴达木马适应干旱高寒荒漠草原。' },
-  { id: 'xinjiang-horse', altitudeRange: [500, 2500], purposes: ['labor'], modes: ['grazing', 'shed'], note: '伊犁马乘挽兼用，适合绿洲与山地。' },
   { id: 'chaidamu-bactrian-camel', altitudeRange: [2600, 3600], purposes: ['labor', 'milk'], modes: ['grazing'], note: '柴达木双峰驼适应荒漠高寒，驮运与产奶兼用。' },
   { id: 'qinghai-camel', altitudeRange: [2600, 3600], purposes: ['labor', 'milk'], modes: ['grazing'], note: '青海双峰驼适应环湖与柴达木荒漠区。' },
 

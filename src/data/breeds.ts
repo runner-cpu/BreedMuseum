@@ -46,6 +46,8 @@ import { extraBreeds14 } from './extraBreeds14';
 import { extraBreeds15 } from './extraBreeds15';
 import { ml2024Breeds } from './ml2024Batch';
 import { breedImageOverrides } from './breedImageOverrides';
+import { breedCategoryFixes } from './breedCategoryFixes';
+import { applyFeaturedStories } from './featuredStoryOverrides';
 
 const rawBreeds: Breed[] = [
   {
@@ -1922,8 +1924,8 @@ const rawBreeds: Breed[] = [
   ...extraBreeds12,
   ...extraBreeds13,
   ...extraBreeds14,
-  ...extraBreeds15,
-  ...ml2024Breeds,
+  ...extraBreeds15,
+  ...ml2024Breeds,
 ];
 
 /**
@@ -1981,6 +1983,18 @@ function normalizeBreedIdentities(items: readonly Breed[]): Breed[] {
 }
 
 /**
+ * legacy 记录的类别修复（驴 / 鹿 等）：修复依据见 breedCategoryFixes.ts，
+ * 只收录能在官方名录台账中定位到物种的记录，不做名称推断。
+ */
+function applyCategoryFixes(items: readonly Breed[]): Breed[] {
+  if (Object.keys(breedCategoryFixes).length === 0) return [...items];
+  return items.map((breed) => {
+    const category = breedCategoryFixes[breed.id];
+    return category && category !== breed.category ? { ...breed, category } : breed;
+  });
+}
+
+/**
  * 已核验授权的本地图片（Wikimedia Commons，见 breedImageOverrides.ts）在
  * 数据边界统一替换，避免散改批次文件；未登记的品种保持原外链或占位图。
  */
@@ -1992,4 +2006,6 @@ function applyImageOverrides(items: readonly Breed[]): Breed[] {
   });
 }
 
-export const breeds: Breed[] = applyImageOverrides(normalizeBreedIdentities(rawBreeds));
+export const breeds: Breed[] = applyFeaturedStories(
+  applyCategoryFixes(applyImageOverrides(normalizeBreedIdentities(rawBreeds))),
+);

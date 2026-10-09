@@ -8,7 +8,7 @@ export const COLLECTION_VERSION = '2026-09-27';
 export const COLLECTION_SUMMARY = {
   total: 1186,
   provinces: 31,
-  categories: 11,
+  categories: 15,
   /** 青藏高原口径：青海 + 西藏 */
   plateau: 66,
   /** 青海地方品种数 */

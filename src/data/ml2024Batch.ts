@@ -1,4 +1,5 @@
 import type { Breed } from './breeds';
+import { categoryForSpecies } from './speciesCategory';
 import rawEntries from './ml2024Entries.json';
 
 /**
@@ -32,21 +33,9 @@ const SUBTYPE_TEXT: Record<number, string> = {
   3: '其他蜂遗传资源',
 };
 
-// 物种 → 馆藏类别（名录物种直映；驴与特种畜禽、蜂按既定口径归入“其他”）
-const SPECIES_CATEGORY: Record<string, Breed['category']> = {
-  猪: '猪',
-  牛: '牛',
-  羊: '羊',
-  马: '马',
-  鸡: '鸡',
-  鸭: '鸭',
-  鹅: '鹅',
-  兔: '兔',
-  鸽: '鸽',
-  骆驼: '骆驼',
-};
-
-const categoryFor = (species: string): Breed['category'] => SPECIES_CATEGORY[species] ?? '其他';
+// 物种 → 馆藏类别：统一走 speciesCategory 的唯一映射表
+// （驴/鹿/蜂单列，其余特种畜禽成组；未登记物种回落“其他”并由契约测试拦截）。
+const categoryFor = categoryForSpecies;
 
 const APPEARANCE = [
   (subtype: string) => `收录于《国家畜禽遗传资源品种名录（2024年版）》${subtype}条目；产区分布与体貌特征资料待专项核验。`,

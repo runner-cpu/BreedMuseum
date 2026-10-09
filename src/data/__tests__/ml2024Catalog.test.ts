@@ -4,6 +4,7 @@ import { expect, test } from 'vitest';
 import { breeds } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { breedSources } from '@/data/breedSources';
+import { categoryForSpecies } from '@/data/speciesCategory';
 import ml2024Entries from '@/data/ml2024Entries.json';
 import rawCatalog from '@/data/ml2024Catalog.json';
 
@@ -139,21 +140,16 @@ test('2024 increment records carry the official catalog source', () => {
 });
 
 test('species-driven categories replace name-suffix inference', () => {
-  const DIRECT: Record<string, string> = {
-    猪: '猪', 牛: '牛', 羊: '羊', 马: '马', 鸡: '鸡', 鸭: '鸭', 鹅: '鹅',
-    兔: '兔', 鸽: '鸽', 骆驼: '骆驼',
-  };
   for (const entry of ml2024Entries as string[][]) {
     const [, , , , species] = entry;
     const breed = breeds.find((item) => item.name === entry[0]);
     if (!breed) continue;
-    const expected = DIRECT[species] ?? '其他';
-    expect(breed.category, `${breed.name} (${species})`).toBe(expected);
+    expect(breed.category, `${breed.name} (${species})`).toBe(categoryForSpecies(species));
   }
   // 名录增量的配套系条目不得再因名称后缀落进“其他”
   const misclassified = (breeds ?? []).filter(
     (breed) => breed.name.endsWith('配套系') && breed.category === '其他'
-      && (ml2024Entries as string[][]).some((entry) => entry[0] === breed.name && !['驴', '蜂'].includes(entry[4])),
+      && (ml2024Entries as string[][]).some((entry) => entry[0] === breed.name && entry[4] !== '鹌鹑'),
   );
   expect(misclassified.map((breed) => breed.name)).toEqual([]);
 });

@@ -17,7 +17,7 @@ const curatedIds = [
   'chaidamurong-goat', // 柴达木绒山羊 · 青海 · 羊
   'huzhu-pig', // 互助猪 · 青海 · 猪
   'haidong-chicken', // 海东鸡 · 青海 · 鸡
-  'qinghai-donkey', // 青海毛驴 · 青海 · 其他
+  'qinghai-donkey', // 青海毛驴 · 青海 · 驴
   'guide-black-sheep', // 贵德黑裘皮羊 · 青海 · 羊
 ] as const;
 

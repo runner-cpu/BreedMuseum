@@ -4,9 +4,19 @@
  * application shell from downloading the complete data module on first paint.
  */
 export type EndangeredLevel = '普通' | '易危' | '濒危' | '极危' | '待核验';
-export type BreedCategory = '猪' | '牛' | '羊' | '鸡' | '鸭' | '马' | '骆驼' | '兔' | '鹅' | '鸽' | '其他';
+export type BreedCategory =
+  | '猪' | '牛' | '羊' | '鸡' | '鸭' | '鹅' | '马' | '驴' | '骆驼'
+  | '兔' | '鸽' | '鹿' | '蜂' | '特种畜禽' | '其他';
 
-export const categories: BreedCategory[] = ['猪', '牛', '羊', '鸡', '鸭', '马', '骆驼', '兔', '鹅', '鸽', '其他'];
+/**
+ * 类别口径与《国家畜禽遗传资源品种名录（2024年版）》的分组对齐：
+ * 传统畜禽按畜种分列（驴单列）、茸鹿类单列（鹿）、蜂遗传资源单列（蜂）、
+ * 其余特种畜禽整体成组（特种畜禽）；“其他”只保留无法归入名录分组的遗留记录。
+ */
+export const categories: BreedCategory[] = [
+  '猪', '牛', '羊', '鸡', '鸭', '鹅', '马', '驴', '骆驼',
+  '兔', '鸽', '鹿', '蜂', '特种畜禽', '其他',
+];
 
 // “极危”暂无收录记录，先不在筛选项中暴露，避免空结果；类型保留以便后续补录。
 export const endangeredLevels: EndangeredLevel[] = ['普通', '易危', '濒危', '待核验'];

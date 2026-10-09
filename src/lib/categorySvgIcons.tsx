@@ -153,6 +153,55 @@ export const OtherIcon = base(
   </>,
 );
 
+/** 驴：长耳、矮身、鬃毛 */
+export const DonkeyIcon = base(
+  <>
+    <path d="M10 7c-2 1-3 4-3 7 0 4 3 7 8 7s8-3 8-7c0-3-1-6-3-7" />
+    <path d="M7 6c-1 2-1 4 0 6 1-1 1-4 0-6Z" />
+    <path d="M19 6c1 2 1 4 0 6-1-1-1-4 0-6Z" />
+    <path d="M11 20c1 1 3 2 5 2s4-1 5-2" />
+    <circle cx="13" cy="14" r="1" fill="currentColor" stroke="none" />
+    <circle cx="19" cy="14" r="1" fill="currentColor" stroke="none" />
+    <path d="M14 22v3M18 22v3" />
+  </>,
+);
+
+/** 鹿：鹿角、长脸 */
+export const DeerIcon = base(
+  <>
+    <path d="M16 13c-3 0-5 2-5 5s2 5 5 5 5-2 5-5-2-5-5-5Z" />
+    <path d="M13 8c-2-2-4-2-5 0 1 1 2 2 4 2" />
+    <path d="M19 8c2-2 4-2 5 0-1 1-2 2-4 2" />
+    <path d="M13 8v5M19 8v5" />
+    <circle cx="14" cy="17" r="1" fill="currentColor" stroke="none" />
+    <circle cx="18" cy="17" r="1" fill="currentColor" stroke="none" />
+    <path d="M15 20h2" />
+  </>,
+);
+
+/** 蜂：身体条纹、双翅、触角 */
+export const BeeIcon = base(
+  <>
+    <ellipse cx="16" cy="19" rx="5" ry="7" />
+    <path d="M11 17h10M11 21h10" />
+    <path d="M11 13c-3-3-7-3-8 0 1 3 5 4 8 2" />
+    <path d="M21 13c3-3 7-3 8 0-1 3-5 4-8 2" />
+    <path d="M14 12c0-2 .5-4 1-5M18 12c0-2-.5-4-1-5" />
+  </>,
+);
+
+/** 特种畜禽：兽爪与羽迹组合 */
+export const SpecialIcon = base(
+  <>
+    <ellipse cx="13" cy="21" rx="4.5" ry="3.5" />
+    <circle cx="8" cy="15" r="1.8" />
+    <circle cx="13" cy="13" r="1.8" />
+    <circle cx="18" cy="15" r="1.8" />
+    <path d="M21 22c2-1 3-3 3-5 0-1-.5-2-1.5-2.5" />
+    <path d="M23 25c1.5-.5 2.5-1.5 3-3" />
+  </>,
+);
+
 export const categorySvgIcons: Record<string, React.FC<IconProps>> = {
   猪: PigIcon,
   牛: CattleIcon,
@@ -160,10 +209,14 @@ export const categorySvgIcons: Record<string, React.FC<IconProps>> = {
   鸡: ChickenIcon,
   鸭: DuckIcon,
   马: HorseIcon,
+  驴: DonkeyIcon,
   骆驼: CamelIcon,
   兔: RabbitIcon,
   鹅: GooseIcon,
   鸽: PigeonIcon,
+  鹿: DeerIcon,
+  蜂: BeeIcon,
+  特种畜禽: SpecialIcon,
   其他: OtherIcon,
 };
 
