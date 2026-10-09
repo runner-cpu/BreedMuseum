@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 1088 条畜禽品种记录（含名录条目式收录），提供品种百科、产地地图、数据看板、对比浏览和离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录），提供五屏滚动叙事首页、品种百科、产地地图、数据看板、对比浏览、高原热应激预警台与离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -86,12 +86,13 @@ Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在�
 # pnpm -v   # 11.25.0
 ```
 
-- 馆藏数据由 710 条原始记录与《国家畜禽遗传资源品种名录（2024年版）》增量合并整理为 1088 条全局唯一记录（含 14 对同物异名合并），匹配第 940 号公告中的 271 个畜禽名称。
+- 馆藏数据由 687 条归一化历史记录与《国家畜禽遗传资源品种名录（2024年版）》增量（499 条）合并整理为 1186 条全局唯一记录，匹配第 940 号公告中的 271 个畜禽名称。
+- 首页为五屏滚动叙事（痛点 → THI 曲线 → 内嵌决策台 → 66/13 家底 → 三入口行动）；导航精简为 4 项，`/dashboard`、`/compare`、`/recommend`、`/ai` 保留可直连。
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 28 个测试文件、80 项 Vitest 测试，Playwright 结果见审计报告。
-- 当前 Playwright 共 24 个用例，23 项通过、1 项按桌面条件跳过、0 项失败。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 35 个测试文件、123 项 Vitest 测试，Playwright 结果见审计报告。
+- 当前 Playwright 共 36 个用例，35 项通过、1 项按桌面条件跳过、0 项失败。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ### 在 Windows 上安装 Node.js
