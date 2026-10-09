@@ -490,6 +490,11 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'pasture.relatedBreeds': { zh: '相关馆藏品种', en: 'Related collection breeds' },
   'pasture.toRecommend': { zh: '想知道这片牧场适合养什么？', en: 'Wondering which breeds suit this pasture?' },
   'pasture.openRecommend': { zh: '打开品种推荐引擎', en: 'Open breed advisor' },
+  'pasture.presetTitle': { zh: '场景预设', en: 'Scenario presets' },
+  'pasture.presetYushu': { zh: '玉树夏季 · 犊牛', en: 'Yushu summer · calf' },
+  'pasture.presetHuanhu': { zh: '环湖草原 · 藏羊', en: 'Huanhu grassland · Tibetan sheep' },
+  'pasture.presetChaidamu': { zh: '柴达木旱季 · 骆驼', en: 'Qaidam dry season · camel' },
+  'pasture.openFull': { zh: '打开完整决策台', en: 'Open the full console' },
   // 品种智能推荐引擎
   'recommend.title': { zh: '品种智能推荐引擎', en: 'Breed Recommendation Engine' },
   'recommend.intro': { zh: '按海拔区间、养殖目的与饲养模式，从馆藏品种中匹配适应性评分最高的候选，并给出推荐理由。规则与数据全部打包在本地，无需联网与账号。', en: 'Match breeds by altitude band, production goal and husbandry mode. All rules ship with the site; no network or account required.' },
