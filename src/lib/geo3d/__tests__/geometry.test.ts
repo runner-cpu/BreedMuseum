@@ -6,6 +6,7 @@ import {
   buildProvinceGeometries,
   disposeProvinceGeometries,
   extrudeHeightFor,
+  measureSceneFraming,
   project3D,
   simplifyProvinceName,
 } from '../buildProvinceGeometry';
@@ -111,6 +112,44 @@ test('projection stays consistent with the 2D map and centres on the origin', ()
   const [bx, by] = project3D(116.4, 39.9);
   expect(bx).toBeGreaterThan(0);
   expect(by).toBeGreaterThan(0);
+});
+
+test('province geometry and pillar projection share one plane origin', () => {
+  // 回归防护：省块几何曾用 SVG 画布像素空间（左上为原点），光柱用视图中心为原点，
+  // 两者相差半张图（实测 5.05, −5.23）——症状是「版图缩成一个小点、外面一大片空白」。
+  // 这里把投影四角与省块主体包围盒放进同一个参照系比对，漏掉 toPlane() 立刻失败。
+  const built = buildProvinceGeometries(new Map());
+  const framing = measureSceneFraming(built);
+  expect(framing.usable).toBe(true);
+  const box = framing.box!;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const [lon, lat] of [
+    [73, 54],
+    [135, 54],
+    [73, 18],
+    [135, 18],
+  ]) {
+    const [x, y] = project3D(lon, lat);
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  }
+
+  // 投影四角与省块主体包围盒必须落在同一片区域（容差 0.2 世界单位）
+  expect(Math.abs(minX - box.minX)).toBeLessThan(0.2);
+  expect(Math.abs(maxX - box.maxX)).toBeLessThan(0.2);
+  expect(Math.abs(minY - box.minY)).toBeLessThan(0.2);
+  expect(Math.abs(maxY - box.maxY)).toBeLessThan(0.2);
+  // 版图中心贴近原点（= 视图中心），而不是偏在画布一角
+  expect(Math.abs(framing.center[0])).toBeLessThan(0.3);
+  expect(Math.abs(framing.center[1])).toBeLessThan(0.3);
+  expect(framing.radius).toBeGreaterThan(4.5);
+  disposeProvinceGeometries(built);
 });
 
 test('province name simplification matches the dataset vocabulary', () => {

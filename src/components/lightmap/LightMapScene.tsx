@@ -6,8 +6,16 @@ import {
   buildProvinceGeometries,
   disposeProvinceGeometries,
   measureSceneFraming,
+  type PlaneBounds,
   type ProvinceGeometry,
 } from '@/lib/geo3d/buildProvinceGeometry';
+import {
+  cameraDirection,
+  cameraSeat,
+  solveFraming,
+  type FitInsets,
+  type FramingSolution,
+} from '@/lib/geo3d/cameraFit';
 import { categoryColors } from '@/lib/categoryIcons';
 import { buildDigest, buildPillars, type PillarInstance } from '@/lib/geo3d/lightMapData';
 import { beamColorFor, type StagePalette } from '@/lib/stagePalette';
@@ -19,25 +27,28 @@ import { useReducedMotion } from './useSceneCapability';
  * 坐标约定（唯一一套，DOM 与 WebGL 共用）：
  * 所有图层都在**同一个旋转组**里构建，组内 XY 是地图平面（+X 向东、+Y 向北）、
  * 组内 +Z 是「向上」；外层 `group rotation={[-π/2, 0, 0]}` 把组内 +Z 抬成世界 +Y。
- * 因此省块、光柱、光晕、澳门圆点全部共享同一坐标系 —— 这是「光必须钉在省份上」的前提。
+ * 平面原点 = 视图中心，与省块几何 / `project3D` 同域（见 buildProvinceGeometry 的 toPlane）。
+ *
+ * 取景不是「半径 × 系数」估算，而是把版图包围盒的 8 个角投影进视锥解析求解
+ * 并**自动选俯角**（`@/lib/geo3d/cameraFit`）：舞台是扁宽的，固定俯角会让版图
+ * 要么被裁掉、要么缩成一条横带；候选俯角各解一次取屏幕占比最大者，
+ * 再把目标点平移到 HUD 之间的可见带中心。
  *
  * 四个镜头是同一场景的灯光切换（不是四个页面）：
  *   all      全部分布
  *   category 类别构成（选中类别）
  *   protect  国家级保护（940 号公告 271）
- *   risk     濒危之窗（编辑口径 82，0.8Hz 呼吸）
+ *   risk      濒危之窗（编辑口径 82）
  */
 
 export type LensId = 'all' | 'category' | 'protect' | 'risk';
 
 /** 组内共用的平面→挤出约定：先绕 X 轴 -90°，组内 +Z 即为世界「上」。 */
 const ROT: [number, number, number] = [-Math.PI / 2, 0, 0];
-/** 相机俯角（弧度）与距离上下限。 */
-const CAMERA_ELEVATION = 0.6;
-const CAMERA_MIN_DISTANCE = 6;
-const CAMERA_MAX_DISTANCE = 16;
+const CAMERA_FOV = 45;
+/** 版图最大挤出高度（与 EXTRUDE_STEPS 上限一致），用于包围盒的竖向范围。 */
+const MAX_EXTRUDE = 0.3;
 
-/** 只用到 OrbitControls 的 enabled 字段，避免为了一个类型引入 three-stdlib 直接依赖。 */
 interface ControlsLike {
   enabled: boolean;
 }
@@ -48,18 +59,16 @@ interface LightMapSceneProps {
   selectedProvince: string | null;
   selectedId: string | null;
   palette: StagePalette;
+  /** HUD 占用的安全区（比例 0–1），取景时排除，避免版图被标题/镜头条遮住 */
+  hudInsets?: FitInsets;
   onSelectProvince: (province: string | null) => void;
   onHoverProvince: (province: string | null) => void;
   onSelectPillar: (pillar: PillarInstance) => void;
 }
 
-/**
- * 镜头可见性（诚实映射）：每个镜头只切换「哪一束光算数」，
- * 不改变任何数据本身的取值。
- */
+/** 镜头可见性（诚实映射）：只切换「哪一束光算数」，不改变数据本身。 */
 function useLensVisibility(lens: LensId, category: string | null, isDark: boolean) {
   const pillars = useMemo(() => buildPillars(), []);
-  // 浅色底把亮色种类色压深，否则（如兔 #FFB6C1）在宣纸色省块上几乎看不见
   const colors = useMemo(
     () => pillars.map((pillar) => beamColorFor(categoryColors[pillar.category] ?? '#95A5A6', isDark)),
     [pillars, isDark],
@@ -77,16 +86,17 @@ function useLensVisibility(lens: LensId, category: string | null, isDark: boolea
   return { pillars, colors, mask };
 }
 
-/** 高亮色（选中/悬停）也随主题走：深色底用亮金，浅色底用深金。 */
 const highlightFor = (palette: StagePalette): string =>
-  palette.beamBlending === 'additive' ? palette.gold : '#5c3f0b';
+  palette.beamBlending === 'additive' ? palette.gold : palette.goldOnLight;
+
+/** 隐藏状态：保留一个极薄的贴地圆盘，避免「完全消失」导致镜头切换后无处可点。 */
+const HIDDEN_LENGTH = 0.0001;
 
 const PillarLayer = ({
   pillars,
   colors,
   mask,
   palette,
-  reducedMotion,
   selectedId,
   onSelectPillar,
 }: {
@@ -94,25 +104,25 @@ const PillarLayer = ({
   colors: string[];
   mask: boolean[];
   palette: StagePalette;
-  reducedMotion: boolean;
   selectedId: string | null;
   onSelectPillar: (pillar: PillarInstance) => void;
 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const [hovered, setHovered] = useState<number | null>(null);
   const highlight = highlightFor(palette);
 
-  // 光柱几何：圆柱默认沿 +Y，这里预旋转为沿组内 +Z（即世界「上」）
+  // 几何原点挪到底部：实例矩阵只需 position(平面) + scale(粗, 粗, 高)
   const beamGeometry = useMemo(() => {
-    const geometry = new THREE.CylinderGeometry(0.006, 0.006, 1, 6, 1, true);
+    const geometry = new THREE.CylinderGeometry(0.012, 0.017, 1, 6, 1, true);
     geometry.rotateX(Math.PI / 2);
     geometry.translate(0, 0, 0.5);
     return geometry;
   }, []);
   useEffect(() => () => beamGeometry.dispose(), [beamGeometry]);
 
-  // 静态布局（reduced-motion 与首次渲染共用）：实例矩阵 + 实例颜色一次写入
+  // 静态布局一次写入；呼吸只改材质透明度（不再逐帧重算 1062 个实例矩阵）
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
@@ -120,37 +130,28 @@ const PillarLayer = ({
     pillars.forEach((pillar, index) => {
       const visible = mask[index];
       const highlighted = pillar.id === selectedId || index === hovered;
-      const thickness = highlighted ? 2.4 : 1;
-      const length = visible ? (highlighted ? 1.6 : 1) : 0.0001;
+      const thickness = highlighted ? 2.6 : 1;
+      const length = visible ? pillar.height * (highlighted ? 1.6 : 1) : HIDDEN_LENGTH;
       dummy.position.set(pillar.position[0], pillar.position[1], 0);
-      dummy.scale.set(thickness, thickness, pillar.height * length);
+      dummy.scale.set(thickness, thickness, length);
       dummy.updateMatrix();
       mesh.setMatrixAt(index, dummy.matrix);
-      color.set(index === hovered || pillar.id === selectedId ? highlight : colors[index]);
+      color.set(highlighted ? highlight : colors[index]);
       mesh.setColorAt(index, color);
     });
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.computeBoundingSphere();
   }, [pillars, colors, mask, highlight, selectedId, hovered, dummy]);
 
-  // 呼吸动画：仅正常动效模式（reduced-motion 走上面的静态分支）
   useFrame(({ clock }) => {
-    if (reducedMotion) return;
-    const mesh = meshRef.current;
-    if (!mesh) return;
-    const time = clock.getElapsedTime();
-    const breathe = 0.88 + 0.12 * Math.sin(time * 2);
-    for (let index = 0; index < pillars.length; index += 1) {
-      if (!mask[index]) continue;
-      const pillar = pillars[index];
-      const highlighted = pillar.id === selectedId || index === hovered;
-      const thickness = highlighted ? 2.4 : 1;
-      dummy.position.set(pillar.position[0], pillar.position[1], 0);
-      dummy.scale.set(thickness, thickness, pillar.height * breathe * (highlighted ? 1.6 : 1));
-      dummy.updateMatrix();
-      mesh.setMatrixAt(index, dummy.matrix);
+    const material = materialRef.current;
+    if (!material) return;
+    if (palette.beamBlending !== 'additive') {
+      material.opacity = palette.beamOpacity;
+      return;
     }
-    mesh.instanceMatrix.needsUpdate = true;
+    material.opacity = palette.beamOpacity * (0.88 + 0.12 * Math.sin(clock.getElapsedTime() * 3.2));
   });
 
   return (
@@ -170,6 +171,7 @@ const PillarLayer = ({
       }}
     >
       <meshBasicMaterial
+        ref={materialRef}
         transparent
         opacity={palette.beamOpacity}
         blending={palette.beamBlending === 'additive' ? THREE.AdditiveBlending : THREE.NormalBlending}
@@ -191,7 +193,7 @@ const createGlowTexture = (): THREE.Texture => {
   if (ctx) {
     const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     gradient.addColorStop(0, 'rgba(255,255,255,0.95)');
-    gradient.addColorStop(0.35, 'rgba(255,255,255,0.35)');
+    gradient.addColorStop(0.35, 'rgba(255,255,255,0.42)');
     gradient.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
@@ -203,6 +205,7 @@ const createGlowTexture = (): THREE.Texture => {
 
 const GlowLayer = ({ pillars, palette }: { pillars: PillarInstance[]; palette: StagePalette }) => {
   const texture = useMemo(createGlowTexture, []);
+  const isDark = palette.beamBlending === 'additive';
   const geometry = useMemo(() => {
     const positions = new Float32Array(pillars.length * 3);
     pillars.forEach((pillar, index) => {
@@ -227,13 +230,13 @@ const GlowLayer = ({ pillars, palette }: { pillars: PillarInstance[]; palette: S
     <points geometry={geometry}>
       <pointsMaterial
         map={texture}
-        size={palette.beamBlending === 'additive' ? 0.075 : 0.05}
+        size={isDark ? 0.13 : 0.1}
         sizeAttenuation
         transparent
-        opacity={palette.beamBlending === 'additive' ? 1 : 0.75}
-        color={palette.beamBlending === 'additive' ? '#ffffff' : palette.gold}
+        opacity={isDark ? 0.85 : 0.62}
+        color={isDark ? '#ffffff' : palette.gold}
         depthWrite={false}
-        blending={palette.beamBlending === 'additive' ? THREE.AdditiveBlending : THREE.NormalBlending}
+        blending={isDark ? THREE.AdditiveBlending : THREE.NormalBlending}
         toneMapped={false}
       />
     </points>
@@ -289,141 +292,107 @@ const ProvinceLayer = ({
   hoveredProvince: string | null;
   onSelectProvince: (province: string | null) => void;
   onHoverProvince: (province: string | null) => void;
-}) => (
-  <group rotation={ROT}>
-    {provinces.map((province) => {
-      const selected = province.simpleName === selectedProvince;
-      const hovered = province.simpleName === hoveredProvince;
-      const lift = selected ? 0.06 : hovered ? 0.03 : 0;
-      const emissive = selected ? 0.85 : hovered ? 0.55 : 0.22;
+}) => {
+  const isDark = palette.beamBlending === 'additive';
+  const baseEmissive = isDark ? 0.22 : 0.1;
 
-      if (province.degraded) {
+  return (
+    <group rotation={ROT}>
+      {provinces.map((province) => {
+        const selected = province.simpleName === selectedProvince;
+        const hovered = province.simpleName === hoveredProvince;
+        const lift = selected ? 0.07 : hovered ? 0.035 : 0;
+
+        if (province.degraded) {
+          return (
+            <mesh
+              key={province.fullName}
+              position={[province.center[0], province.center[1], 0.04]}
+              onPointerOver={(event) => {
+                event.stopPropagation();
+                onHoverProvince(province.simpleName);
+              }}
+              onPointerOut={() => onHoverProvince(null)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSelectProvince(selected ? null : province.simpleName);
+              }}
+            >
+              <sphereGeometry args={[0.045, 14, 14]} />
+              <meshStandardMaterial color={palette.gold} emissive={palette.gold} emissiveIntensity={0.7} />
+              <Edges color={palette.gold} />
+            </mesh>
+          );
+        }
+
         return (
           <mesh
             key={province.fullName}
-            position={[province.center[0], province.center[1], 0.03]}
+            geometry={province.geometry!}
+            position={[0, 0, lift]}
             onPointerOver={(event) => {
               event.stopPropagation();
+              document.body.style.cursor = 'pointer';
               onHoverProvince(province.simpleName);
             }}
-            onPointerOut={() => onHoverProvince(null)}
+            onPointerOut={() => {
+              document.body.style.cursor = '';
+              onHoverProvince(null);
+            }}
             onClick={(event) => {
               event.stopPropagation();
               onSelectProvince(selected ? null : province.simpleName);
             }}
           >
-            <sphereGeometry args={[0.032, 12, 12]} />
-            <meshStandardMaterial color={palette.gold} emissive={palette.gold} emissiveIntensity={0.6} />
-            <Edges color={palette.gold} />
+            <meshStandardMaterial
+              color={selected || hovered ? palette.gold : palette.province}
+              roughness={0.92}
+              metalness={0.03}
+              emissive={selected || hovered ? palette.gold : palette.provinceEmissive}
+              emissiveIntensity={selected ? 0.85 : hovered ? 0.5 : baseEmissive}
+            />
+            {/* 描边是版图在浅色纸底上的可读性来源，不能省 */}
+            <Edges color={selected || hovered ? palette.gold : palette.provinceEdge} />
           </mesh>
         );
-      }
+      })}
+    </group>
+  );
+};
 
-      return (
-        <mesh
-          key={province.fullName}
-          geometry={province.geometry!}
-          position={[0, 0, lift]}
-          onPointerOver={(event) => {
-            event.stopPropagation();
-            document.body.style.cursor = 'pointer';
-            onHoverProvince(province.simpleName);
-          }}
-          onPointerOut={() => {
-            document.body.style.cursor = '';
-            onHoverProvince(null);
-          }}
-          onClick={(event) => {
-            event.stopPropagation();
-            onSelectProvince(selected ? null : province.simpleName);
-          }}
-        >
-          <meshStandardMaterial
-            color={palette.province}
-            roughness={0.9}
-            metalness={0.04}
-            emissive={palette.provinceEmissive}
-            emissiveIntensity={emissive}
-          />
-        </mesh>
-      );
-    })}
-  </group>
-);
-
-/**
- * 相机：进场与镜头切换统一走 flyTo（≤1.2s）；reduced-motion 直接到位。
- *
- * 落点 = 实测地图包围盒中心（不是世界原点——中国版图中心并不在原点），
- * 距离按视口宽高比自适应，因此窄屏自动拉远，不会只看到一片光而看不到中国。
- */
+/** 进场 / 镜头切换 / 省份聚焦共用的相机曲线（≤1.1s）；reduced-motion 直接到位。 */
 const CameraRig = ({
-  framing,
-  focus,
+  target,
+  position,
   reducedMotion,
 }: {
-  framing: { center: [number, number]; radius: number };
-  focus: { position: [number, number]; distance: number } | null;
+  target: THREE.Vector3;
+  position: THREE.Vector3;
   reducedMotion: boolean;
 }) => {
   const camera = useThree((state) => state.camera);
-  const size = useThree((state) => state.size);
   const controls = useThree((state) => state.controls) as ControlsLike | null;
   const fromRef = useRef(new THREE.Vector3());
   const toRef = useRef(new THREE.Vector3());
   const targetRef = useRef(new THREE.Vector3());
   const startedAt = useRef(0);
 
-  const seatFor = (radius: number) => {
-    const perspective = camera as THREE.PerspectiveCamera;
-    const fov = ((perspective.fov ?? 45) * Math.PI) / 180;
-    const aspect = Math.max(0.5, size.width / Math.max(1, size.height));
-    const byHeight = (radius / Math.tan(fov / 2)) * 0.95;
-    const byWidth = (radius / (Math.tan(fov / 2) * aspect)) * 1.04;
-    return THREE.MathUtils.clamp(
-      Math.max(byHeight, byWidth),
-      CAMERA_MIN_DISTANCE,
-      CAMERA_MAX_DISTANCE,
-    );
-  };
-
   useEffect(() => {
-    /** 平面坐标 → 世界 xz（组内 +Y 朝北 ⇒ 世界 -Z 朝北）。 */
-    const toWorld = (plane: [number, number]) => new THREE.Vector3(plane[0], 0, -plane[1]);
-
-    if (focus) {
-      const center = toWorld(focus.position);
-      targetRef.current.copy(center);
-      const d = THREE.MathUtils.clamp(focus.distance, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE);
-      toRef.current.set(
-        center.x,
-        center.y + d * Math.sin(CAMERA_ELEVATION),
-        center.z + d * Math.cos(CAMERA_ELEVATION),
-      );
-    } else {
-      const center = toWorld(framing.center);
-      targetRef.current.copy(center);
-      const d = seatFor(framing.radius);
-      toRef.current.set(
-        center.x,
-        center.y + d * Math.sin(CAMERA_ELEVATION),
-        center.z + d * Math.cos(CAMERA_ELEVATION),
-      );
-    }
-
     fromRef.current.copy(camera.position);
+    toRef.current.copy(position);
+    targetRef.current.copy(target);
     startedAt.current = performance.now();
     if (reducedMotion) {
       camera.position.copy(toRef.current);
       camera.lookAt(targetRef.current);
       if (controls) controls.enabled = true;
     }
-  }, [framing, focus, camera, reducedMotion, controls, size.width, size.height]);
+  }, [camera, position, target, reducedMotion, controls]);
 
   useFrame(() => {
     if (reducedMotion) return;
     const elapsed = (performance.now() - startedAt.current) / 1000;
-    const progress = Math.min(1, elapsed / 1.2);
+    const progress = Math.min(1, elapsed / 1.1);
     const eased = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
     camera.position.lerpVectors(fromRef.current, toRef.current, eased);
     camera.lookAt(targetRef.current);
@@ -432,19 +401,22 @@ const CameraRig = ({
   return null;
 };
 
-export function LightMapScene({
+/** 场景内容（必须在 Canvas 内，才能读画布尺寸解算取景）。 */
+const SceneBody = ({
   lens,
   category,
   selectedProvince,
   selectedId,
   palette,
+  hudInsets,
   onSelectProvince,
   onHoverProvince,
   onSelectPillar,
-}: LightMapSceneProps) {
+}: LightMapSceneProps) => {
   const reducedMotion = useReducedMotion();
   const { pillars, colors, mask } = useLensVisibility(lens, category, palette.beamBlending === 'additive');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
+  const size = useThree((state) => state.size);
 
   const digest = useMemo(() => buildDigest(), []);
   const provinces = useMemo(() => {
@@ -453,49 +425,69 @@ export function LightMapScene({
   }, [digest]);
   useEffect(() => () => disposeProvinceGeometries(provinces), [provinces]);
 
-  const framing = useMemo(() => {
-    const measured = measureSceneFraming(provinces);
-    return { center: measured.center, radius: measured.radius };
-  }, [provinces]);
+  const framing = useMemo(() => measureSceneFraming(provinces), [provinces]);
+  const fallbackBox: PlaneBounds = { minX: -5, maxX: 5, minY: -4, maxY: 4 };
+  const aspect = Math.max(0.4, size.width / Math.max(1, size.height));
 
-  const focus = useMemo(() => {
+  /** 主场取景：候选俯角各解一次，取屏幕占比最大者，并让版图落在 HUD 之间的可见带正中。 */
+  const home = useMemo<FramingSolution>(
+    () =>
+      solveFraming({
+        box: framing.box ?? fallbackBox,
+        minHeight: 0,
+        maxHeight: MAX_EXTRUDE,
+        fovDeg: CAMERA_FOV,
+        aspect,
+        margin: 1.03,
+        insets: hudInsets,
+      }),
+    [framing.box, aspect, hudInsets],
+  );
+
+  /** 省域聚焦：把该省（含挤出）塞进画面，俯角沿用主场的自动结果，避免切镜头时“翻桌”。 */
+  const focus = useMemo<FramingSolution | null>(() => {
     if (!selectedProvince) return null;
     const province = provinces.find((item) => item.simpleName === selectedProvince);
     if (!province) return null;
-    return { position: province.center, distance: 4.2 };
-  }, [provinces, selectedProvince]);
+    const box = province.bounds.mainland ?? province.bounds.all ?? {
+      minX: province.center[0] - 0.6,
+      maxX: province.center[0] + 0.6,
+      minY: province.center[1] - 0.6,
+      maxY: province.center[1] + 0.6,
+    };
+    return solveFraming({
+      box,
+      minHeight: 0,
+      maxHeight: MAX_EXTRUDE,
+      fovDeg: CAMERA_FOV,
+      aspect,
+      margin: 1.22,
+      insets: hudInsets,
+      elevations: [Math.min(home.elevation, 0.94)],
+    });
+  }, [provinces, selectedProvince, aspect, hudInsets, home.elevation]);
 
-  const frameCenter = useMemo(
-    () => new THREE.Vector3(framing.center[0], 0, -framing.center[1]),
-    [framing],
-  );
-  const initialSeat = Math.max(CAMERA_MIN_DISTANCE, framing.radius * 2.2);
+  const view = focus ?? home;
+  const maxDistance = Math.max(home.distance, view.distance) * 1.5;
+  const minDistance = Math.max(1.4, Math.min(home.distance, view.distance) * 0.45);
 
   return (
-    <Canvas
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      camera={{
-        position: [
-          frameCenter.x,
-          frameCenter.y + initialSeat * Math.sin(CAMERA_ELEVATION),
-          frameCenter.z + initialSeat * Math.cos(CAMERA_ELEVATION),
-        ],
-        fov: 45,
-        near: 0.1,
-        far: 160,
-      }}
-      onPointerMissed={() => onSelectProvince(null)}
-    >
+    <>
       <color attach="background" args={[palette.bg]} />
       <fogExp2 attach="fog" args={[palette.bg, palette.fogDensity]} />
-      <ambientLight intensity={palette.beamBlending === 'additive' ? 0.35 : 0.8} />
-      <directionalLight position={[4, 9, 6]} intensity={palette.beamBlending === 'additive' ? 0.6 : 0.85} />
-      <directionalLight position={[-6, 6, -4]} intensity={0.25} />
+      <ambientLight intensity={palette.beamBlending === 'additive' ? 0.42 : 0.9} />
+      <directionalLight position={[4, 9, 6]} intensity={palette.beamBlending === 'additive' ? 0.7 : 1.1} />
+      <directionalLight position={[-6, 6, -4]} intensity={0.3} />
 
       <StardustLayer palette={palette} />
 
-      {/* 省块 / 光柱 / 光晕 / 澳门圆点：同一旋转组，同一坐标系 */}
+      {/* 展台台面：版图落在实体台面上，而不是浮在虚空里（浅色底上是宣纸衬板） */}
+      <mesh rotation={ROT} position={[framing.center[0], -0.012, -framing.center[1]]}>
+        <planeGeometry args={[16, 14]} />
+        <meshStandardMaterial color={palette.floor} roughness={1} metalness={0} />
+      </mesh>
+
+      {/* 省块 / 光柱 / 光晕（含澳门圆点）：同一旋转组，同一坐标系 */}
       <group rotation={ROT}>
         <ProvinceLayer
           provinces={provinces}
@@ -513,7 +505,6 @@ export function LightMapScene({
           colors={colors}
           mask={mask}
           palette={palette}
-          reducedMotion={reducedMotion}
           selectedId={selectedId}
           onSelectPillar={onSelectPillar}
         />
@@ -521,25 +512,43 @@ export function LightMapScene({
       </group>
 
       <ContactShadows
-        position={[0, -0.005, 0]}
-        opacity={palette.beamBlending === 'additive' ? 0.42 : 0.28}
-        scale={20}
+        position={[framing.center[0], -0.005, -framing.center[1]]}
+        opacity={palette.beamBlending === 'additive' ? 0.5 : 0.42}
+        scale={15}
         blur={2.6}
-        far={4}
+        far={4.5}
         color={palette.shadow}
       />
       <OrbitControls
         enableDamping
         dampingFactor={0.08}
         enablePan={false}
-        target={[frameCenter.x, 0, frameCenter.z]}
-        minDistance={CAMERA_MIN_DISTANCE}
-        maxDistance={CAMERA_MAX_DISTANCE * 1.4}
+        target={[view.target.x, view.target.y, view.target.z]}
+        minDistance={minDistance}
+        maxDistance={maxDistance}
+        minPolarAngle={0.15}
         maxPolarAngle={Math.PI * 0.46}
-        autoRotate={!reducedMotion}
-        autoRotateSpeed={0.25}
       />
-      <CameraRig framing={framing} focus={focus} reducedMotion={reducedMotion} />
+      <CameraRig target={view.target} position={view.seat} reducedMotion={reducedMotion} />
+    </>
+  );
+};
+
+export function LightMapScene(props: LightMapSceneProps) {
+  const initialPosition = useMemo(
+    () =>
+      cameraSeat(new THREE.Vector3(0, 0, 0), cameraDirection(0.78), 16).toArray() as [number, number, number],
+    [],
+  );
+
+  return (
+    <Canvas
+      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      camera={{ position: initialPosition, fov: CAMERA_FOV, near: 0.1, far: 200 }}
+      onPointerMissed={() => props.onSelectProvince(null)}
+    >
+      <SceneBody {...props} />
     </Canvas>
   );
 }
