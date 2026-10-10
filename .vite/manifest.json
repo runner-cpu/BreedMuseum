@@ -1,0 +1,202 @@
+{
+  "_CategorySilhouette-DwS1_Dvj.js": {
+    "file": "assets/CategorySilhouette-DwS1_Dvj.js",
+    "name": "CategorySilhouette",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_VerificationBadge-BDww8EPw.js": {
+    "file": "assets/VerificationBadge-BDww8EPw.js",
+    "name": "VerificationBadge",
+    "imports": [
+      "index.html",
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_arrow-left-FipPpjbM.js": {
+    "file": "assets/arrow-left-FipPpjbM.js",
+    "name": "arrow-left",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_breedLookup-BFjqqewa.js": {
+    "file": "assets/breedLookup-BFjqqewa.js",
+    "name": "breedLookup",
+    "imports": [
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_breedMetadata-B89t7wxx.js": {
+    "file": "assets/breedMetadata-B89t7wxx.js",
+    "name": "breedMetadata"
+  },
+  "_breedSources-BC6tWKUa.js": {
+    "file": "assets/breedSources-BC6tWKUa.js",
+    "name": "breedSources",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_breeds-C4ddFfq9.js": {
+    "file": "assets/breeds-C4ddFfq9.js",
+    "name": "breeds",
+    "imports": [
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_catalog-DHMX0z8q.js": {
+    "file": "assets/catalog-DHMX0z8q.js",
+    "name": "catalog",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_games-C-Ur-qEn.js": {
+    "file": "assets/games-C-Ur-qEn.js",
+    "name": "games",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_lightMapData-BatrfMZS.js": {
+    "file": "assets/lightMapData-BatrfMZS.js",
+    "name": "lightMapData",
+    "imports": [
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_react-BHk431b0.js": {
+    "file": "assets/react-BHk431b0.js",
+    "name": "react"
+  },
+  "_sparkles-DZIo_wLh.js": {
+    "file": "assets/sparkles-DZIo_wLh.js",
+    "name": "sparkles",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "index.html": {
+    "file": "assets/index-CXzTirxO.js",
+    "name": "index",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_react-BHk431b0.js"
+    ],
+    "dynamicImports": [
+      "src/pages/LightMapPage.tsx",
+      "src/pages/ArcadePage.tsx",
+      "src/pages/ArcadeGamePage.tsx",
+      "src/pages/BreedRecordPage.tsx",
+      "src/pages/AboutPage.tsx",
+      "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js"
+    ],
+    "css": [
+      "assets/index-bVA8W_sc.css"
+    ]
+  },
+  "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js": {
+    "file": "assets/esm-Bc4fPaK0.js",
+    "name": "esm",
+    "src": "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js"
+    ]
+  },
+  "src/components/lightmap/LightMapScene.tsx": {
+    "file": "assets/LightMapScene-Dtp8Trhm.js",
+    "name": "LightMapScene",
+    "src": "src/components/lightmap/LightMapScene.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js",
+      "index.html",
+      "_lightMapData-BatrfMZS.js",
+      "_breedLookup-BFjqqewa.js",
+      "src/pages/LightMapPage.tsx"
+    ]
+  },
+  "src/pages/AboutPage.tsx": {
+    "file": "assets/AboutPage-Dss2mo38.js",
+    "name": "AboutPage",
+    "src": "src/pages/AboutPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_breedSources-BC6tWKUa.js",
+      "_sparkles-DZIo_wLh.js",
+      "index.html",
+      "_VerificationBadge-BDww8EPw.js",
+      "_CategorySilhouette-DwS1_Dvj.js"
+    ]
+  },
+  "src/pages/ArcadeGamePage.tsx": {
+    "file": "assets/ArcadeGamePage-ozcFjN_E.js",
+    "name": "ArcadeGamePage",
+    "src": "src/pages/ArcadeGamePage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js",
+      "_arrow-left-FipPpjbM.js",
+      "_games-C-Ur-qEn.js",
+      "_catalog-DHMX0z8q.js",
+      "index.html",
+      "_lightMapData-BatrfMZS.js",
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_CategorySilhouette-DwS1_Dvj.js"
+    ]
+  },
+  "src/pages/ArcadePage.tsx": {
+    "file": "assets/ArcadePage-Cy08w2sq.js",
+    "name": "ArcadePage",
+    "src": "src/pages/ArcadePage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_games-C-Ur-qEn.js",
+      "_catalog-DHMX0z8q.js",
+      "index.html",
+      "_CategorySilhouette-DwS1_Dvj.js"
+    ]
+  },
+  "src/pages/BreedRecordPage.tsx": {
+    "file": "assets/BreedRecordPage-EqDHK-41.js",
+    "name": "BreedRecordPage",
+    "src": "src/pages/BreedRecordPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js",
+      "_arrow-left-FipPpjbM.js",
+      "_breedSources-BC6tWKUa.js",
+      "index.html",
+      "_breedLookup-BFjqqewa.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_VerificationBadge-BDww8EPw.js"
+    ]
+  },
+  "src/pages/LightMapPage.tsx": {
+    "file": "assets/LightMapPage-CI2N4OKv.js",
+    "name": "LightMapPage",
+    "src": "src/pages/LightMapPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js",
+      "_catalog-DHMX0z8q.js",
+      "_sparkles-DZIo_wLh.js",
+      "index.html",
+      "_lightMapData-BatrfMZS.js",
+      "_breedLookup-BFjqqewa.js",
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_VerificationBadge-BDww8EPw.js"
+    ],
+    "dynamicImports": [
+      "src/components/lightmap/LightMapScene.tsx"
+    ]
+  }
+}
