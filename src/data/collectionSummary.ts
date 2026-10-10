@@ -33,8 +33,8 @@ export const COLLECTION_SUMMARY = {
  * 测试数量在里程碑收口时更新；数值由 collectionSummary 契约测试保证为整数。
  */
 export const QUALITY_SUMMARY = {
-  unitTests: 128,
-  e2eTests: 36,
+  unitTests: 137,
+  e2eTests: 42,
   auditChecks: 11,
   workflows: 2,
   dataVersion: COLLECTION_VERSION,

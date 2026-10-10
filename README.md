@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录），提供五屏滚动叙事首页、品种百科、产地地图、数据看板、对比浏览、高原热应激预警台与离线本地检索问答。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。主展项是 **「畜种光图」**——一座可旋转的 3D 中国，1062 条可落点记录在真实产区坐标上各亮起一束光，四个镜头切换看法，点任意一束光直达品种卷宗；配套 **互动厅**（找家挑战 / 识图挑战 / 知识问答，出题只用已核验字段）与 **馆史页**（来源链、诚实映射表、质量仪表盘与 AI 披露）。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -72,7 +72,7 @@
 编辑濒危标签统计（非权威保护结论）：普通 421；易危 165；濒危 82；待核验 518。
 <!-- data-summary:end -->
 
-Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在未配置后端时使用浏览器内置的本地品种库完成文本问答与报告导出；图片生成、图片识别和语音转写属于可选的第三方服务能力。
+Vite、TypeScript、React、HashRouter、Three.js（`@react-three/fiber` / `drei`）、Recharts、Tailwind CSS。3D 光图零后处理、零 HDR，DPR 上限 2；无 WebGL 或开启系统「减少动态效果」时自动回落到既有 2D 省域图，交互与结论不受影响。
 
 ## 本地开发
 
@@ -91,12 +91,12 @@ Vite、TypeScript、React、HashRouter、Recharts、Tailwind CSS。AI 助手在�
 ```
 
 - 馆藏数据由 687 条归一化历史记录与《国家畜禽遗传资源品种名录（2024年版）》增量（499 条）合并整理为 1186 条全局唯一记录，匹配第 940 号公告中的 271 个畜禽名称。
-- 类别体系与名录分组对齐共 15 类（新增 驴 / 鹿 / 蜂 / 特种畜禽）：物种直映表 `src/data/speciesCategory.ts`，历史记录类别修复表 `src/data/breedCategoryFixes.ts`；首页为五屏滚动叙事（痛点 → THI 曲线 → 内嵌决策台 → 66/13 家底 → 三入口行动），导航精简为 4 项，`/dashboard`、`/compare`、`/recommend`、`/ai` 保留可直连。
-- 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则。
+- 类别体系与名录分组对齐共 15 类（新增 驴 / 鹿 / 蜂 / 特种畜禽）：物种直映表 `src/data/speciesCategory.ts`，历史记录类别修复表 `src/data/breedCategoryFixes.ts`；导航收敛为 3 项（光图 / 互动厅 / 馆史），`/map`、`/encyclopedia`、`/dashboard`、`/compare`、`/pasture`、`/recommend`、`/ai`、`/home` 八条旧路由统一重定向到光图。
+- 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则；三级核验徽章（官方 / 编辑 / 待核验）由 `src/data/verification.ts` 单点判定，馆史页的「诚实映射表」逐条说明每个视觉通道对应哪个已核验字段。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 36 个测试文件、128 项 Vitest 测试，Playwright 结果见审计报告。
-- 当前 Playwright 共 36 个用例，35 项通过、1 项按桌面条件跳过、0 项失败。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 34 个测试文件、137 项 Vitest 测试，Playwright 结果见审计报告。
+- 当前 Playwright 共 42 个用例，41 项通过、1 项按桌面条件跳过、0 项失败。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ### 在 Windows 上安装 Node.js
