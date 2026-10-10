@@ -18,6 +18,7 @@ import {
 } from '@/lib/geo3d/cameraFit';
 import { categoryColors } from '@/lib/categoryIcons';
 import { buildDigest, buildPillars, type PillarInstance } from '@/lib/geo3d/lightMapData';
+import { PLANE_ROTATION, planeToWorld } from '@/lib/geo3d/layerTransform';
 import { beamColorFor, type StagePalette } from '@/lib/stagePalette';
 import { useReducedMotion } from './useSceneCapability';
 
@@ -25,9 +26,15 @@ import { useReducedMotion } from './useSceneCapability';
  * 畜种光图（3D 主展项）。
  *
  * 坐标约定（唯一一套，DOM 与 WebGL 共用）：
- * 所有图层都在**同一个旋转组**里构建，组内 XY 是地图平面（+X 向东、+Y 向北）、
- * 组内 +Z 是「向上」；外层 `group rotation={[-π/2, 0, 0]}` 把组内 +Z 抬成世界 +Y。
+ * 地图数据是「平面 XY + 高度 Z」，+X 向东、+Y 向北、+Z 向上；场景里**只允许
+ * 一次**把平面抬成水平面（`layerTransform.PLANE_ROTATION`，绕 X 轴 −90°），
+ * 于是局部 (x, y, h) → 世界 (x, h, −y)：高度朝上、北朝世界 −Z。
  * 平面原点 = 视图中心，与省块几何 / `project3D` 同域（见 buildProvinceGeometry 的 toPlane）。
+ *
+ * 为什么旋转只准出现一次：`ProvinceLayer` 曾经在外层已旋转的组里又套了一层同角度
+ * 旋转，两次 −90° = −180°，版图被映射成 (x, −y, −h)，整块沉到台面以下并向南错开
+ * 约 1.1 个世界单位——页面上就是「省块和光柱完全错位」。现在旋转只从
+ * `layerTransform` 取，并由 `layerTransform.test.ts` 断言全文件只出现一处。
  *
  * 取景不是「半径 × 系数」估算，而是把版图包围盒的 8 个角投影进视锥解析求解
  * 并**自动选俯角**（`@/lib/geo3d/cameraFit`）：舞台是扁宽的，固定俯角会让版图
@@ -43,8 +50,6 @@ import { useReducedMotion } from './useSceneCapability';
 
 export type LensId = 'all' | 'category' | 'protect' | 'risk';
 
-/** 组内共用的平面→挤出约定：先绕 X 轴 -90°，组内 +Z 即为世界「上」。 */
-const ROT: [number, number, number] = [-Math.PI / 2, 0, 0];
 const CAMERA_FOV = 45;
 /** 版图最大挤出高度（与 EXTRUDE_STEPS 上限一致），用于包围盒的竖向范围。 */
 const MAX_EXTRUDE = 0.3;
@@ -266,7 +271,7 @@ const StardustLayer = ({ palette }: { palette: StagePalette }) => {
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
-    <points geometry={geometry} rotation={ROT}>
+    <points geometry={geometry} rotation={PLANE_ROTATION}>
       <pointsMaterial
         size={0.02}
         color={palette.stardust}
@@ -297,7 +302,7 @@ const ProvinceLayer = ({
   const baseEmissive = isDark ? 0.22 : 0.1;
 
   return (
-    <group rotation={ROT}>
+    <>
       {provinces.map((province) => {
         const selected = province.simpleName === selectedProvince;
         const hovered = province.simpleName === hoveredProvince;
@@ -356,7 +361,7 @@ const ProvinceLayer = ({
           </mesh>
         );
       })}
-    </group>
+    </>
   );
 };
 
@@ -482,13 +487,13 @@ const SceneBody = ({
       <StardustLayer palette={palette} />
 
       {/* 展台台面：版图落在实体台面上，而不是浮在虚空里（浅色底上是宣纸衬板） */}
-      <mesh rotation={ROT} position={[framing.center[0], -0.012, -framing.center[1]]}>
+      <mesh rotation={PLANE_ROTATION} position={planeToWorld(framing.center[0], framing.center[1], -0.012).toArray()}>
         <planeGeometry args={[16, 14]} />
         <meshStandardMaterial color={palette.floor} roughness={1} metalness={0} />
       </mesh>
 
       {/* 省块 / 光柱 / 光晕（含澳门圆点）：同一旋转组，同一坐标系 */}
-      <group rotation={ROT}>
+      <group rotation={PLANE_ROTATION}>
         <ProvinceLayer
           provinces={provinces}
           palette={palette}
