@@ -1,485 +1,164 @@
 {
-  "_AccessibleChartSummary-sOzCyaC1.js": {
-    "file": "assets/AccessibleChartSummary-sOzCyaC1.js",
-    "name": "AccessibleChartSummary",
+  "_CategorySilhouette-WWnlduYX.js": {
+    "file": "assets/CategorySilhouette-WWnlduYX.js",
+    "name": "CategorySilhouette",
     "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_AppSettings-DqpQoJrp.js": {
-    "file": "assets/AppSettings-DqpQoJrp.js",
-    "name": "AppSettings",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_preload-helper-uBIymjUX.js"
-    ]
-  },
-  "_BreedImage-2INJmZgd.js": {
-    "file": "assets/BreedImage-2INJmZgd.js",
-    "name": "BreedImage",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_utils-DOQQTBMN.js",
-      "_publicAsset-C53js1nF.js"
-    ]
-  },
-  "_ThiConsolePanel-gaAAb31S.js": {
-    "file": "assets/ThiConsolePanel-gaAAb31S.js",
-    "name": "ThiConsolePanel",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_arrow-right-DiQnhNFQ.js",
-      "_mountain-CYtImsN6.js",
-      "_triangle-alert-DLX8iK8D.js",
-      "_breeds-CRqSU7N3.js"
-    ]
-  },
-  "_arrow-right-DiQnhNFQ.js": {
-    "file": "assets/arrow-right-DiQnhNFQ.js",
-    "name": "arrow-right",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_breedLookup-DzKLISnO.js": {
-    "file": "assets/breedLookup-DzKLISnO.js",
-    "name": "breedLookup",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js",
-      "_breedSearch-BWPX1Wf1.js"
-    ]
-  },
-  "_breedSearch-BWPX1Wf1.js": {
-    "file": "assets/breedSearch-BWPX1Wf1.js",
-    "name": "breedSearch",
-    "imports": [
-      "_breeds-CRqSU7N3.js",
-      "_categoryIcons-CTs4qyjo.js"
-    ]
-  },
-  "_breeds-CRqSU7N3.js": {
-    "file": "assets/breeds-CRqSU7N3.js",
-    "name": "breeds"
-  },
-  "_categoryIcons-CTs4qyjo.js": {
-    "file": "assets/categoryIcons-CTs4qyjo.js",
-    "name": "categoryIcons",
-    "imports": [
-      "_breeds-CRqSU7N3.js",
-      "_nationalProtectionList-Ce110Evl.js"
-    ]
-  },
-  "_chevron-down-nPpZv8bh.js": {
-    "file": "assets/chevron-down-nPpZv8bh.js",
-    "name": "chevron-down",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_chinaMap-B2uV82fl.js": {
-    "file": "assets/chinaMap-B2uV82fl.js",
-    "name": "chinaMap"
-  },
-  "_dist-AtYWlAlf.js": {
-    "file": "assets/dist-AtYWlAlf.js",
-    "name": "dist",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_utils-DOQQTBMN.js"
-    ]
-  },
-  "_download-BgS0OC8i.js": {
-    "file": "assets/download-BgS0OC8i.js",
-    "name": "download",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_es2015-PyuaIW1v.js": {
-    "file": "assets/es2015-PyuaIW1v.js",
-    "name": "es2015",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_tslib.es6-Tae09705.js"
-    ]
-  },
-  "_export-CSsmXs-x.js": {
-    "file": "assets/export-CSsmXs-x.js",
-    "name": "export",
-    "imports": [
-      "_categoryIcons-CTs4qyjo.js"
-    ]
-  },
-  "_external-link-CeSKB1y-.js": {
-    "file": "assets/external-link-CeSKB1y-.js",
-    "name": "external-link",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_generateCategoricalChart-81qQLMU4.js": {
-    "file": "assets/generateCategoricalChart-81qQLMU4.js",
-    "name": "generateCategoricalChart",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_utils-DOQQTBMN.js"
-    ]
-  },
-  "_map-pin-B-CsAk-2.js": {
-    "file": "assets/map-pin-B-CsAk-2.js",
-    "name": "map-pin",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_mountain-CYtImsN6.js": {
-    "file": "assets/mountain-CYtImsN6.js",
-    "name": "mountain",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_nationalProtectionList-Ce110Evl.js": {
-    "file": "assets/nationalProtectionList-Ce110Evl.js",
-    "name": "nationalProtectionList"
-  },
-  "_preload-helper-uBIymjUX.js": {
-    "file": "assets/preload-helper-uBIymjUX.js",
-    "name": "preload-helper"
-  },
-  "_publicAsset-C53js1nF.js": {
-    "file": "assets/publicAsset-C53js1nF.js",
-    "name": "publicAsset"
-  },
-  "_queryState-JwOujLsv.js": {
-    "file": "assets/queryState-JwOujLsv.js",
-    "name": "queryState"
-  },
-  "_react-BQVaxoBa.js": {
-    "file": "assets/react-BQVaxoBa.js",
-    "name": "react",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js"
-    ]
-  },
-  "_react-Bo1_6fWJ.js": {
-    "file": "assets/react-Bo1_6fWJ.js",
-    "name": "react",
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
       "index.html"
     ]
   },
-  "_rolldown-runtime-B0Z9INg1.js": {
-    "file": "assets/rolldown-runtime-B0Z9INg1.js",
-    "name": "rolldown-runtime"
+  "_VerificationBadge-ZAJeYuxz.js": {
+    "file": "assets/VerificationBadge-ZAJeYuxz.js",
+    "name": "VerificationBadge",
+    "imports": [
+      "index.html",
+      "_breedMetadata-B89t7wxx.js"
+    ]
   },
-  "_sparkles-Bju7t_J7.js": {
-    "file": "assets/sparkles-Bju7t_J7.js",
+  "_breedLookup-BFjqqewa.js": {
+    "file": "assets/breedLookup-BFjqqewa.js",
+    "name": "breedLookup",
+    "imports": [
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_breedMetadata-B89t7wxx.js": {
+    "file": "assets/breedMetadata-B89t7wxx.js",
+    "name": "breedMetadata"
+  },
+  "_breedSources-DNC7ZP_4.js": {
+    "file": "assets/breedSources-DNC7ZP_4.js",
+    "name": "breedSources",
+    "imports": [
+      "index.html"
+    ]
+  },
+  "_breeds-C4ddFfq9.js": {
+    "file": "assets/breeds-C4ddFfq9.js",
+    "name": "breeds",
+    "imports": [
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_lightMapData-D9NnoE7x.js": {
+    "file": "assets/lightMapData-D9NnoE7x.js",
+    "name": "lightMapData",
+    "imports": [
+      "index.html",
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js"
+    ]
+  },
+  "_react-BHk431b0.js": {
+    "file": "assets/react-BHk431b0.js",
+    "name": "react"
+  },
+  "_sparkles-CljOcVAF.js": {
+    "file": "assets/sparkles-CljOcVAF.js",
     "name": "sparkles",
     "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_triangle-alert-DLX8iK8D.js": {
-    "file": "assets/triangle-alert-DLX8iK8D.js",
-    "name": "triangle-alert",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
-    ]
-  },
-  "_tslib.es6-Tae09705.js": {
-    "file": "assets/tslib.es6-Tae09705.js",
-    "name": "tslib.es6"
-  },
-  "_utils-DOQQTBMN.js": {
-    "file": "assets/utils-DOQQTBMN.js",
-    "name": "utils"
-  },
-  "_x-Kb2HZ5SZ.js": {
-    "file": "assets/x-Kb2HZ5SZ.js",
-    "name": "x",
-    "imports": [
-      "_AppSettings-DqpQoJrp.js"
+      "index.html"
     ]
   },
   "index.html": {
-    "file": "assets/index-Cxq8ywhN.js",
+    "file": "assets/index-CKWUgBoo.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_preload-helper-uBIymjUX.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_x-Kb2HZ5SZ.js",
-      "_utils-DOQQTBMN.js",
-      "_publicAsset-C53js1nF.js",
-      "_es2015-PyuaIW1v.js"
+      "_react-BHk431b0.js"
     ],
     "dynamicImports": [
-      "src/pages/HomePage.tsx",
-      "src/pages/MapPage.tsx",
-      "src/pages/PasturePage.tsx",
-      "src/pages/RecommendPage.tsx",
-      "src/pages/DashboardPage.tsx",
-      "src/pages/EncyclopediaPage.tsx",
-      "src/pages/AIAssistantPage.tsx",
-      "src/pages/ComparePage.tsx",
+      "src/pages/LightMapPage.tsx",
+      "src/pages/ArcadePage.tsx",
+      "src/pages/BreedRecordPage.tsx",
+      "src/pages/AboutPage.tsx",
       "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js"
     ],
     "css": [
-      "assets/index-D8855SbI.css"
+      "assets/index-BjdKv7rP.css"
     ]
   },
   "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js": {
-    "file": "assets/esm-ChGjCCid.js",
+    "file": "assets/esm-Bc4fPaK0.js",
     "name": "esm",
     "src": "node_modules/.pnpm/@sentry+react@9.47.2_react@18.3.1/node_modules/@sentry/react/build/esm/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js"
+      "_react-BHk431b0.js"
     ]
   },
-  "node_modules/.pnpm/@supabase+supabase-js@2.103.1/node_modules/@supabase/supabase-js/dist/index.mjs": {
-    "file": "assets/dist-BNoi4mlg.js",
-    "name": "dist",
-    "src": "node_modules/.pnpm/@supabase+supabase-js@2.103.1/node_modules/@supabase/supabase-js/dist/index.mjs",
+  "src/components/lightmap/LightMapScene.tsx": {
+    "file": "assets/LightMapScene-DExd_S4x.js",
+    "name": "LightMapScene",
+    "src": "src/components/lightmap/LightMapScene.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_tslib.es6-Tae09705.js"
+      "_react-BHk431b0.js",
+      "_lightMapData-D9NnoE7x.js",
+      "index.html",
+      "_breedLookup-BFjqqewa.js",
+      "src/pages/LightMapPage.tsx"
     ]
   },
-  "node_modules/.pnpm/canvg@3.0.11/node_modules/canvg/lib/index.es.js": {
-    "file": "assets/index.es-C5Cf2RPh.js",
-    "name": "index.es",
-    "src": "node_modules/.pnpm/canvg@3.0.11/node_modules/canvg/lib/index.es.js",
+  "src/pages/AboutPage.tsx": {
+    "file": "assets/AboutPage-BJEa9-nV.js",
+    "name": "AboutPage",
+    "src": "src/pages/AboutPage.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js"
+      "_breedSources-DNC7ZP_4.js",
+      "_sparkles-CljOcVAF.js",
+      "index.html",
+      "_VerificationBadge-ZAJeYuxz.js",
+      "_CategorySilhouette-WWnlduYX.js"
     ]
   },
-  "node_modules/.pnpm/dompurify@3.4.16/node_modules/dompurify/dist/purify.es.mjs": {
-    "file": "assets/purify.es-Bvo9QlJ8.js",
-    "name": "purify.es",
-    "src": "node_modules/.pnpm/dompurify@3.4.16/node_modules/dompurify/dist/purify.es.mjs",
-    "isDynamicEntry": true
-  },
-  "node_modules/.pnpm/html2canvas@1.4.1/node_modules/html2canvas/dist/html2canvas.js": {
-    "file": "assets/html2canvas-Kp2qyQdA.js",
-    "name": "html2canvas",
-    "src": "node_modules/.pnpm/html2canvas@1.4.1/node_modules/html2canvas/dist/html2canvas.js",
+  "src/pages/ArcadePage.tsx": {
+    "file": "assets/ArcadePage-CGvxEm3d.js",
+    "name": "ArcadePage",
+    "src": "src/pages/ArcadePage.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime-B0Z9INg1.js"
+      "_react-BHk431b0.js",
+      "_lightMapData-D9NnoE7x.js",
+      "index.html",
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_CategorySilhouette-WWnlduYX.js"
     ]
   },
-  "node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js": {
-    "file": "assets/jspdf.es.min-DgZQfccL.js",
-    "name": "jspdf.es.min",
-    "src": "node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js",
+  "src/pages/BreedRecordPage.tsx": {
+    "file": "assets/BreedRecordPage-DdzemlNi.js",
+    "name": "BreedRecordPage",
+    "src": "src/pages/BreedRecordPage.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_preload-helper-uBIymjUX.js"
+      "_react-BHk431b0.js",
+      "_breedSources-DNC7ZP_4.js",
+      "index.html",
+      "_breedLookup-BFjqqewa.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_VerificationBadge-ZAJeYuxz.js"
+    ]
+  },
+  "src/pages/LightMapPage.tsx": {
+    "file": "assets/LightMapPage-CehYqDiu.js",
+    "name": "LightMapPage",
+    "src": "src/pages/LightMapPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_react-BHk431b0.js",
+      "_lightMapData-D9NnoE7x.js",
+      "_sparkles-CljOcVAF.js",
+      "index.html",
+      "_breedLookup-BFjqqewa.js",
+      "_breeds-C4ddFfq9.js",
+      "_breedMetadata-B89t7wxx.js",
+      "_VerificationBadge-ZAJeYuxz.js"
     ],
     "dynamicImports": [
-      "node_modules/.pnpm/html2canvas@1.4.1/node_modules/html2canvas/dist/html2canvas.js",
-      "node_modules/.pnpm/dompurify@3.4.16/node_modules/dompurify/dist/purify.es.mjs",
-      "node_modules/.pnpm/canvg@3.0.11/node_modules/canvg/lib/index.es.js"
-    ]
-  },
-  "src/pages/AIAssistantPage.tsx": {
-    "file": "assets/AIAssistantPage-BVK-u0bJ.js",
-    "name": "AIAssistantPage",
-    "src": "src/pages/AIAssistantPage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_preload-helper-uBIymjUX.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_arrow-right-DiQnhNFQ.js",
-      "_download-BgS0OC8i.js",
-      "_external-link-CeSKB1y-.js",
-      "_map-pin-B-CsAk-2.js",
-      "_sparkles-Bju7t_J7.js",
-      "_publicAsset-C53js1nF.js",
-      "_react-Bo1_6fWJ.js",
-      "index.html",
-      "_breeds-CRqSU7N3.js"
-    ],
-    "dynamicImports": [
-      "node_modules/.pnpm/@supabase+supabase-js@2.103.1/node_modules/@supabase/supabase-js/dist/index.mjs",
-      "node_modules/.pnpm/html2canvas@1.4.1/node_modules/html2canvas/dist/html2canvas.js",
-      "node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js"
-    ]
-  },
-  "src/pages/ComparePage.tsx": {
-    "file": "assets/ComparePage-B53NFCKs.js",
-    "name": "ComparePage",
-    "src": "src/pages/ComparePage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_download-BgS0OC8i.js",
-      "_breedLookup-DzKLISnO.js",
-      "_x-Kb2HZ5SZ.js",
-      "_react-Bo1_6fWJ.js",
-      "index.html",
-      "_AccessibleChartSummary-sOzCyaC1.js",
-      "_BreedImage-2INJmZgd.js",
-      "_categoryIcons-CTs4qyjo.js",
-      "_breedSearch-BWPX1Wf1.js",
-      "_export-CSsmXs-x.js",
-      "_queryState-JwOujLsv.js"
-    ]
-  },
-  "src/pages/DashboardPage.tsx": {
-    "file": "assets/DashboardPage-BN9Vpcil.js",
-    "name": "DashboardPage",
-    "src": "src/pages/DashboardPage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_arrow-right-DiQnhNFQ.js",
-      "_download-BgS0OC8i.js",
-      "_mountain-CYtImsN6.js",
-      "_utils-DOQQTBMN.js",
-      "_react-Bo1_6fWJ.js",
-      "index.html",
-      "_breeds-CRqSU7N3.js",
-      "_AccessibleChartSummary-sOzCyaC1.js",
-      "_categoryIcons-CTs4qyjo.js",
-      "_export-CSsmXs-x.js",
-      "_generateCategoricalChart-81qQLMU4.js"
-    ]
-  },
-  "src/pages/EncyclopediaPage.tsx": {
-    "file": "assets/EncyclopediaPage-Q0EYuUM4.js",
-    "name": "EncyclopediaPage",
-    "src": "src/pages/EncyclopediaPage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_chevron-down-nPpZv8bh.js",
-      "_download-BgS0OC8i.js",
-      "_map-pin-B-CsAk-2.js",
-      "_sparkles-Bju7t_J7.js",
-      "_x-Kb2HZ5SZ.js",
-      "_utils-DOQQTBMN.js",
-      "_es2015-PyuaIW1v.js",
-      "_react-Bo1_6fWJ.js",
-      "index.html",
-      "_breeds-CRqSU7N3.js",
-      "_BreedImage-2INJmZgd.js",
-      "_categoryIcons-CTs4qyjo.js",
-      "_breedSearch-BWPX1Wf1.js",
-      "_export-CSsmXs-x.js",
-      "_queryState-JwOujLsv.js"
-    ]
-  },
-  "src/pages/HomePage.tsx": {
-    "file": "assets/HomePage-YA4t9lel.js",
-    "name": "HomePage",
-    "src": "src/pages/HomePage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_arrow-right-DiQnhNFQ.js",
-      "_ThiConsolePanel-gaAAb31S.js",
-      "_chevron-down-nPpZv8bh.js",
-      "_map-pin-B-CsAk-2.js",
-      "_publicAsset-C53js1nF.js",
-      "_react-Bo1_6fWJ.js",
-      "index.html",
-      "_breeds-CRqSU7N3.js",
-      "_BreedImage-2INJmZgd.js",
-      "_nationalProtectionList-Ce110Evl.js",
-      "_chinaMap-B2uV82fl.js"
-    ]
-  },
-  "src/pages/MapPage.tsx": {
-    "file": "assets/MapPage-NvgPEP3G.js",
-    "name": "MapPage",
-    "src": "src/pages/MapPage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_dist-AtYWlAlf.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_external-link-CeSKB1y-.js",
-      "_breedLookup-DzKLISnO.js",
-      "_map-pin-B-CsAk-2.js",
-      "_triangle-alert-DLX8iK8D.js",
-      "_utils-DOQQTBMN.js",
-      "index.html",
-      "_breeds-CRqSU7N3.js",
-      "_AccessibleChartSummary-sOzCyaC1.js",
-      "_BreedImage-2INJmZgd.js",
-      "_chinaMap-B2uV82fl.js",
-      "_categoryIcons-CTs4qyjo.js",
-      "_breedSearch-BWPX1Wf1.js",
-      "_generateCategoricalChart-81qQLMU4.js"
-    ]
-  },
-  "src/pages/PasturePage.tsx": {
-    "file": "assets/PasturePage-DOU79Mxn.js",
-    "name": "PasturePage",
-    "src": "src/pages/PasturePage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_ThiConsolePanel-gaAAb31S.js",
-      "_react-Bo1_6fWJ.js"
-    ]
-  },
-  "src/pages/RecommendPage.tsx": {
-    "file": "assets/RecommendPage-BNjD_9dY.js",
-    "name": "RecommendPage",
-    "src": "src/pages/RecommendPage.tsx",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-B0Z9INg1.js",
-      "_react-BQVaxoBa.js",
-      "_AppSettings-DqpQoJrp.js",
-      "_arrow-right-DiQnhNFQ.js",
-      "_mountain-CYtImsN6.js",
-      "_sparkles-Bju7t_J7.js",
-      "_react-Bo1_6fWJ.js",
-      "_breeds-CRqSU7N3.js",
-      "_BreedImage-2INJmZgd.js"
+      "src/components/lightmap/LightMapScene.tsx"
     ]
   }
 }
