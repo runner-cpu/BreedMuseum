@@ -20,7 +20,7 @@ import { categoryColors } from '@/lib/categoryIcons';
 import { buildDigest, buildPillars, type PillarInstance } from '@/lib/geo3d/lightMapData';
 import { PLANE_ROTATION, planeToWorld } from '@/lib/geo3d/layerTransform';
 import { beamColorFor, type StagePalette } from '@/lib/stagePalette';
-import { useReducedMotion } from './useSceneCapability';
+import { detectSoftwareRenderer, useReducedMotion } from './useSceneCapability';
 
 /**
  * 畜种光图（3D 主展项）。
@@ -377,6 +377,7 @@ const CameraRig = ({
 }) => {
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls) as ControlsLike | null;
+  const invalidate = useThree((state) => state.invalidate);
   const fromRef = useRef(new THREE.Vector3());
   const toRef = useRef(new THREE.Vector3());
   const targetRef = useRef(new THREE.Vector3());
@@ -391,8 +392,11 @@ const CameraRig = ({
       camera.position.copy(toRef.current);
       camera.lookAt(targetRef.current);
       if (controls) controls.enabled = true;
+    } else {
+      // 按需渲染（软件光栅降级）下没人会自动再画一帧，镜头过渡必须自己续帧
+      invalidate();
     }
-  }, [camera, position, target, reducedMotion, controls]);
+  }, [camera, position, target, reducedMotion, controls, invalidate]);
 
   useFrame(() => {
     if (reducedMotion) return;
@@ -401,6 +405,8 @@ const CameraRig = ({
     const eased = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
     camera.position.lerpVectors(fromRef.current, toRef.current, eased);
     camera.lookAt(targetRef.current);
+    // 连续渲染时这行是空操作；按需渲染时它就是「过渡还在进行」的续帧信号
+    if (progress < 1) invalidate();
   });
 
   return null;
@@ -419,6 +425,8 @@ const SceneBody = ({
   onSelectPillar,
 }: LightMapSceneProps) => {
   const reducedMotion = useReducedMotion();
+  /** 软件光栅（无显卡的 CI runner）上关掉纯装饰的开销，见 useSceneCapability 说明。 */
+  const softShadows = useMemo(() => !detectSoftwareRenderer(), []);
   const { pillars, colors, mask } = useLensVisibility(lens, category, palette.beamBlending === 'additive');
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const size = useThree((state) => state.size);
@@ -516,14 +524,21 @@ const SceneBody = ({
         <GlowLayer pillars={pillars} palette={palette} />
       </group>
 
-      <ContactShadows
-        position={[framing.center[0], -0.005, -framing.center[1]]}
-        opacity={palette.beamBlending === 'additive' ? 0.5 : 0.42}
-        scale={15}
-        blur={2.6}
-        far={4.5}
-        color={palette.shadow}
-      />
+      {/*
+        软阴影是纯装饰：每帧它都会把整个场景额外渲染一遍再两次模糊。
+        无 GPU 的 CI runner（SwiftShader 软件光栅）上这一项就把场景压到个位数帧率，
+        连带点击和断言一起超时——所以按 WebGL 后端分档，软件渲染直接不出阴影。
+      */}
+      {softShadows && (
+        <ContactShadows
+          position={[framing.center[0], -0.005, -framing.center[1]]}
+          opacity={palette.beamBlending === 'additive' ? 0.5 : 0.42}
+          scale={15}
+          blur={2.6}
+          far={4.5}
+          color={palette.shadow}
+        />
+      )}
       <OrbitControls
         enableDamping
         dampingFactor={0.08}
@@ -545,11 +560,18 @@ export function LightMapScene(props: LightMapSceneProps) {
       cameraSeat(new THREE.Vector3(0, 0, 0), cameraDirection(0.78), 16).toArray() as [number, number, number],
     [],
   );
+  /**
+   * 软件光栅（无显卡的 CI runner）按需渲染：版图是静态的，只要没有交互就不必
+   * 每秒重画 40 多次 47 块挤出几何 + 上千根半透明光柱——实测那会把主线程占满，
+   * 连 Playwright 的点击都要排到帧后面。真 GPU 上一律保持连续渲染（默认分支）。
+   */
+  const software = useMemo(() => detectSoftwareRenderer(), []);
 
   return (
     <Canvas
       dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      frameloop={software ? 'demand' : 'always'}
+      gl={{ antialias: !software, alpha: true, powerPreference: 'high-performance' }}
       camera={{ position: initialPosition, fov: CAMERA_FOV, near: 0.1, far: 200 }}
       onPointerMissed={() => props.onSelectProvince(null)}
     >
