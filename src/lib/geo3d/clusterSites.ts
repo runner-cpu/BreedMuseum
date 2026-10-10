@@ -227,7 +227,7 @@ export function beamHeightFor(total: number): number {
 /** 光束最高值（64 条及以上封顶），取景时用它当包围盒的竖向范围。 */
 export const MAX_BEAM_HEIGHT = beamHeightFor(64);
 
-/** 一段柱身（类别分段），不含颜色——配色由渲染层按主题决定。 */
+/** 一段束身（类别分段），不含颜色——配色由渲染层按主题决定。 */
 export interface BeamSegment {
   category: string;
   count: number;

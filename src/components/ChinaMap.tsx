@@ -71,7 +71,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
     [clusters, selectedBreed],
   );
 
-  /** 类别弧线：把圆按类别计数切成一段段弧，颜色与 3D 柱身、图例一致。 */
+  /** 类别弧线：把圆按类别计数切成一段段弧，颜色与 3D 束身、图例一致。 */
   const arcsFor = (cluster: SiteCluster, radius: number) => {
     const total = cluster.slices.reduce((sum, slice) => sum + slice.count, 0) || 1;
     let cursor = 0;
@@ -195,7 +195,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 }
               }}
             >
-              {/* 底座淡色圆：让柱身/弧线在纸底上有一块可读的底 */}
+              {/* 底座淡色圆：让光束/弧线在纸底上有一块可读的底 */}
               <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1} />
               {/* 类别弧线：按类别计数切分，一段一色 */}
               {arcsFor(cluster, r * 0.72).map((arc) => (

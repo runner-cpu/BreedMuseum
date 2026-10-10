@@ -369,7 +369,7 @@ const GlowPoints = ({
  * 束根 + 束顶两层光晕。共用一张贴图、各自的点云几何，共 2 个 draw call。
  *
  * 为什么顶面也要发光：只有根部光晕时，光束读起来像"从地里长出来的针"；
- * 顶端有一点亮，才像"光柱本身在发光"。深色底尤其明显。
+ * 顶端有一点亮，才像"光束本身在发光"。深色底尤其明显。
  */
 const BeamGlow = ({ clusters, palette }: { clusters: SiteCluster[]; palette: StagePalette }) => {
   const texture = useMemo(createGlowTexture, []);
