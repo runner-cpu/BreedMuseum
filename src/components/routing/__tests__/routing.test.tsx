@@ -12,8 +12,8 @@ test('unknown address stays visible on a true 404', async () => {
 });
 
 /**
- * 四个路由（/ 光图、/arcade 互动厅、/breed/:id 档案、/about 馆史）
- * 是本轮重设计的全部页面；其余旧路径必须重定向到光图，不能 404。
+ * 页面清单：`/` 光图、`/arcade` 互动厅总览、`/arcade/:game` 单台装置、
+ * `/breed/:id` 档案、`/about` 馆史；其余旧路径必须重定向到光图，不能 404。
  */
 test('legacy routes redirect to the light map instead of 404', async () => {
   for (const legacy of LEGACY_ROUTES) {
@@ -23,12 +23,36 @@ test('legacy routes redirect to the light map instead of 404', async () => {
   }
 });
 
-test('arcade route renders the three exhibits', async () => {
+test('arcade overview lists the three exhibits as separate entrances', async () => {
   renderAppAt('/arcade');
   expect(await screen.findByRole('heading', { name: '互动厅 · 三台展教装置' })).toBeVisible();
-  expect(screen.getByRole('heading', { name: '找家挑战' })).toBeVisible();
-  expect(screen.getByRole('heading', { name: '识图挑战' })).toBeVisible();
-  expect(screen.getByRole('heading', { name: '知识问答' })).toBeVisible();
+  // 三台装置各自成页：总览只给入口（链接），不把三台挤在同一屏
+  for (const title of ['找家挑战', '识图挑战', '知识问答']) {
+    expect(screen.getByRole('link', { name: new RegExp(title) })).toBeVisible();
+  }
+  expect(screen.queryByRole('group', { name: '选择省份作答' })).toBeNull();
+});
+
+test('each arcade exhibit has its own page and can switch to the others', async () => {
+  for (const [game, title, group] of [
+    ['find-home', '找家挑战', '选择省份作答'],
+    ['identify', '识图挑战', '选择类别'],
+    ['quiz', '知识问答', '选择答案'],
+  ] as const) {
+    const view = renderAppAt('/arcade/' + game);
+    expect(await screen.findByRole('heading', { name: title })).toBeVisible();
+    // 当前装置只渲染自己那一台
+    expect(screen.getByRole('group', { name: group })).toBeVisible();
+    // 切换器里三个装置都在，可随时换台
+    expect(screen.getByRole('navigation', { name: '切换展教装置' }).querySelectorAll('a')).toHaveLength(3);
+    view.unmount();
+  }
+});
+
+test('an unknown exhibit name falls back to the arcade overview', async () => {
+  renderAppAt('/arcade/not-a-game');
+  expect(await screen.findByRole('heading', { name: '互动厅 · 三台展教装置' })).toBeVisible();
+  await waitFor(() => expect(window.location.hash).toBe('#/arcade'));
 });
 
 test('about route exposes provenance, mapping table and AI disclosure', async () => {

@@ -18,11 +18,23 @@ test.beforeEach(async ({ page, baseURL }) => {
 test.afterEach(async ({ page }) => { expect(errors.get(page)).toEqual([]); });
 
 /**
- * 四个路由（本轮重设计后的全部页面）。
+ * 页面清单（本轮重设计后的全部页面）：
+ * `/`、`/arcade`（总览）、`/arcade/:game`（三台装置各自成页）、
+ * `/breed/:id`、`/about`、以及 404。
  * 用例在 `reducedMotion: 'reduce'` 下运行：3D 场景走「直显」分支，
  * 断言基于 DOM（计数、表格、按钮），不依赖帧动画。
  */
-for (const path of ['/', '/arcade', '/about', '/breed/hetian-chicken', '/breed/not-a-real-breed', '/not-a-route']) {
+for (const path of [
+  '/',
+  '/arcade',
+  '/arcade/find-home',
+  '/arcade/identify',
+  '/arcade/quiz',
+  '/about',
+  '/breed/hetian-chicken',
+  '/breed/not-a-real-breed',
+  '/not-a-route',
+]) {
   test('public route ' + path + ' loads without backend', async ({ page, baseURL }) => {
     await page.goto('/#' + path);
     await expect(page.locator('main h1')).toHaveCount(1);
@@ -32,6 +44,9 @@ for (const path of ['/', '/arcade', '/about', '/breed/hetian-chicken', '/breed/n
     await expect(description).toHaveAttribute('content', /.+/);
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    // 舞台配色必须跟主题走：浅色模式下内容区不能还是黑的
+    const tone = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--stage').trim());
+    expect(tone).toMatch(/^#[0-9a-f]{6}$/i);
     if (path === '/not-a-route') {
       await expect(page.getByRole('heading', { name: '页面未找到' })).toBeVisible();
       expect(page.url()).toContain('/not-a-route');
@@ -100,23 +115,83 @@ test('breed record shows the archive header and official source links', async ({
   }
 });
 
-test('arcade exposes three playable exhibits with keyboard-usable options', async ({ page }) => {
+test('arcade overview hands out one entrance per exhibit', async ({ page }) => {
   await page.goto('/#/arcade');
-  await expect(page.getByRole('heading', { name: '找家挑战' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '识图挑战' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '知识问答' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '互动厅 · 三台展教装置' })).toBeVisible();
+  const entrances = page.getByRole('link', { name: /进场/ });
+  await expect(entrances).toHaveCount(3);
+  // 总览页不渲染任何装置本体：一台都不许挤在这里
+  await expect(page.getByRole('group', { name: '选择省份作答' })).toHaveCount(0);
+  await expect(page.getByRole('group', { name: '选择答案' })).toHaveCount(0);
+});
 
-  // 装置一：选一个省份作答，必须出现反馈（正确或距离提示）
+test('each arcade exhibit is its own page and switches without going back', async ({ page }) => {
+  await page.goto('/#/arcade/find-home');
+  await expect(page.getByRole('heading', { name: '找家挑战' })).toBeVisible();
   await page.getByRole('group', { name: '选择省份作答' }).getByRole('button').first().click();
   await expect(page.getByText(/答对了|方向不对/)).toBeVisible();
-
-  // 装置二：识图选项作答后展示解析与代表品种
+  // 从找家直接换到问答，不必回总览
+  await page.getByRole('navigation', { name: '切换展教装置' }).getByRole('link', { name: '知识问答' }).click();
+  await expect(page).toHaveURL(/#\/arcade\/quiz$/);
+  await expect(page.getByRole('heading', { name: '知识问答' })).toBeVisible();
+  await page.getByRole('group', { name: '选择答案' }).getByRole('button').first().click();
+  await expect(page.getByRole('link', { name: /查看「.+」档案/ })).toBeVisible();
+  // 第三台：识图
+  await page.getByRole('navigation', { name: '切换展教装置' }).getByRole('link', { name: '识图挑战' }).click();
   await page.getByRole('group', { name: '选择类别' }).getByRole('button').first().click();
   await expect(page.getByText(/剪影取自馆藏类别的/)).toBeVisible();
+});
 
-  // 装置三：问答作答后给出解析与档案入口
-  await page.getByRole('group', { name: '选择答案' }).getByRole('button', { name: /./ }).first().click();
-  await expect(page.getByRole('link', { name: /查看「.+」档案/ })).toBeVisible();
+test('an unknown exhibit falls back to the arcade overview', async ({ page }) => {
+  await page.goto('/#/arcade/not-a-game');
+  await expect(page).toHaveURL(/#\/arcade$/);
+  await expect(page.getByRole('heading', { name: '互动厅 · 三台展教装置' })).toBeVisible();
+});
+
+/** 主题开关在桌面顶栏、移动端在抽屉里；两种视口都能拿到同一个菜单。 */
+async function chooseTheme(page: Page, label: RegExp) {
+  const trigger = page.locator('button[aria-label="切换主题"]:visible');
+  if ((await trigger.count()) === 0) {
+    await page.getByRole('button', { name: '打开导航菜单' }).click();
+  }
+  await page.locator('button[aria-label="切换主题"]:visible').first().click();
+  await page.getByRole('menuitem', { name: label }).click();
+}
+
+/** 用一个十六进制底色算相对亮度，判断「浅底 / 深底」。 */
+async function stageLuminance(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const hex = getComputedStyle(document.documentElement).getPropertyValue('--stage').trim();
+    const value = hex.replace('#', '');
+    const channels = [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16) / 255);
+    const [r, g, b] = channels.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  });
+}
+
+test('theme switch repaints the stage instead of leaving it black', async ({ page }) => {
+  await page.goto('/#/about');
+
+  await chooseTheme(page, /浅色模式/);
+  await expect(page.locator('html')).not.toHaveClass(/dark/);
+  const lightStage = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--stage').trim(),
+  );
+  const lightLuminance = await stageLuminance(page);
+  // 浅色舞台必须是亮底：不能出现「切了浅色还是黑的」
+  expect(lightLuminance).toBeGreaterThan(0.6);
+  // 页面正文颜色也必须跟着换（否则就是「黑底黑字」）
+  const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color);
+  expect(bodyColor).not.toMatch(/rgba?\(255,\s*255,\s*255/);
+
+  await chooseTheme(page, /深色模式/);
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  const darkStage = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--stage').trim(),
+  );
+  const darkLuminance = await stageLuminance(page);
+  expect(darkLuminance).toBeLessThan(0.1);
+  expect(lightStage).not.toBe(darkStage);
 });
 
 test('about page carries provenance, mapping table, quality dashboard and disclosure', async ({ page }) => {
