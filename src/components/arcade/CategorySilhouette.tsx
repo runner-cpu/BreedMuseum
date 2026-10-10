@@ -77,3 +77,7 @@ export function CategorySilhouette({ category, className, label }: CategorySilho
 export const hasSilhouette = (category: string): boolean => category in SILHOUETTE_PATHS;
 
 export const SILHOUETTE_CATEGORIES = Object.keys(SILHOUETTE_PATHS);
+
+/** 全部类别是否都有剪影（总览页与 /about 的文案依据）。 */
+export const silhouetteCoverage = (allCategories: readonly string[]): boolean =>
+  allCategories.every((category) => hasSilhouette(category));
