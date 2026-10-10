@@ -10,12 +10,13 @@ import {
   type ProvinceGeometry,
 } from '@/lib/geo3d/buildProvinceGeometry';
 import {
+  MAX_BEAM_HEIGHT,
+  beamHeightFor,
+  beamRadiusFor,
+  beamSegmentsFor,
   buildSiteClusters,
   clustersForLens,
   hitRadiusFor,
-  markerRadiusFor,
-  stackHeightFor,
-  type CategorySlice,
   type LensId,
   type SiteCluster,
 } from '@/lib/geo3d/clusterSites';
@@ -43,25 +44,43 @@ import { detectSoftwareRenderer, useReducedMotion } from './useSceneCapability';
  *
  * 为什么旋转只准出现一次：`ProvinceLayer` 曾经在外层已旋转的组里又套了一层同角度
  * 旋转，两次 −90° = −180°，版图被映射成 (x, −y, −h)，整块沉到台面以下并向南错开
- * 约 1.1 个世界单位——页面上就是「省块和落点柱完全错位」。
+ * 约 1.1 个世界单位——页面上就是「省块和光束完全错位」。
  *
- * 落点形状（2026-10 重做）：
- * 上一版是 5px 宽的细光柱，同坐标 45 条记录还被铺成一个圆环——既不好看，也不表达
- * 任何字段。现在每个**产区簇**（`clusterSites.buildSiteClusters`）是一节分类堆叠柱：
- * 底面半径随该产区的品种数增长，柱身按类别分段上色、段高等于该类别在这个产区的条数，
- * 顶面金环标记含国家级保护名录，柱底细环标记含编辑口径濒危。想读的结论直接从柱子上
- * 读得出来：「成都这一片 53 个品种，羊和鸡最多」。
+ * 落点形状（2026-10 二次重做）：
+ * 空间聚合（`clusterSites.buildSiteClusters`）保留——上一版把同坐标的 45 条记录
+ * 铺成一个圆环，那个毛病是真的。但**形状**走错了一步：为了让「类别分段」看得清，
+ * 半径被放大到 0.055–0.295 世界单位，高度却只有 0.22–1.6，比例成了矮胖的圆柱，
+ * 再乘上 `MeshStandardMaterial` 的受光，整片光图看着像插了一地木栓——名字叫光图，
+ * 却一点不像光。这一版把形状改回**细、高、开口、自身发光**的光束
+ * （尺寸函数见 `clusterSites.beamRadiusFor` / `beamHeightFor`）：
+ * - 半径 0.012–0.046（屏幕上 2–8 像素），高 0.65–1.4，细长比 1 : 15 ~ 1 : 28；
+ * - 几何是**开口**圆台（`openEnded`）+ 轻微上收（顶面 0.72×底面），
+ *   配 `MeshBasicMaterial`（不受光）+ 深色底 `AdditiveBlending`（自发光靠叠加，不是照亮）；
+ * - 类别分段保留为束身上的色带，深色底上叠加后读成「一束光里的分色」；
+ * - 束根与束顶各铺一层径向渐变光晕（`Points` + canvas 程序化贴图，零外部资产）。
+ *
+ * 渲染纪律：161 个产区、每区 1–7 段，全部合并进**一个** `InstancedMesh`
+ * （每段一个实例、颜色走 `instanceColor`），加两层光晕点云，共 3 个 draw call。
  *
  * 取景不是「半径 × 系数」估算，而是把版图包围盒的 8 个角投影进视锥解析求解
  * 并**自动选俯角**（`@/lib/geo3d/cameraFit`），再把目标点平移到 HUD 之间的可见带中心。
  *
  * 交互：拖拽旋转、滚轮/双指缩放、拖拽平移（OrbitControls），外层还提供四个视角预设
- * 与复位。细柱点不中，所以另铺一层隐形命中圆盘（`ClusterHitDiscs`）取最近的簇。
+ * 与复位。光束本身只有几个像素宽，所以另铺一层隐形命中盘（`ClusterHitDiscs`）取最近的束。
  */
 
 const CAMERA_FOV = 45;
-/** 版图最大挤出高度（与 EXTRUDE_STEPS 上限一致），用于包围盒的竖向范围。 */
-const MAX_EXTRUDE = 0.39;
+/**
+ * 取景包围盒的竖向范围：光束最高值（不是省块挤出高度）。
+ * 用省块上限会把最高的那几束裁掉——实测成都那一片刚好在版图中部，
+ * 裁掉一处最密的产区，光图就少了一块最该看到的地方。
+ */
+const FIT_MAX_HEIGHT = MAX_BEAM_HEIGHT;
+
+/** 顶面裁剪出「金环」用的半径下限（世界单位）：几像素宽的光束也要有个能看见的环。 */
+const RING_FLOOR = 0.052;
+/** 束底「橙环」半径下限：略大于金环，两环同时出现时不会重合。 */
+const RISK_RING_FLOOR = 0.074;
 
 interface ControlsLike {
   enabled: boolean;
@@ -90,141 +109,391 @@ interface LightMapSceneProps {
 const highlightFor = (palette: StagePalette): string =>
   palette.beamBlending === 'additive' ? palette.gold : palette.goldOnLight;
 
+/** 深色舞台（自发光、加性混合）走一套，浅色舞台（正常混合、纸面可读色）走另一套。 */
+const isNightStage = (palette: StagePalette): boolean => palette.beamBlending === 'additive';
+
 /* ------------------------------------------------------------------ */
-/* 柱身：分类堆叠                                                     */
+/* 光束场：一个大 InstancedMesh 画完全部束身分段                        */
 /* ------------------------------------------------------------------ */
 
-export interface StackSlice {
-  category: string;
-  count: number;
+/** 一段束身在世界平面里的摆放（不含颜色——颜色由主题与高亮状态决定）。 */
+interface BeamInstance {
+  clusterIndex: number;
+  x: number;
+  y: number;
+  /** 段底高度（世界平面单位） */
   from: number;
   height: number;
-  color: string;
+  radius: number;
+  category: string;
 }
 
 /**
- * 把分类切片摊成一段段柱身。类别多于 `tailLimit` 时，尾部的都并成「其他类别」
- * ——否则 11 个类别会切成 11 段，每段几像素高，既看不出颜色也点不中。
+ * 把「簇 → 分段」展平成一维实例表。
+ *
+ * 展平的意义：161 个产区按每区一个 mesh 画，光 draw call 就要三四百次；
+ * 每段一个实例塞进同一个 `InstancedMesh` 之后，整片光场只占 1 次。
+ * 交互沿用 `instanceId → 实例 → 簇` 的映射，悬停与选中都不必另建几何。
  */
-export function stackSlicesFor(
-  slices: readonly CategorySlice[],
-  palette: StagePalette,
-  tailLimit = 6,
-): StackSlice[] {
-  const head = slices.slice(0, tailLimit);
-  const tail = slices.slice(tailLimit);
-  const merged: CategorySlice[] = tail.length
-    ? [...head, { category: '其他类别', count: tail.reduce((sum, item) => sum + item.count, 0) }]
-    : [...head];
-  const total = merged.reduce((sum, item) => sum + item.count, 0) || 1;
-  const height = stackHeightFor(total);
-  const isDark = palette.beamBlending === 'additive';
-  let cursor = 0;
-  return merged.map((slice) => {
-    const ratio = slice.count / total;
-    const from = cursor;
-    cursor += ratio * height;
-    const base = slice.category === '其他类别' ? '#8d9a92' : categoryColors[slice.category] ?? '#95A5A6';
-    return {
-      category: slice.category,
-      count: slice.count,
-      from,
-      height: ratio * height,
-      color: beamColorFor(base, isDark),
-    };
+function flattenBeams(clusters: readonly SiteCluster[], tailLimit = 6): BeamInstance[] {
+  const instances: BeamInstance[] = [];
+  clusters.forEach((cluster, clusterIndex) => {
+    const radius = beamRadiusFor(cluster.total);
+    // 高度取整束的 beamHeightFor(cluster.total)，与切片合计无关：
+    // 镜头切换后同一束光的高度和位置都不变，变的只是分段构成。
+    for (const segment of beamSegmentsFor(cluster, tailLimit)) {
+      instances.push({
+        clusterIndex,
+        x: cluster.position[0],
+        y: cluster.position[1],
+        from: segment.from,
+        height: segment.height,
+        radius,
+        category: segment.category,
+      });
+    }
   });
+  return instances;
 }
 
-/** 柱顶 z（世界平面高度），命中盘与装饰环都用它。 */
-const stackTopFor = (total: number): number => stackHeightFor(total);
+/** 束身实例表的最大容量（全部簇的段数之和）：镜头筛选只会让它变少，不会变多。 */
+const beamCapacityFor = (clusters: readonly SiteCluster[]): number =>
+  clusters.reduce((sum, cluster) => sum + beamSegmentsFor(cluster).length, 0);
 
-const ClusterStack = ({
-  cluster,
+/**
+ * 光束本体。
+ *
+ * 几何：开口圆台（`openEnded: true`），底面半径 1、顶面 0.72，
+ * 旋转到平面 Z 轴并整体平移，使**底端落在 z = 0、顶端落在 z = 1**——
+ * 这样实例矩阵只需要 `position(x, y, from)` + `scale(radius, radius, height)`。
+ *
+ * 材质：`MeshBasicMaterial` + `depthWrite: false`。
+ * 不用标准材质是刻意的：光不该被环境光照亮，而该自己发光。
+ * 深色舞台开 `AdditiveBlending`（越叠越亮，密集区自然形成光晕）；
+ * 浅色舞台退回正常混合，颜色改用 `beamColorFor` 压到纸面可读的深色相——
+ * 加性混合在浅底上等于把颜色洗成白色，是上一版浅色主题发灰的根因之一。
+ */
+const BeamField = ({
+  clusters,
+  capacity,
   palette,
-  selected,
-  hovered,
+  selectedId,
+  hoveredClusterId,
   onSelect,
   onHover,
 }: {
-  cluster: SiteCluster;
+  clusters: SiteCluster[];
+  capacity: number;
   palette: StagePalette;
-  selected: boolean;
-  hovered: boolean;
-  onSelect: () => void;
-  onHover: (hovered: boolean) => void;
+  selectedId: string | null;
+  hoveredClusterId: string | null;
+  onSelect: (cluster: SiteCluster) => void;
+  onHover: (cluster: SiteCluster | null) => void;
 }) => {
-  const active = selected || hovered;
-  const radius = markerRadiusFor(cluster.total) * (active ? 1.12 : 1);
-  const slices = useMemo(() => stackSlicesFor(cluster.slices, palette), [cluster.slices, palette]);
-  const top = stackTopFor(cluster.total);
-  const isDark = palette.beamBlending === 'additive';
-  const edge = active ? highlightFor(palette) : palette.provinceEdge;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const night = isNightStage(palette);
+  const highlight = highlightFor(palette);
+
+  const beamGeometry = useMemo(() => {
+    const geometry = new THREE.CylinderGeometry(0.72, 1, 1, 8, 1, true);
+    geometry.rotateX(Math.PI / 2);
+    geometry.translate(0, 0, 0.5);
+    return geometry;
+  }, []);
+  useEffect(() => () => beamGeometry.dispose(), [beamGeometry]);
+
+  const instances = useMemo(() => flattenBeams(clusters), [clusters]);
+
+  /**
+   * 尺寸与配色每帧写一次就够，只在「哪些束可见 / 谁被选中」变化时重写。
+   * 呼吸动画只改材质的整体透明度，不重算实例矩阵——上一版逐帧重算 1062 个矩阵
+   * 是 CI 软栈上掉帧的主因之一。
+   */
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    mesh.count = instances.length;
+    if (instances.length === 0) return;
+
+    const activeClusters = new Set<number>();
+    clusters.forEach((cluster, index) => {
+      if (cluster.id === hoveredClusterId || cluster.members.some((member) => member.id === selectedId)) {
+        activeClusters.add(index);
+      }
+    });
+
+    const color = new THREE.Color();
+    instances.forEach((instance, index) => {
+      const active = activeClusters.has(instance.clusterIndex);
+      // 高亮：变粗一点、略高一点、整束换成金色——不动位置，避免"点一下跳走"
+      const thickness = instance.radius * (active ? 1.9 : 1);
+      const length = instance.height * (active ? 1.12 : 1);
+      dummy.position.set(instance.x, instance.y, instance.from);
+      dummy.scale.set(thickness, thickness, length);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+
+      const base = instance.category === '其他类别' ? '#8d9a92' : categoryColors[instance.category] ?? '#95A5A6';
+      color.set(active ? highlight : beamColorFor(base, night));
+      mesh.setColorAt(index, color);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [instances, clusters, palette, selectedId, hoveredClusterId, highlight, night, dummy]);
+
+  /** 整片光场的呼吸：只改材质透明度，一帧一次赋值。 */
+  useFrame(({ clock }) => {
+    const material = materialRef.current;
+    if (!material) return;
+    if (!night) {
+      material.opacity = palette.beamOpacity;
+      return;
+    }
+    material.opacity = palette.beamOpacity * (0.88 + 0.12 * Math.sin(clock.getElapsedTime() * 3.2));
+  });
+
+  if (capacity === 0) return null;
 
   return (
-    <group
-      position={[cluster.position[0], cluster.position[1], active ? 0.02 : 0]}
-      onPointerOver={(event) => {
+    <instancedMesh
+      ref={meshRef}
+      args={[beamGeometry, undefined, capacity]}
+      onPointerMove={(event) => {
         event.stopPropagation();
+        const index = event.instanceId;
+        if (index === undefined) return;
         document.body.style.cursor = 'pointer';
-        onHover(true);
+        onHover(clusters[instances[index].clusterIndex]);
       }}
       onPointerOut={() => {
         document.body.style.cursor = '';
-        onHover(false);
+        onHover(null);
       }}
       onClick={(event) => {
         event.stopPropagation();
-        onSelect();
+        const index = event.instanceId;
+        if (index === undefined) return;
+        onSelect(clusters[instances[index].clusterIndex]);
       }}
     >
-      {slices.map((slice) => (
-        <mesh key={slice.category} position={[0, 0, slice.from + slice.height / 2]}>
-          <cylinderGeometry args={[radius, radius, slice.height, 18, 1, false]} />
-          <meshStandardMaterial
-            color={slice.color}
-            emissive={slice.color}
-            emissiveIntensity={active ? 0.55 : isDark ? 0.3 : 0.14}
-            roughness={0.5}
-            metalness={0.05}
-          />
-        </mesh>
-      ))}
-      {/* 顶面：柱子的边界与「这是一根柱子」的读法都来自它 */}
-      <mesh position={[0, 0, top + 0.002]}>
-        <circleGeometry args={[radius, 20]} />
-        <meshBasicMaterial color={edge} side={THREE.DoubleSide} />
-      </mesh>
-      {/* 含国家级保护名录的产区：顶面一圈金环 */}
-      {cluster.hasNationalProtected && (
-        <mesh position={[0, 0, top + 0.006]}>
-          <ringGeometry args={[radius * 0.7, radius * 0.96, 20]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        transparent
+        opacity={palette.beamOpacity}
+        blending={night ? THREE.AdditiveBlending : THREE.NormalBlending}
+        depthWrite={false}
+        side={THREE.DoubleSide}
+        toneMapped={false}
+      />
+    </instancedMesh>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 光晕：束根与束顶各一层径向渐变点云                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 径向渐变贴图，canvas 程序化生成（零外部资产，不引入任何图片）。
+ *
+ * 三段色标是"光"和"圆片"的分界：0 → 0.32 陡降出实心核，
+ * 0.32 → 1 缓慢收敛成柔和外晕。只用两段（实心 + 硬边）会读成贴纸。
+ */
+function createGlowTexture(): THREE.Texture {
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,0.95)');
+    gradient.addColorStop(0.32, 'rgba(255,255,255,0.42)');
+    gradient.addColorStop(0.62, 'rgba(255,255,255,0.12)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/** 一层点云光晕。位置由调用方给，尺寸/颜色/混合方式按主题分档。 */
+const GlowPoints = ({
+  positions,
+  size,
+  color,
+  opacity,
+  additive,
+  texture,
+}: {
+  positions: Float32Array;
+  size: number;
+  color: string;
+  opacity: number;
+  additive: boolean;
+  texture: THREE.Texture;
+}) => {
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  if (positions.length === 0) return null;
+
+  return (
+    <points geometry={geometry}>
+      <pointsMaterial
+        map={texture}
+        size={size}
+        sizeAttenuation
+        transparent
+        opacity={opacity}
+        color={color}
+        depthWrite={false}
+        blending={additive ? THREE.AdditiveBlending : THREE.NormalBlending}
+        toneMapped={false}
+      />
+    </points>
+  );
+};
+
+/**
+ * 束根 + 束顶两层光晕。共用一张贴图、各自的点云几何，共 2 个 draw call。
+ *
+ * 为什么顶面也要发光：只有根部光晕时，光束读起来像"从地里长出来的针"；
+ * 顶端有一点亮，才像"光柱本身在发光"。深色底尤其明显。
+ */
+const BeamGlow = ({ clusters, palette }: { clusters: SiteCluster[]; palette: StagePalette }) => {
+  const texture = useMemo(createGlowTexture, []);
+  useEffect(() => () => texture.dispose(), [texture]);
+  const night = isNightStage(palette);
+
+  const { roots, tips } = useMemo(() => {
+    const rootPositions = new Float32Array(clusters.length * 3);
+    const tipPositions = new Float32Array(clusters.length * 3);
+    clusters.forEach((cluster, index) => {
+      rootPositions[index * 3] = cluster.position[0];
+      rootPositions[index * 3 + 1] = cluster.position[1];
+      rootPositions[index * 3 + 2] = 0.012;
+      tipPositions[index * 3] = cluster.position[0];
+      tipPositions[index * 3 + 1] = cluster.position[1];
+      tipPositions[index * 3 + 2] = beamHeightFor(cluster.total);
+    });
+    return { roots: rootPositions, tips: tipPositions };
+  }, [clusters]);
+
+  return (
+    <>
+      <GlowPoints
+        positions={roots}
+        size={night ? 0.11 : 0.09}
+        color={night ? '#ffffff' : palette.goldOnLight}
+        opacity={night ? 0.8 : 0.42}
+        additive={night}
+        texture={texture}
+      />
+      <GlowPoints
+        positions={tips}
+        size={night ? 0.075 : 0.06}
+        color={night ? '#ffffff' : palette.goldOnLight}
+        opacity={night ? 0.62 : 0.3}
+        additive={night}
+        texture={texture}
+      />
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 标记环：金环（国家级保护）/ 橙环（编辑口径濒危）                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 两种环各一个 InstancedMesh（几何半径 1，靠实例缩放取值）。
+ *
+ * 环半径有**绝对下限**（`RING_FLOOR` / `RISK_RING_FLOOR`），不跟光束半径等比：
+ * 光束现在只有 2–8 像素宽，等比缩放出来的环还不到 1 像素，等于没画。
+ * 环本身是「有没有国家级保护 / 编辑口径濒危」的二元标记，用固定尺寸反而更好读。
+ */
+const MarkerRings = ({ clusters, palette }: { clusters: SiteCluster[]; palette: StagePalette }) => {
+  const goldRef = useRef<THREE.InstancedMesh>(null);
+  const riskRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  const protectedClusters = useMemo(() => clusters.filter((cluster) => cluster.hasNationalProtected), [clusters]);
+  const riskyClusters = useMemo(() => clusters.filter((cluster) => cluster.hasEndangered), [clusters]);
+
+  useEffect(() => {
+    const mesh = goldRef.current;
+    if (!mesh) return;
+    protectedClusters.forEach((cluster, index) => {
+      const scale = Math.max(RING_FLOOR, beamRadiusFor(cluster.total) * 1.9);
+      dummy.position.set(cluster.position[0], cluster.position[1], beamHeightFor(cluster.total) + 0.004);
+      dummy.scale.set(scale, scale, 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [protectedClusters, dummy]);
+
+  useEffect(() => {
+    const mesh = riskRef.current;
+    if (!mesh) return;
+    riskyClusters.forEach((cluster, index) => {
+      const scale = Math.max(RISK_RING_FLOOR, beamRadiusFor(cluster.total) * 2.4);
+      dummy.position.set(cluster.position[0], cluster.position[1], 0.01);
+      dummy.scale.set(scale, scale, 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [riskyClusters, dummy]);
+
+  return (
+    <>
+      {protectedClusters.length > 0 && (
+        <instancedMesh ref={goldRef} args={[undefined, undefined, protectedClusters.length]}>
+          <ringGeometry args={[0.62, 0.92, 24]} />
           <meshBasicMaterial
             color={highlightFor(palette)}
             side={THREE.DoubleSide}
             transparent
-            opacity={active ? 1 : 0.92}
+            opacity={0.95}
+            depthWrite={false}
+            toneMapped={false}
           />
-        </mesh>
+        </instancedMesh>
       )}
-      {/* 含编辑口径濒危记录的产区：柱底一圈细环（非权威结论，见诚实映射表） */}
-      {cluster.hasEndangered && (
-        <mesh position={[0, 0, 0.008]}>
-          <ringGeometry args={[radius * 1.22, radius * 1.46, 22]} />
+      {riskyClusters.length > 0 && (
+        <instancedMesh ref={riskRef} args={[undefined, undefined, riskyClusters.length]}>
+          <ringGeometry args={[0.78, 1, 24]} />
           <meshBasicMaterial
             color={palette.endangeredRing}
             side={THREE.DoubleSide}
             transparent
             opacity={0.9}
+            depthWrite={false}
+            toneMapped={false}
           />
-        </mesh>
+        </instancedMesh>
       )}
-    </group>
+    </>
   );
 };
 
 /**
- * 隐形命中盘：细柱（1 条记录半径只有 0.06）在屏幕上不到 10px，直接点柱身很难点中。
- * 每个簇在柱顶铺一张半径 `hitRadiusFor` 的透明圆盘，实例化后只占 1 个 draw call。
+ * 隐形命中盘：细光束（2 像素宽）在屏幕上几乎点不中。
+ * 每个簇在束顶铺一张半径 `hitRadiusFor` 的透明圆盘，实例化后只占 1 个 draw call。
  */
 const ClusterHitDiscs = ({
   clusters,
@@ -242,9 +511,9 @@ const ClusterHitDiscs = ({
     const mesh = meshRef.current;
     if (!mesh) return;
     clusters.forEach((cluster, index) => {
-      dummy.position.set(cluster.position[0], cluster.position[1], stackTopFor(cluster.total) + 0.02);
+      dummy.position.set(cluster.position[0], cluster.position[1], beamHeightFor(cluster.total) + 0.02);
       // 圆盘几何半径 1，靠缩放取每簇自己的命中半径
-      const scale = hitRadiusFor(cluster);
+      const scale = hitRadiusFor(cluster.total);
       dummy.scale.set(scale, scale, 1);
       dummy.updateMatrix();
       mesh.setMatrixAt(index, dummy.matrix);
@@ -252,6 +521,8 @@ const ClusterHitDiscs = ({
     mesh.instanceMatrix.needsUpdate = true;
     mesh.computeBoundingSphere();
   }, [clusters, dummy]);
+
+  if (clusters.length === 0) return null;
 
   return (
     <instancedMesh
@@ -274,6 +545,10 @@ const ClusterHitDiscs = ({
     </instancedMesh>
   );
 };
+
+/* ------------------------------------------------------------------ */
+/* 相机                                                                */
+/* ------------------------------------------------------------------ */
 
 /** 进场 / 镜头切换 / 视角预设 / 省份聚焦共用的相机曲线（≤1.1s）；reduced-motion 直接到位。 */
 const CameraRig = ({
@@ -319,6 +594,10 @@ const CameraRig = ({
   return null;
 };
 
+/* ------------------------------------------------------------------ */
+/* 场景                                                                */
+/* ------------------------------------------------------------------ */
+
 /** 场景内容（必须在 Canvas 内，才能读画布尺寸解算取景）。 */
 const SceneBody = ({
   lens,
@@ -339,9 +618,12 @@ const SceneBody = ({
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
   const size = useThree((state) => state.size);
+  const night = isNightStage(palette);
 
   const clusters = useMemo(() => buildSiteClusters(), []);
   const visible = useMemo(() => clustersForLens(clusters, lens, category), [clusters, lens, category]);
+  /** 实例容量按"全部簇"分配：镜头筛选只会减少绘制数量，不会重建 GPU 缓冲。 */
+  const capacity = useMemo(() => beamCapacityFor(clusters), [clusters]);
 
   /** 省块挤出读的是「该省馆藏量」，与镜头无关：始终用全量簇的省份合计。 */
   const provinceCounts = useMemo(() => {
@@ -361,25 +643,24 @@ const SceneBody = ({
 
   /**
    * 主场取景：候选俯角各解一次，取屏幕占比最大者，并让版图落在 HUD 之间的可见带正中。
-   * 候选表比「细光柱时代」整体抬高：柱子现在最高约 1.6 世界单位，俯角太低时
-   * 后排柱子会被前排完全遮住。
+   * 竖向范围取光束最高值——光比版图高得多，只按挤出高度取景会把最密的几束裁掉。
    */
   const home = useMemo<FramingSolution>(
     () =>
       solveFraming({
         box: framing.box ?? fallbackBox,
         minHeight: 0,
-        maxHeight: MAX_EXTRUDE,
+        maxHeight: FIT_MAX_HEIGHT,
         fovDeg: CAMERA_FOV,
         aspect,
-        margin: 1.03,
+        margin: 1.06,
         insets: hudInsets,
-        elevations: [0.6, 0.7, 0.8, 0.9, 1.0, 1.12, 1.24],
+        elevations: [0.62, 0.72, 0.82, 0.92, 1.02, 1.14, 1.26],
       }),
     [framing.box, aspect, hudInsets],
   );
 
-  /** 省域聚焦：把该省（含挤出）塞进画面。 */
+  /** 省域聚焦：把该省（含光束高度）塞进画面。 */
   const focus = useMemo<FramingSolution | null>(() => {
     if (!selectedProvince) return null;
     const province = provinces.find((item) => item.simpleName === selectedProvince);
@@ -393,12 +674,12 @@ const SceneBody = ({
     return solveFraming({
       box,
       minHeight: 0,
-      maxHeight: MAX_EXTRUDE,
+      maxHeight: FIT_MAX_HEIGHT,
       fovDeg: CAMERA_FOV,
       aspect,
-      margin: 1.28,
+      margin: 1.24,
       insets: hudInsets,
-      elevations: [Math.min(home.elevation, 1.0)],
+      elevations: [Math.min(home.elevation, 0.92)],
     });
   }, [provinces, selectedProvince, aspect, hudInsets, home.elevation]);
 
@@ -408,10 +689,10 @@ const SceneBody = ({
     return solveFraming({
       box: framing.box ?? fallbackBox,
       minHeight: 0,
-      maxHeight: MAX_EXTRUDE,
+      maxHeight: FIT_MAX_HEIGHT,
       fovDeg: CAMERA_FOV,
       aspect,
-      margin: 1.06,
+      margin: 1.08,
       insets: hudInsets,
       elevations: [preset.elevation],
     });
@@ -443,8 +724,8 @@ const SceneBody = ({
     <>
       <color attach="background" args={[palette.bg]} />
       <fogExp2 attach="fog" args={[palette.bg, palette.fogDensity]} />
-      <ambientLight intensity={palette.beamBlending === 'additive' ? 0.5 : 0.95} />
-      <directionalLight position={[4, 9, 6]} intensity={palette.beamBlending === 'additive' ? 0.85 : 1.15} />
+      <ambientLight intensity={night ? 0.5 : 0.95} />
+      <directionalLight position={[4, 9, 6]} intensity={night ? 0.85 : 1.15} />
       <directionalLight position={[-6, 6, -4]} intensity={0.35} />
 
       {/* 展台台面：版图落在实体台面上，而不是浮在虚空里（浅色底上是宣纸衬板） */}
@@ -453,7 +734,7 @@ const SceneBody = ({
         <meshStandardMaterial color={palette.floor} roughness={1} metalness={0} />
       </mesh>
 
-      {/* 省块 / 产区堆叠柱 / 命中盘：同一旋转组，同一坐标系 */}
+      {/* 省块 / 光束 / 标记环 / 命中盘：同一旋转组，同一坐标系 */}
       <group rotation={PLANE_ROTATION}>
         <ProvinceLayer
           provinces={provinces}
@@ -466,17 +747,17 @@ const SceneBody = ({
             onHoverProvince(province);
           }}
         />
-        {visible.map((cluster) => (
-          <ClusterStack
-            key={cluster.id}
-            cluster={cluster}
-            palette={palette}
-            selected={cluster.members.some((member) => member.id === selectedId)}
-            hovered={cluster.id === hoveredClusterId}
-            onSelect={() => onSelectCluster(cluster)}
-            onHover={(hovered) => setHoveredClusterId(hovered ? cluster.id : null)}
-          />
-        ))}
+        <BeamField
+          clusters={visible}
+          capacity={capacity}
+          palette={palette}
+          selectedId={selectedId}
+          hoveredClusterId={hoveredClusterId}
+          onSelect={onSelectCluster}
+          onHover={(cluster) => setHoveredClusterId(cluster?.id ?? null)}
+        />
+        <BeamGlow clusters={visible} palette={palette} />
+        <MarkerRings clusters={visible} palette={palette} />
         <ClusterHitDiscs
           clusters={visible}
           onSelect={onSelectCluster}
@@ -488,14 +769,16 @@ const SceneBody = ({
         软阴影是纯装饰：每帧它都会把整个场景额外渲染一遍再两次模糊。
         无 GPU 的 CI runner（SwiftShader 软件光栅）上这一项就把场景压到个位数帧率，
         连带点击和断言一起超时——所以按 WebGL 后端分档，软件渲染直接不出阴影。
+        浅色舞台上再压一档不透明度：纸底上的深阴影会糊成一大片脏斑，
+        光束本来就细，也不需要靠阴影立住。
       */}
       {softShadows && (
         <ContactShadows
           position={[framing.center[0], -0.005, -framing.center[1]]}
-          opacity={palette.beamBlending === 'additive' ? 0.45 : 0.38}
+          opacity={night ? 0.42 : 0.16}
           scale={15}
-          blur={2.4}
-          far={4.5}
+          blur={2.6}
+          far={3}
           color={palette.shadow}
         />
       )}
@@ -526,7 +809,7 @@ export function LightMapScene(props: LightMapSceneProps) {
   );
   /**
    * 软件光栅（无显卡的 CI runner）按需渲染：版图是静态的，只要没有交互就不必
-   * 每秒重画 47 块挤出几何 + 上百根堆叠柱——实测那会把主线程占满，连 Playwright
+   * 每秒重画 47 块挤出几何 + 上百根光束——实测那会把主线程占满，连 Playwright
    * 的点击都要排到帧后面。真 GPU 上一律保持连续渲染（默认分支）。
    */
   const software = useMemo(() => detectSoftwareRenderer(), []);
@@ -563,8 +846,8 @@ const ProvinceLayer = ({
   onSelectProvince: (province: string | null) => void;
   onHoverProvince: (province: string | null) => void;
 }) => {
-  const isDark = palette.beamBlending === 'additive';
-  const baseEmissive = isDark ? 0.22 : 0.1;
+  const night = isNightStage(palette);
+  const baseEmissive = night ? 0.22 : 0.1;
 
   return (
     <>

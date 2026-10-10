@@ -19,6 +19,6 @@ export interface ViewPreset {
 export const VIEW_PRESETS: readonly ViewPreset[] = [
   { id: 'iso', label: '斜视', hint: '从南方俯视全图（默认）', elevation: 0.72, azimuth: 0 },
   { id: 'top', label: '俯瞰', hint: '接近垂直向下，看整体分布', elevation: 1.3, azimuth: 0 },
-  { id: 'level', label: '平视', hint: '压低视角，柱体高低差最明显', elevation: 0.44, azimuth: 0 },
+  { id: 'level', label: '平视', hint: '压低视角，光束高低差最明显', elevation: 0.44, azimuth: 0 },
   { id: 'east', label: '东侧', hint: '从东面看，西部高原退到远处', elevation: 0.66, azimuth: Math.PI / 2 },
 ];

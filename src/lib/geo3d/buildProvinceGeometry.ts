@@ -10,7 +10,7 @@ import { partitionRings, pointInRing, ringCentroid } from './ringFilter';
  * 调用方负责把 group 旋转到水平面。
  *
  * **平面原点只有一个：视图中心。** SVG 路径的 x/y 是「左上角为原点」的画布像素，
- * 而产区柱、相机取景用的是 `project3D()`（视图中心为原点）。两者相差半张图
+ * 而产区光束、相机取景用的是 `project3D()`（视图中心为原点）。两者相差半张图
  * （实测 5.05, −5.23），所以这里所有坐标都必须过 `toPlane()`——
  * 见 `src/lib/geo3d/__tests__/geometry.test.ts` 的坐标系对齐断言。
  *
