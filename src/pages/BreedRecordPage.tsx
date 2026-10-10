@@ -12,7 +12,7 @@ import batchMap from '@/data/breedBatch.generated.json';
  *
  * 保留既有 `BreedDetail`（图片、体貌、性能、雷达、来源核验区），
  * 外层补上「卷宗头部」：档案编号 + 批次 + 三态核验徽章 + 官方来源链接，
- * 让光图上任意一根产区柱都能在 3 次点击内链回官方文件。
+ * 让光图上任意一道产区光束都能在 3 次点击内链回官方文件。
  */
 
 export default function BreedRecordPage() {

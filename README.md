@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。主展项是 **「畜种光图」**——一座可旋转的 3D 中国，1062 条可落点记录先聚成 **161 个产区**，每个产区立一根按类别分段的堆叠柱，四个镜头切换看法，点任意一根柱直达品种清单；配套 **互动厅**（找家挑战 / 识图挑战 / 知识问答，出题只用已核验字段）与 **馆史页**（来源链、诚实映射表、质量仪表盘与 AI 披露）。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。主展项是 **「畜种光图」**——一座可旋转的 3D 中国，1062 条可落点记录先聚成 **161 个产区**，每个产区立起一道细长的自发光光束（束身按类别分段、束顶金环、束底橙环），四个镜头切换看法，点任意一束光直达品种清单；配套 **互动厅**（找家挑战 / 识图挑战 / 知识问答，出题只用已核验字段）与 **馆史页**（来源链、诚实映射表、质量仪表盘与 AI 披露）。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 

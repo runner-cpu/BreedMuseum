@@ -16,28 +16,28 @@ import { SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
 /** 诚实映射表：光图上每个视觉通道对应的字段，含"故意不映射"的说明。 */
 const MAPPING_ROWS: Array<{ channel: string; field: string; note: string }> = [
   {
-    channel: '柱体平面位置',
+    channel: '光束平面位置',
     field: '真实经纬度（同省相邻坐标聚为产区簇）',
     note: `${COLLECTION_SUMMARY.mappable} 条已核验产区；其余 ${COLLECTION_SUMMARY.unverifiedProvince} 条不落点`,
   },
   {
-    channel: '柱体底面半径',
+    channel: '光束粗细',
     field: '该产区的品种记录数',
-    note: '一个柱体 = 一个产区；不再按记录数铺成圆环（旧画法把 45 条画成一圈 45 个点）',
+    note: '一束光 = 一个产区；不再按记录数铺成圆环（旧画法把 45 条画成一圈 45 个点）',
   },
-  { channel: '柱体高度', field: '同一产区的品种记录数（对数压缩）', note: '0.22–1.6 世界单位，53 条与 45 条不会差出量级' },
+  { channel: '光束高度', field: '同一产区的品种记录数（对数压缩）', note: '0.65–1.4 世界单位；镜头切换只改分段构成，不改高度与位置' },
   {
-    channel: '柱身分段色相',
+    channel: '束身分段色相',
     field: '该产区的类别构成（15 色，与平面图一致）',
     note: '段高 = 该类别在这个产区的条数；超过 6 个类别时尾部并成「其他类别」',
   },
   {
-    channel: '柱顶金环',
+    channel: '束顶金环',
     field: '该产区含国家级保护名录匹配',
     note: `940 号公告在册 ${COLLECTION_SUMMARY.nationalProtectedMatches} 个`,
   },
   {
-    channel: '柱底橙环',
+    channel: '束底橙环',
     field: '该产区含编辑口径濒危记录',
     note: `编辑标注口径 ${COLLECTION_SUMMARY.editorialEndangered} 个，非权威结论`,
   },
@@ -66,7 +66,7 @@ const AI_DISCLOSURE: Array<{ item: string; content: string }> = [
 
 const THIRD_PARTY: Array<{ name: string; note: string }> = [
   { name: 'React / Vite / TypeScript', note: '基础框架，按项目结构自行组织状态与路由。' },
-  { name: 'three.js + @react-three/fiber + drei', note: '三维渲染底座；省域挤出、堆叠柱实例化、相机运镜均为自研，未引入后处理与环境贴图。' },
+  { name: 'three.js + @react-three/fiber + drei', note: '三维渲染底座；省域挤出、光束实例化与光晕、相机运镜均为自研，未引入后处理、HDR 或环境贴图。' },
   { name: 'Recharts', note: '平面图表库（档案页雷达图）；配色与刻度按站内令牌重设。' },
   { name: 'motion', note: '入场与计数动画；全部带 reduced-motion 直显分支。' },
   { name: 'lucide-react', note: '图标库。' },
