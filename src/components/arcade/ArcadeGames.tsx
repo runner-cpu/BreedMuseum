@@ -55,7 +55,7 @@ function FindHomeGame() {
       : haversineKm(PROVINCE_CENTROIDS[province] ?? [0, 0], round.answerCoordinate);
     setFeedback({
       correct,
-      text: correct ? '答对了——这束光就在你点的省份' : `方向不对：距真实产区约 ${distance.toLocaleString()} 公里`,
+      text: correct ? '答对了——这个产区就在你点的省份' : `方向不对：距真实产区约 ${distance.toLocaleString()} 公里`,
     });
   };
 
@@ -73,7 +73,7 @@ function FindHomeGame() {
   if (finished) {
     return (
       <div className={PANEL}>
-        <p className="text-sm">本局结束——你找到的每一束光都能点开看官方来源。</p>
+        <p className="text-sm">本局结束——你找到的每一个产区都能点开看官方来源。</p>
         <ul className="mt-3 space-y-1 text-sm">
           {rounds.map((item) => (
             <li key={item.breed.id}>

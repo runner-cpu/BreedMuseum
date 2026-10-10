@@ -30,11 +30,15 @@ export const COLLECTION_SUMMARY = {
 
 /**
  * 工程质量仪表盘常量（/about 页与文档共用）。
- * 测试数量在里程碑收口时更新；数值由 collectionSummary 契约测试保证为整数。
+ *
+ * 这些是**人工维护的里程碑快照**，由里程碑收口时按实测结果更新，
+ * `collectionSummary.test.ts` 只保证它们是非负整数、不会悄悄变成小数或负数。
+ * 测试数量不参与数据审计，也不阻止别人在本地跑更多测试；它们只用来向观众说明
+ * 「这个项目有自动化测试体系」，不是每次提交的实时计数。
  */
 export const QUALITY_SUMMARY = {
-  unitTests: 137,
-  e2eTests: 42,
+  unitTests: 173,
+  e2eTests: 54,
   auditChecks: 11,
   workflows: 2,
   dataVersion: COLLECTION_VERSION,

@@ -21,7 +21,7 @@ export interface RouteConfig {
  */
 export const routes: RouteConfig[] = [
   { path: '/', Component: lazy(() => import('./pages/LightMapPage')), meta: {
-    zh: { title: '畜种光图 · 中国地方畜禽品种数字博物馆', description: '1186 份官方核验档案落在真实产区坐标上：四个镜头看全国分布、国家级保护与濒危现状，点任意一束光查看品种档案与官方来源。' },
+    zh: { title: '畜种光图 · 中国地方畜禽品种数字博物馆', description: '1186 份官方核验档案先聚成 161 个产区、立在真实坐标上：四个镜头看全国分布、国家级保护与濒危现状，拖拽旋转、点任意一根柱查看品种清单与官方来源。' },
     en: { title: 'Breed Light Map · China Local Livestock Digital Museum', description: '1,186 verified records placed on real production coordinates. Four lenses cover national distribution, protected breeds and endangered records.' },
   } },
   { path: '/arcade', Component: lazy(() => import('./pages/ArcadePage')), meta: {
