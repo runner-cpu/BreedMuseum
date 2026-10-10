@@ -52,6 +52,31 @@
     --gradient-background: radial-gradient(ellipse at top, hsl(42 37% 96%), hsl(42 37% 94%));
     --shadow-card: 0 1px 2px hsl(0 0% 17% / 0.06);
     --shadow-hover: 0 4px 12px hsl(0 0% 17% / 0.1);
+
+    /*
+     * 展厅令牌（stage）：DOM 舞台与 WebGL 场景共用的唯一色彩源。
+     * 取值必须与 `src/lib/stagePalette.ts` 的 LIGHT_STAGE / DARK_STAGE 完全一致，
+     * 由 `src/lib/__tests__/stagePalette.test.ts` 断言，改一处必改另一处。
+     * 同时提供 `-rgb` 通道三元组，供 Tailwind 的 `<alpha-value>` 生成透明度变体。
+     */
+    --stage: #f1ece0;
+    --stage-panel: #fbf8f0;
+    --stage-soft: #e9e2d2;
+    --stage-border: #d3c8ae;
+    --stage-fg: #173b2c;
+    --stage-muted: #5c6b60;
+    --stage-gold: #845c10;
+    --stage-rgb: 241 236 224;
+    --stage-panel-rgb: 251 248 240;
+    --stage-soft-rgb: 233 226 210;
+    --stage-border-rgb: 211 200 174;
+    --stage-fg-rgb: 23 59 44;
+    --stage-muted-rgb: 92 107 96;
+    --stage-gold-rgb: 132 92 16;
+
+    /* 让浏览器原生 UI（滚动条、表单控件、canvas 底色）跟随主题，
+       否则深色页面会拖出一条亮色滚动槽。 */
+    color-scheme: light;
   }
 
   .dark {
@@ -96,6 +121,24 @@
     --gradient-background: radial-gradient(ellipse at top, hsl(155 22% 14%), hsl(155 25% 10%));
     --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.3);
     --shadow-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
+
+    /* 展厅令牌（深色）——与 stagePalette.ts 的 DARK_STAGE 逐字段对应 */
+    --stage: #0a100e;
+    --stage-panel: #121a16;
+    --stage-soft: #0e1512;
+    --stage-border: #2a3831;
+    --stage-fg: #eef2ec;
+    --stage-muted: #a8b6ac;
+    --stage-gold: #d4a853;
+    --stage-rgb: 10 16 14;
+    --stage-panel-rgb: 18 26 22;
+    --stage-soft-rgb: 14 21 18;
+    --stage-border-rgb: 42 56 49;
+    --stage-fg-rgb: 238 242 236;
+    --stage-muted-rgb: 168 182 172;
+    --stage-gold-rgb: 212 168 83;
+
+    color-scheme: dark;
   }
 }
 
@@ -112,6 +155,12 @@
   body {
     @apply bg-background text-foreground;
     background-image: var(--gradient-background);
+  }
+
+  /* 页面舞台：与三维场景共用同一底色，主题切换时一起变 */
+  .stage-surface {
+    background-color: var(--stage);
+    color: var(--stage-fg);
   }
 
   h1, h2, h3, h4, h5, h6 {

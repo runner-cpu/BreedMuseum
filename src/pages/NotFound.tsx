@@ -16,7 +16,7 @@ export default function NotFound() {
     <code className="max-w-full break-all rounded bg-muted px-3 py-2 text-sm">{pathname}</code>
     <div className="flex flex-wrap justify-center gap-3">
       <Link to="/" className="inline-flex min-h-11 items-center rounded-lg bg-primary px-5 text-primary-foreground">{t('nf.backHome')}</Link>
-      <Link to="/encyclopedia" className="inline-flex min-h-11 items-center rounded-lg border px-5">{t('nf.browseEnc')}</Link>
+      <Link to="/arcade" className="inline-flex min-h-11 items-center rounded-lg border px-5">{t('nf.browseEnc')}</Link>
     </div>
   </section>;
 }

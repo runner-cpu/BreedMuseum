@@ -36,6 +36,70 @@ export interface ProvinceGeometry {
   geometry: THREE.ExtrudeGeometry | null;
   /** 地图平面坐标下的质心（世界单位，供摄像机与标签定位） */
   center: [number, number];
+  /** 平面包围盒：`mainland` 排除南海诸岛远端环（取景用），`all` 含全部保留环 */
+  bounds: { mainland: PlaneBounds | null; all: PlaneBounds | null };
+}
+
+/** 平面坐标下的轴对齐包围盒（局部 x/y，未挤出）。 */
+export interface PlaneBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
+/**
+ * 南海诸岛在平面坐标里位于主体以南很远（纬度约 4°N），若把它计入取景，
+ * 整幅中国会被压成一条细带。因此按纬度阈值把远端环排除出「主体」包围盒，
+ * 只用于**取景**；几何本身照旧完整渲染（不裁数据）。
+ */
+export const MAINLAND_MIN_LAT = 18;
+
+/** 平面局部 y（世界单位）→ 纬度，用于判定环属于主体还是南海远端。 */
+export function planeYToLat(y: number): number {
+  const svgY = mapViewBox.height / 2 - y * PLANE_SCALE;
+  return 54 - (svgY / mapViewBox.height) * 36;
+}
+
+const EMPTY_BOUNDS = (): PlaneBounds => ({ minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+
+const grow = (target: PlaneBounds, points: readonly [number, number][]) => {
+  for (const [x, y] of points) {
+    const wx = x / PLANE_SCALE;
+    const wy = -y / PLANE_SCALE;
+    if (wx < target.minX) target.minX = wx;
+    if (wx > target.maxX) target.maxX = wx;
+    if (wy < target.minY) target.minY = wy;
+    if (wy > target.maxY) target.maxY = wy;
+  }
+};
+
+const isFiniteBounds = (bounds: PlaneBounds) => Number.isFinite(bounds.minX) && Number.isFinite(bounds.minY);
+
+/** 取景框：把省份包围盒并起来，输出观察中心与半径（不含挤出高度）。 */
+export interface SceneFraming {
+  center: [number, number];
+  radius: number;
+  /** true = 主体包围盒可用（有落到主体的省份） */
+  usable: boolean;
+}
+
+export function measureSceneFraming(items: readonly ProvinceGeometry[]): SceneFraming {
+  const union = EMPTY_BOUNDS();
+  for (const item of items) {
+    const box = item.bounds.mainland ?? item.bounds.all;
+    if (!box) continue;
+    union.minX = Math.min(union.minX, box.minX);
+    union.maxX = Math.max(union.maxX, box.maxX);
+    union.minY = Math.min(union.minY, box.minY);
+    union.maxY = Math.max(union.maxY, box.maxY);
+  }
+  if (!isFiniteBounds(union)) return { center: [0, 0], radius: 5, usable: false };
+  return {
+    center: [(union.minX + union.maxX) / 2, (union.minY + union.maxY) / 2],
+    radius: Math.max(union.maxX - union.minX, union.maxY - union.minY) / 2,
+    usable: true,
+  };
 }
 
 export const simplifyProvinceName = (fullName: string): string =>
@@ -86,6 +150,9 @@ export function buildProvinceGeometries(
     const { outers, holes, droppedNoise } = partitionRings(rings);
 
     if (outers.length === 0) {
+      const only = rings[0]?.points ?? [];
+      const bounds = EMPTY_BOUNDS();
+      if (only.length) grow(bounds, only);
       return {
         fullName,
         simpleName,
@@ -94,7 +161,8 @@ export function buildProvinceGeometries(
         droppedNoise,
         degraded: true,
         geometry: null,
-        center: ringCenter(rings[0]?.points ?? []),
+        center: ringCenter(only),
+        bounds: { mainland: null, all: isFiniteBounds(bounds) ? bounds : null },
       };
     }
 
@@ -117,6 +185,15 @@ export function buildProvinceGeometries(
     });
     geometry.computeVertexNormals();
 
+    // 包围盒：all = 全部保留环；mainland = 排除南海远端环（仅用于取景）
+    const all = EMPTY_BOUNDS();
+    const mainland = EMPTY_BOUNDS();
+    for (const ring of outers) {
+      grow(all, ring.points);
+      const inMainland = ring.points.some(([x, y]) => planeYToLat(-(y / PLANE_SCALE)) >= MAINLAND_MIN_LAT);
+      if (inMainland) grow(mainland, ring.points);
+    }
+
     return {
       fullName,
       simpleName,
@@ -126,6 +203,7 @@ export function buildProvinceGeometries(
       degraded: false,
       geometry,
       center: ringCenter(outers[0].points),
+      bounds: { mainland: isFiniteBounds(mainland) ? mainland : null, all },
     };
   });
 }

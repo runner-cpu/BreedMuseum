@@ -24,6 +24,21 @@ export default {
             },
             colors: {
                 museum: { ink: '#173B2C', paper: '#F4EFE3', gold: '#C79A45' },
+                /*
+                 * 展厅令牌：随 light/dark 切换，DOM 与 WebGL 场景共用同一套取值。
+                 * 用 `rgb(var(--…-rgb) / <alpha-value>)` 而非裸 `var(--…)`，
+                 * 否则 `bg-stage-gold/15` 这类透明度修饰符不会生成任何 CSS，
+                 * 页面会静默回退到「无背景/无边框」。
+                 */
+                stage: {
+                    DEFAULT: 'rgb(var(--stage-rgb) / <alpha-value>)',
+                    panel: 'rgb(var(--stage-panel-rgb) / <alpha-value>)',
+                    soft: 'rgb(var(--stage-soft-rgb) / <alpha-value>)',
+                    border: 'rgb(var(--stage-border-rgb) / <alpha-value>)',
+                    fg: 'rgb(var(--stage-fg-rgb) / <alpha-value>)',
+                    muted: 'rgb(var(--stage-muted-rgb) / <alpha-value>)',
+                    gold: 'rgb(var(--stage-gold-rgb) / <alpha-value>)',
+                },
                 border: 'hsl(var(--border))',
                 borderColor: {
                     border: 'hsl(var(--border))'

@@ -9,7 +9,8 @@ import { SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
  * 馆史与库房（`/about`）——无现场评审时的自解释材料。
  *
  * 五个区块：定位、建馆路线、数据来源链、质量仪表盘、AI 与第三方披露。
- * 所有数字读自 `COLLECTION_SUMMARY` / `QUALITY_SUMMARY`，页面不出现裸数字。
+ * 所有数字读自 `COLLECTION_SUMMARY` / `QUALITY_SUMMARY`，页面不出现裸数字；
+ * 配色统一走 `stage*` 语义令牌，浅色（宣纸）与深色（墨绿夜色）两套主题同构。
  */
 
 /** 诚实映射表：光图上每个视觉通道对应的字段，含"故意不映射"的说明。 */
@@ -47,15 +48,15 @@ export default function AboutPage() {
   const notice = breedSources['moa-notice-940'];
 
   return (
-    <div className="min-h-full bg-[#080b09] px-4 py-8 text-museum-paper">
+    <div className="min-h-full bg-stage px-4 py-8 text-stage-fg">
       <div className="mx-auto w-full max-w-4xl space-y-8">
         <header className="space-y-3">
-          <p className="flex items-center gap-2 text-xs tracking-[0.2em] text-museum-gold/90">
+          <p className="flex items-center gap-2 text-xs tracking-[0.2em] text-stage-gold">
             <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
             ABOUT THE MUSEUM
           </p>
           <h1 className="font-serif text-3xl">馆史与库房</h1>
-          <p className="max-w-3xl text-sm leading-relaxed text-museum-paper/80">
+          <p className="max-w-3xl text-sm leading-relaxed text-stage-fg/85">
             「畜种光图」是一座纯前端数字博物馆：馆藏 {COLLECTION_SUMMARY.total} 条地方畜禽品种记录，
             其中 {COLLECTION_SUMMARY.mappable} 条产区已核验并落在光图上，
             覆盖 {COLLECTION_SUMMARY.provinces} 个省级行政区、{COLLECTION_SUMMARY.categories} 个类别；
@@ -78,9 +79,9 @@ export default function AboutPage() {
               '静态构建：全部数据与计算都在浏览器本地，无后端、无账号、无追踪。',
               '发布门禁：类型检查、单测、数据审计、文档同步与浏览器端到端用例全部通过才部署。',
             ].map((step, index) => (
-              <li key={step} className="flex gap-2 rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
-                <span className="font-mono text-xs text-museum-gold">{String(index + 1).padStart(2, '0')}</span>
-                <span className="text-museum-paper/85">{step}</span>
+              <li key={step} className="flex gap-2 rounded-lg border border-stage-border bg-stage-panel p-3">
+                <span className="font-mono text-xs text-stage-gold">{String(index + 1).padStart(2, '0')}</span>
+                <span className="text-stage-fg/85">{step}</span>
               </li>
             ))}
           </ol>
@@ -92,12 +93,12 @@ export default function AboutPage() {
             数据来源链
           </h2>
           <div className="space-y-2 text-sm">
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
-              <FileText className="h-4 w-4 text-museum-gold" aria-hidden="true" />
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-stage-border bg-stage-panel p-3">
+              <FileText className="h-4 w-4 text-stage-gold" aria-hidden="true" />
               <span>{catalog.title}</span>
-              <span className="text-xs text-museum-paper/65">（文号 {catalog.notice}，发布于 {catalog.publishedAt}）</span>
+              <span className="text-xs text-stage-muted">（文号 {catalog.notice}，发布于 {catalog.publishedAt}）</span>
               <a
-                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-white"
+                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-stage-gold"
                 href={catalog.url}
                 target="_blank"
                 rel="noreferrer"
@@ -106,7 +107,7 @@ export default function AboutPage() {
                 <ExternalLink className="h-3 w-3" aria-hidden="true" />
               </a>
               <a
-                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-white"
+                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-stage-gold"
                 href={catalog.pdfUrl}
                 target="_blank"
                 rel="noreferrer"
@@ -115,12 +116,12 @@ export default function AboutPage() {
                 <ExternalLink className="h-3 w-3" aria-hidden="true" />
               </a>
             </p>
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
-              <ShieldCheck className="h-4 w-4 text-museum-gold" aria-hidden="true" />
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-stage-border bg-stage-panel p-3">
+              <ShieldCheck className="h-4 w-4 text-stage-gold" aria-hidden="true" />
               <span>{notice.title}</span>
-              <span className="text-xs text-museum-paper/65">（国家级保护名录判定依据）</span>
+              <span className="text-xs text-stage-muted">（国家级保护名录判定依据）</span>
               <a
-                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-white"
+                className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-stage-gold"
                 href={notice.url}
                 target="_blank"
                 rel="noreferrer"
@@ -135,13 +136,13 @@ export default function AboutPage() {
           <VerificationLegend />
 
           <h3 className="pt-2 font-serif text-base">诚实映射表（光图的每个通道都对应一个字段）</h3>
-          <div className="overflow-auto rounded-lg border border-white/12">
+          <div className="overflow-auto rounded-lg border border-stage-border">
             <table className="w-full min-w-[560px] text-left text-xs">
-              <caption className="p-3 text-left text-museum-paper/70">
+              <caption className="p-3 text-left text-stage-muted">
                 没有数据的通道宁可留白，不做装饰性伪编码。
               </caption>
               <thead>
-                <tr className="border-b border-white/15 text-museum-paper/70">
+                <tr className="border-b border-stage-border text-stage-muted">
                   <th scope="col" className="p-2">视觉通道</th>
                   <th scope="col" className="p-2">映射字段</th>
                   <th scope="col" className="p-2">说明</th>
@@ -149,10 +150,10 @@ export default function AboutPage() {
               </thead>
               <tbody>
                 {MAPPING_ROWS.map((row) => (
-                  <tr key={row.channel} className="border-b border-white/5">
+                  <tr key={row.channel} className="border-b border-stage-border/50">
                     <th scope="row" className="p-2 font-normal">{row.channel}</th>
                     <td className="p-2">{row.field}</td>
-                    <td className="p-2 text-museum-paper/70">{row.note}</td>
+                    <td className="p-2 text-stage-muted">{row.note}</td>
                   </tr>
                 ))}
               </tbody>
@@ -163,7 +164,7 @@ export default function AboutPage() {
         {/* 3. 质量仪表盘 */}
         <section aria-labelledby="about-quality" className="space-y-3">
           <h2 id="about-quality" className="flex items-center gap-2 font-serif text-xl">
-            <Gauge className="h-5 w-5 text-museum-gold" aria-hidden="true" />
+            <Gauge className="h-5 w-5 text-stage-gold" aria-hidden="true" />
             质量仪表盘
           </h2>
           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 lg:grid-cols-6">
@@ -175,13 +176,13 @@ export default function AboutPage() {
               { label: '端到端用例', value: QUALITY_SUMMARY.e2eTests },
               { label: '审计断言类别', value: QUALITY_SUMMARY.auditChecks },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
-                <dt className="text-xs text-museum-paper/70">{stat.label}</dt>
-                <dd className="font-mono text-xl text-museum-gold">{stat.value}</dd>
+              <div key={stat.label} className="rounded-lg border border-stage-border bg-stage-panel p-3">
+                <dt className="text-xs text-stage-muted">{stat.label}</dt>
+                <dd className="font-mono text-xl text-stage-gold">{stat.value}</dd>
               </div>
             ))}
           </dl>
-          <p className="text-xs text-museum-paper/70">
+          <p className="text-xs text-stage-muted">
             数据版本 {QUALITY_SUMMARY.dataVersion}；每次发布前运行类型检查、静态检查、单元测试、
             数据审计、文档同步检查、包体预算检查与浏览器端到端用例（桌面与移动双视口）。
             站内 <a className="underline underline-offset-4" href="audit/">/audit/</a> 提供公开的审计报告与图片索引。
@@ -191,20 +192,20 @@ export default function AboutPage() {
         {/* 4. 探索记录 */}
         <section aria-labelledby="about-explore" className="space-y-3">
           <h2 id="about-explore" className="flex items-center gap-2 font-serif text-xl">
-            <Sparkles className="h-5 w-5 text-museum-gold" aria-hidden="true" />
+            <Sparkles className="h-5 w-5 text-stage-gold" aria-hidden="true" />
             探索记录（我们收敛掉的方案）
           </h2>
-          <ul className="space-y-2 text-sm text-museum-paper/80">
-            <li className="rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
+          <ul className="space-y-2 text-sm text-stage-fg/85">
+            <li className="rounded-lg border border-stage-border bg-stage-panel p-3">
               早期版本曾内置「温湿指数（THI）热应激决策台」与「品种推荐引擎」。
               复盘后判断：缺少现场气象输入的条件，工具型承诺无法兑现，属于"看起来有用"；
               因此本轮将其从展示层移除，注意力转回馆藏本身。
             </li>
-            <li className="rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
+            <li className="rounded-lg border border-stage-border bg-stage-panel p-3">
               也曾设想过「高原专章」叙事。考虑到本馆是**全国**种质资源馆藏，
               单独抬高某一区域会削弱馆藏完整性，最终改为按省份同构展示。
             </li>
-            <li className="rounded-lg border border-white/12 bg-[#0b0f0d] p-3">
+            <li className="rounded-lg border border-stage-border bg-stage-panel p-3">
               交互形式从"更多功能"收敛到"三台展教装置 + 一个三维光图"：
               与其堆功能，不如让观众动手用一次真实数据。
             </li>
@@ -214,25 +215,25 @@ export default function AboutPage() {
         {/* 5. AI 与第三方披露 */}
         <section aria-labelledby="about-disclosure" className="space-y-3">
           <h2 id="about-disclosure" className="flex items-center gap-2 font-serif text-xl">
-            <Database className="h-5 w-5 text-museum-gold" aria-hidden="true" />
+            <Database className="h-5 w-5 text-stage-gold" aria-hidden="true" />
             AI 使用披露与第三方资源
           </h2>
-          <div className="overflow-auto rounded-lg border border-white/12">
+          <div className="overflow-auto rounded-lg border border-stage-border">
             <table className="w-full min-w-[560px] text-left text-xs">
-              <caption className="p-3 text-left text-museum-paper/70">
+              <caption className="p-3 text-left text-stage-muted">
                 按竞赛细则第九条的统一口径逐项说明。
               </caption>
               <thead>
-                <tr className="border-b border-white/15 text-museum-paper/70">
+                <tr className="border-b border-stage-border text-stage-muted">
                   <th scope="col" className="p-2">项目</th>
                   <th scope="col" className="p-2">说明</th>
                 </tr>
               </thead>
               <tbody>
                 {AI_DISCLOSURE.map((row) => (
-                  <tr key={row.item} className="border-b border-white/5">
+                  <tr key={row.item} className="border-b border-stage-border/50">
                     <th scope="row" className="p-2 font-normal">{row.item}</th>
-                    <td className="p-2 text-museum-paper/85">{row.content}</td>
+                    <td className="p-2 text-stage-fg/85">{row.content}</td>
                   </tr>
                 ))}
               </tbody>
@@ -240,25 +241,25 @@ export default function AboutPage() {
           </div>
 
           <h3 className="pt-2 font-serif text-base">第三方开源资源</h3>
-          <ul className="space-y-1 text-xs text-museum-paper/80">
+          <ul className="space-y-1 text-xs text-stage-fg/85">
             {THIRD_PARTY.map((item) => (
               <li key={item.name} className="flex gap-2">
-                <span className="shrink-0 font-mono text-museum-gold">{item.name}</span>
+                <span className="shrink-0 font-mono text-stage-gold">{item.name}</span>
                 <span>{item.note}</span>
               </li>
             ))}
           </ul>
-          <p className="text-xs text-museum-paper/60">
+          <p className="text-xs text-stage-muted">
             本馆不含任何生成式 AI 产出内容；游戏题目由本地规则从已核验字段生成
             （剪影共 {SILHOUETTE_CATEGORIES.length} 类，为本项目自绘）。
           </p>
         </section>
 
         <nav aria-label="相关页面" className="flex flex-wrap gap-3 text-sm">
-          <Link className="underline underline-offset-4 hover:text-white" to="/">
+          <Link className="underline underline-offset-4 hover:text-stage-gold" to="/">
             回到光图
           </Link>
-          <Link className="underline underline-offset-4 hover:text-white" to="/arcade">
+          <Link className="underline underline-offset-4 hover:text-stage-gold" to="/arcade">
             互动厅
           </Link>
         </nav>

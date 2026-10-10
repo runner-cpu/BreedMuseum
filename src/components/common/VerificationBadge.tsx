@@ -7,12 +7,15 @@ import { getVerificationVerdict, type VerificationLevel } from '@/data/verificat
  *
  * 判定逻辑在 `@/data/verification`，本组件只负责呈现：
  * 徽章必须始终带文字（不能只用颜色表达状态），保证色觉障碍用户可读。
+ *
+ * 配色走 stage 语义令牌，因此浅色（宣纸）与深色（墨绿夜色）下都保持可读对比；
+ * `official` 用金色描边 + 金色文字，`pending` 用虚线边框表示「尚未确证」。
  */
 
 const STYLES: Record<VerificationLevel, string> = {
-  official: 'border-museum-gold/60 bg-museum-gold/15 text-museum-gold',
-  editorial: 'border-white/25 bg-white/10 text-museum-paper/90',
-  pending: 'border-dashed border-white/30 bg-transparent text-museum-paper/70',
+  official: 'border-stage-gold/70 bg-stage-gold/15 text-stage-gold',
+  editorial: 'border-stage-border bg-stage-soft text-stage-fg/85',
+  pending: 'border-dashed border-stage-border bg-transparent text-stage-muted',
 };
 
 const MARKS: Record<VerificationLevel, string> = {
@@ -50,7 +53,7 @@ export function VerificationBadge({ breed, className, compact = false }: Verific
 /** 徽章图例（档案库页头 / 关于页共用）。 */
 export function VerificationLegend({ className }: { className?: string }) {
   return (
-    <ul className={cn('flex flex-wrap items-center gap-3 text-[11px] text-museum-paper/75', className)}>
+    <ul className={cn('flex flex-wrap items-center gap-3 text-[11px] text-stage-muted', className)}>
       {(['official', 'editorial', 'pending'] as const).map((level) => (
         <li key={level} className="inline-flex items-center gap-1.5">
           <span
