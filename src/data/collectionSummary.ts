@@ -37,7 +37,7 @@ export const COLLECTION_SUMMARY = {
  * 「这个项目有自动化测试体系」，不是每次提交的实时计数。
  */
 export const QUALITY_SUMMARY = {
-  unitTests: 173,
+  unitTests: 177,
   e2eTests: 54,
   auditChecks: 11,
   workflows: 2,

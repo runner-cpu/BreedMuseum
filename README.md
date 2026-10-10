@@ -95,7 +95,7 @@ Vite、TypeScript、React、HashRouter、Three.js（`@react-three/fiber` / `drei
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则；三级核验徽章（官方 / 编辑 / 待核验）由 `src/data/verification.ts` 单点判定，馆史页的「诚实映射表」逐条说明每个视觉通道对应哪个已核验字段。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 39 个测试文件、173 项 Vitest 测试，Playwright 结果见审计报告。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 39 个测试文件、177 项 Vitest 测试，Playwright 结果见审计报告。
 - 当前 Playwright 共 27 个用例 × 桌面/移动双视口，合计 54 项运行，53 项通过、1 项按桌面条件跳过、0 项失败。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
