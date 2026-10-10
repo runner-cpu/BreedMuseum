@@ -92,6 +92,31 @@ describe('stage palette', () => {
     expect(contrastRatio(LIGHT_STAGE.gold, LIGHT_STAGE.panel)).toBeGreaterThanOrEqual(4.5);
   });
 
+  it('三维省块、描边与台面在两套主题下都留出可读的明度差', () => {
+    // 浅色纸底上曾经出现过「版图几乎看不见」：省块 #cfc3a4 与纸底 #f1ece0 只差 1.49，
+    // 描边 #7d6f4e 对填充只有 2.82，加上光照压暗后就糊成一片。
+    // 这里锁死三组关系（渲染实测：省块 ≈ #a29771、台面 ≈ #c1baa6，见 index.css 注释）。
+    for (const [name, palette, fillFloor, edgeFloor] of [
+      ['light', LIGHT_STAGE, 1.25, 4.0],
+      ['dark', DARK_STAGE, 1.25, 4.0],
+    ] as const) {
+      // 版图要能从台面上「浮」出来
+      expect(contrastRatio(palette.province, palette.floor), `${name} 省块 vs 台面`).toBeGreaterThanOrEqual(
+        fillFloor,
+      );
+      // 台面又要与画布底色分开，否则展台边界消失
+      expect(contrastRatio(palette.floor, palette.bg), `${name} 台面 vs 底色`).toBeGreaterThanOrEqual(1.08);
+      // 描边是省界的唯一读法：必须能压在填充上
+      expect(contrastRatio(palette.provinceEdge, palette.province), `${name} 描边 vs 省块`).toBeGreaterThanOrEqual(
+        edgeFloor,
+      );
+      // 选中/悬停的描边不能比普通描边更弱
+      expect(contrastRatio(palette.goldOnLight, palette.province), `${name} 高亮 vs 省块`).toBeGreaterThanOrEqual(
+        edgeFloor,
+      );
+    }
+  });
+
   it('every category colour stays visible on the light stage', () => {
     expect(categories).toHaveLength(15);
     for (const category of categories) {

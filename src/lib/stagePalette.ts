@@ -21,10 +21,14 @@ export interface StagePalette {
   muted: string;
   /** 强调金（浅色下加深，保证纸底对比度） */
   gold: string;
+  /** 三维专用：浅色舞台上「够金但够深」的高亮色（选中/悬停光柱用它） */
+  goldOnLight: string;
   /** 三维：省块填充 / 自发光 / 描边 */
   province: string;
   provinceEmissive: string;
   provinceEdge: string;
+  /** 三维：展台台面（三维场景里的“桌面”，让版图不是浮在虚空里） */
+  floor: string;
   /** 三维：雾密度与阴影色 */
   fogDensity: number;
   shadow: string;
@@ -45,10 +49,12 @@ export const DARK_STAGE: StagePalette = {
   fg: '#eef2ec',
   muted: '#a8b6ac',
   gold: '#d4a853',
-  province: '#16211c',
-  provinceEmissive: '#2d4a3e',
-  provinceEdge: '#3d5a4d',
-  fogDensity: 0.05,
+  goldOnLight: '#d4a853',
+  province: '#2c4636',
+  provinceEmissive: '#40705a',
+  provinceEdge: '#86b79a',
+  floor: '#131c18',
+  fogDensity: 0.032,
   shadow: '#050807',
   beamBlending: 'additive',
   beamOpacity: 0.95,
@@ -65,15 +71,17 @@ export const LIGHT_STAGE: StagePalette = {
   fg: '#173b2c',
   muted: '#5c6b60',
   gold: '#845c10',
-  province: '#e7e0cf',
-  provinceEmissive: '#8fae9c',
-  provinceEdge: '#9c8f74',
-  fogDensity: 0.018,
+  goldOnLight: '#5e4108',
+  province: '#c2ad78',
+  provinceEmissive: '#6f7f68',
+  provinceEdge: '#3f3627',
+  floor: '#e6dcc4',
+  fogDensity: 0.008,
   shadow: '#6b6252',
   beamBlending: 'normal',
   beamOpacity: 1,
   stardust: '#9a8f79',
-  stardustOpacity: 0.22,
+  stardustOpacity: 0.18,
   stardustCount: 220,
 };
 

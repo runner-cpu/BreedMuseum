@@ -22,12 +22,12 @@ const LightMapScene = lazy(() =>
 /**
  * 光图主展项（`/`）。
  *
- * 一个 3D 场景 + 四个镜头 + 省份聚焦；无 WebGL 时自动降级到仓库既有的 2D 地图组件，
- * HUD 提供手动切换。无障碍等价物是页面底部的「光图数据摘要」表。
+ * 构图：左侧是**满高的展台**（3D 中国版图 + 浮在展台上的 HUD），右侧是**展签栏**
+ * （检索 / 省份聚焦 / 光图数据摘要）。窄屏时展签栏落到展台下方，展台仍占主要视高。
  *
- * 配色：舞台用 `stage*` 语义令牌（浅色＝宣纸、深色＝墨绿夜色），
- * 三维场景读同一套令牌（`stagePaletteFor(isDark)`），因此主题切换不会出现
- * 「内容区还是黑的」这类断层。
+ * 配色：舞台与展签栏都用 `stage*` 语义令牌（浅色＝宣纸、深色＝墨绿夜色），
+ * 三维场景读同一套令牌（`stagePaletteFor(isDark)`），所以主题切换时
+ * 画布底色、省块、光柱与页面底色一起变，不会出现「内容区还是黑的」。
  */
 
 const LENSES: Array<{ id: LensId; label: string; hint: string }> = [
@@ -43,6 +43,9 @@ const LENS_CONCLUSION: Record<LensId, string> = {
   protect: `${COLLECTION_SUMMARY.nationalProtectedMatches} 个品种拥有国家级身份，来自农业农村部第 940 号公告`,
   risk: `${COLLECTION_SUMMARY.editorialEndangered} 个记录被编辑标注为濒危（非权威结论）——如果它们消失，光图会缺这些角`,
 };
+
+/** HUD 安全区（占展台高度/宽度的比例）：取景时排除，版图不会钻到标题或镜头条底下。 */
+const HUD_INSETS = { top: 0.12, bottom: 0.2, left: 0.03, right: 0.03 };
 
 export default function LightMapPage() {
   const [params, setParams] = useSearchParams();
@@ -91,14 +94,15 @@ export default function LightMapPage() {
   const listForProvince = activeProvince
     ? breeds.filter((breed) => breed.province === activeProvince.province)
     : [];
-
-  /** 平面图（2D 降级）与侧栏共用的浮层底：浅色纸底 / 深色玻璃底 */
-  const overlay = 'rounded-xl border bg-stage-panel/92 backdrop-blur';
+  const hoveredTotal = hovered ? digest.provinces.find((item) => item.province === hovered)?.total ?? 0 : 0;
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col bg-stage text-stage-fg">
-      {/* 场景层 */}
-      <div className="relative min-h-[54vh] flex-1 overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto bg-stage text-stage-fg lg:flex-row lg:overflow-hidden">
+      {/* 展台：满高画布 + 浮层 HUD */}
+      <section
+        aria-label="畜种光图立体视图"
+        className="relative min-h-[62vh] shrink-0 overflow-hidden lg:min-h-0 lg:flex-1 lg:shrink"
+      >
         {use3d ? (
           <Suspense
             fallback={
@@ -113,6 +117,7 @@ export default function LightMapPage() {
               selectedProvince={province}
               selectedId={selectedBreed?.id ?? null}
               palette={palette}
+              hudInsets={HUD_INSETS}
               onSelectProvince={setProvince}
               onHoverProvince={setHovered}
               onSelectPillar={(pillar) => navigate('/breed/' + pillar.id)}
@@ -133,20 +138,21 @@ export default function LightMapPage() {
           </div>
         )}
 
-        {/* HUD：左上计数与镜头说明 */}
-        <div className="pointer-events-none absolute left-4 top-4 max-w-sm space-y-2 text-stage-fg">
-          <h1 className="font-serif text-lg leading-snug drop-shadow-sm">
+        {/* 左上：展题与结论句 */}
+        <header className="pointer-events-none absolute inset-x-4 top-4 max-w-2xl space-y-1.5 lg:inset-x-6">
+          <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-stage-gold">畜种光图</p>
+          <h1 className="font-serif text-2xl leading-tight text-stage-fg drop-shadow-sm sm:text-3xl">
             1186 个地方品种，你家的省份亮了几个？
           </h1>
-          <p className="text-xs text-stage-fg/85 drop-shadow-sm">
+          <p className="max-w-xl text-xs leading-relaxed text-stage-fg/85 sm:text-sm">
             {LENS_CONCLUSION[lens]}
             {lens === 'all' && `（另有 ${COLLECTION_SUMMARY.unverifiedProvince} 份档案产区待核验，暂不落点）`}
           </p>
-        </div>
+        </header>
 
-        {/* HUD：右上工具 */}
-        <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
-          <div className={`${overlay} flex items-center gap-2 px-3 py-1.5 text-xs text-stage-fg`}>
+        {/* 右上：体量读数与视图切换 */}
+        <div className="absolute right-4 top-4 flex flex-col items-end gap-2 lg:right-6">
+          <div className="flex items-center gap-2 rounded-full border border-stage-border bg-stage-panel/90 px-3 py-1.5 text-xs text-stage-fg shadow-sm backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-stage-gold" aria-hidden="true" />
             <span>{pillarCount} 束光</span>
             <span aria-hidden="true" className="text-stage-muted">·</span>
@@ -159,18 +165,18 @@ export default function LightMapPage() {
             </button>
           </div>
           {hovered && (
-            <div className={`${overlay} px-3 py-1.5 text-xs text-stage-fg`}>
-              {hovered} · {digest.provinces.find((item) => item.province === hovered)?.total ?? 0} 个品种
+            <div className="rounded-full border border-stage-border bg-stage-panel/90 px-3 py-1 text-xs text-stage-fg shadow-sm backdrop-blur">
+              {hovered} · {hoveredTotal} 个品种
             </div>
           )}
         </div>
 
-        {/* HUD：底部镜头切换 */}
-        <div className="absolute bottom-4 left-1/2 w-[min(94vw,860px)] -translate-x-1/2 space-y-2">
+        {/* 底部：镜头切换（含分类胶囊） */}
+        <div className="absolute inset-x-4 bottom-4 flex flex-col items-center gap-2 lg:inset-x-6">
           <div
             role="tablist"
             aria-label="光图镜头"
-            className={`${overlay} flex flex-wrap items-center justify-center gap-1.5 p-1.5`}
+            className="flex flex-wrap items-center justify-center gap-1 rounded-full border border-stage-border bg-stage-panel/90 p-1.5 shadow-sm backdrop-blur"
           >
             {LENSES.map((item) => (
               <button
@@ -184,7 +190,7 @@ export default function LightMapPage() {
                   if (item.id !== 'category') setCategory(null);
                 }}
                 className={
-                  'min-h-9 rounded-lg px-3 text-xs transition-colors ' +
+                  'min-h-9 rounded-full px-3.5 text-xs transition-colors sm:text-sm ' +
                   (lens === item.id
                     ? 'bg-stage-gold/20 font-semibold text-stage-gold ring-1 ring-stage-gold/50'
                     : 'text-stage-fg/80 hover:bg-stage-soft')
@@ -195,7 +201,7 @@ export default function LightMapPage() {
             ))}
           </div>
           {lens === 'category' && (
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
+            <div className="flex max-w-[min(92vw,880px)] flex-wrap items-center justify-center gap-1.5">
               {categories.map((item) => (
                 <button
                   key={item}
@@ -203,15 +209,15 @@ export default function LightMapPage() {
                   aria-pressed={category === item}
                   onClick={() => setCategory(category === item ? null : item)}
                   className={
-                    'min-h-8 rounded-full border px-2.5 text-[11px] transition-colors ' +
+                    'inline-flex min-h-8 items-center gap-1 rounded-full border px-2.5 text-[11px] transition-colors ' +
                     (category === item
-                      ? 'border-stage-gold bg-stage-gold/20 font-semibold text-stage-gold'
+                      ? 'border-stage-gold bg-stage-panel font-semibold text-stage-gold'
                       : 'border-stage-border bg-stage-panel/85 text-stage-fg/80 hover:bg-stage-soft')
                   }
                 >
                   <span
                     aria-hidden="true"
-                    className="mr-1 inline-block h-2 w-2 rounded-full align-middle"
+                    className="inline-block h-2 w-2 rounded-full"
                     style={{ background: categoryColors[item] ?? '#95A5A6' }}
                   />
                   {item}
@@ -220,120 +226,122 @@ export default function LightMapPage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* 侧栏：检索 + 省份聚焦 */}
-      <section aria-label="省份与品种导航" className="border-t border-stage-border bg-stage-panel px-4 py-4">
-        <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-          <div className="space-y-3">
-            <label className="block text-xs text-stage-muted" htmlFor="lightmap-search">
-              检索品种（输入 2 个字以上）
-            </label>
-            <div className="flex items-center gap-2 rounded-lg border border-stage-border bg-stage">
-              <Search className="ml-3 h-4 w-4 text-stage-muted" aria-hidden="true" />
-              <input
-                id="lightmap-search"
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="例如：牦牛 / 河田鸡"
-                className="min-h-11 flex-1 bg-transparent pr-3 text-sm text-stage-fg outline-none placeholder:text-stage-muted/80"
-              />
-            </div>
-            {searchHits.length > 0 && (
-              <ul className="max-h-52 space-y-1 overflow-auto rounded-lg border border-stage-border p-1">
-                {searchHits.map((breed) => (
+      {/* 展签栏：检索 / 省份聚焦 / 数据摘要 */}
+      <aside
+        aria-label="检索与省份聚焦"
+        className="flex w-full shrink-0 flex-col gap-4 border-t border-stage-border bg-stage-panel px-4 py-4 lg:w-[352px] lg:border-l lg:border-t-0 xl:w-[384px]"
+      >
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-stage-muted" htmlFor="lightmap-search">
+            检索品种（输入 2 个字以上）
+          </label>
+          <div className="flex items-center gap-2 rounded-lg border border-stage-border bg-stage">
+            <Search className="ml-3 h-4 w-4 text-stage-muted" aria-hidden="true" />
+            <input
+              id="lightmap-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="例如：牦牛 / 河田鸡"
+              className="min-h-11 flex-1 bg-transparent pr-3 text-sm text-stage-fg outline-none placeholder:text-stage-muted/80"
+            />
+          </div>
+          {searchHits.length > 0 && (
+            <ul className="max-h-52 space-y-1 overflow-auto rounded-lg border border-stage-border p-1">
+              {searchHits.map((breed) => (
+                <li key={breed.id}>
+                  <button
+                    type="button"
+                    onClick={() => openRecord(breed)}
+                    className="flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-2 text-left text-sm hover:bg-stage-soft"
+                  >
+                    <span>{breed.name}</span>
+                    <span className="text-xs text-stage-muted">
+                      {breed.province} · {breed.category}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <p className="flex items-center gap-1.5 text-xs text-stage-muted">
+            <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+            省份聚焦（{provinceOptions.length} 个有落点省份）
+          </p>
+          <div className="flex max-h-[168px] flex-wrap gap-1.5 overflow-auto lg:max-h-none">
+            {provinceOptions.map((item) => (
+              <button
+                key={item.province}
+                type="button"
+                aria-pressed={province === item.province}
+                onClick={() => setProvince(province === item.province ? null : item.province)}
+                className={
+                  'min-h-8 rounded-full border px-2.5 text-[11px] transition-colors ' +
+                  (province === item.province
+                    ? 'border-stage-gold bg-stage-gold/15 font-semibold text-stage-gold'
+                    : 'border-stage-border text-stage-fg/80 hover:bg-stage-soft')
+                }
+              >
+                {item.province} {item.total}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 space-y-3 lg:overflow-y-auto">
+          {activeProvince ? (
+            <>
+              <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 className="font-serif text-xl">{activeProvince.province}</h2>
+                <span className="text-xs text-stage-muted">
+                  {activeProvince.total} 个品种 · 落点 {activeProvince.mappable} · 国家级保护{' '}
+                  {activeProvince.nationalProtected} · 编辑口径濒危 {activeProvince.endangered}
+                </span>
+              </header>
+              <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {listForProvince.map((breed) => (
                   <li key={breed.id}>
                     <button
                       type="button"
                       onClick={() => openRecord(breed)}
-                      className="flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-2 text-left text-sm hover:bg-stage-soft"
+                      className="flex min-h-11 w-full flex-col items-start gap-1 rounded-lg border border-stage-border px-3 py-2 text-left text-sm hover:bg-stage-soft"
                     >
-                      <span>{breed.name}</span>
-                      <span className="text-xs text-stage-muted">
-                        {breed.province} · {breed.category}
+                      <span className="flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: categoryColors[breed.category] ?? '#95A5A6' }}
+                        />
+                        {breed.name}
                       </span>
+                      <VerificationBadge breed={breed} compact />
                     </button>
                   </li>
                 ))}
               </ul>
-            )}
-            <div className="space-y-1">
-              <p className="flex items-center gap-1.5 text-xs text-stage-muted">
-                <Layers className="h-3.5 w-3.5" aria-hidden="true" />
-                省份聚焦（{provinceOptions.length} 个有落点省份）
-              </p>
-              <div className="flex max-h-40 flex-wrap gap-1.5 overflow-auto">
-                {provinceOptions.map((item) => (
-                  <button
-                    key={item.province}
-                    type="button"
-                    aria-pressed={province === item.province}
-                    onClick={() => setProvince(province === item.province ? null : item.province)}
-                    className={
-                      'min-h-8 rounded-full border px-2.5 text-[11px] transition-colors ' +
-                      (province === item.province
-                        ? 'border-stage-gold bg-stage-gold/20 font-semibold text-stage-gold'
-                        : 'border-stage-border text-stage-fg/80 hover:bg-stage-soft')
-                    }
-                  >
-                    {item.province} {item.total}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {activeProvince ? (
-              <>
-                <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h2 className="font-serif text-xl">{activeProvince.province}</h2>
-                  <span className="text-xs text-stage-muted">
-                    {activeProvince.total} 个品种 · 落点 {activeProvince.mappable} · 国家级保护{' '}
-                    {activeProvince.nationalProtected} · 编辑口径濒危 {activeProvince.endangered}
-                  </span>
-                </header>
-                <ul className="grid max-h-60 gap-2 overflow-auto sm:grid-cols-2 lg:grid-cols-3">
-                  {listForProvince.map((breed) => (
-                    <li key={breed.id}>
-                      <button
-                        type="button"
-                        onClick={() => openRecord(breed)}
-                        className="flex min-h-11 w-full flex-col items-start gap-1 rounded-lg border border-stage-border bg-stage/60 px-3 py-2 text-left text-sm hover:bg-stage-soft"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            aria-hidden="true"
-                            className="inline-block h-2 w-2 rounded-full"
-                            style={{ background: categoryColors[breed.category] ?? '#95A5A6' }}
-                          />
-                          {breed.name}
-                        </span>
-                        <VerificationBadge breed={breed} compact />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="flex items-start gap-2 text-sm text-stage-muted">
-                <Compass className="mt-0.5 h-4 w-4" aria-hidden="true" />
-                点击立体图上的省份（或左侧省份按钮）聚焦；点击任意光柱或品种名打开档案。
-                没有 WebGL 的设备会自动使用平面地图，交互与光柱位置完全一致。
-              </p>
-            )}
-          </div>
+            </>
+          ) : (
+            <p className="flex items-start gap-2 text-sm leading-relaxed text-stage-muted">
+              <Compass className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              点击展台上的省份（或上方省份胶囊）聚焦；点击任意光柱或品种名打开档案。
+              没有 WebGL 的设备会自动使用平面地图，交互与光柱位置完全一致。
+            </p>
+          )}
         </div>
 
         {/* 无障碍等价物：光图数据摘要表 */}
-        <details className="mx-auto mt-4 w-full max-w-6xl rounded-lg border border-stage-border p-3">
+        <details className="rounded-lg border border-stage-border p-3">
           <summary className="flex cursor-pointer items-center gap-2 text-xs text-stage-fg/85">
             <Info className="h-3.5 w-3.5" aria-hidden="true" />
             光图数据摘要（屏幕阅读器与核对用）
           </summary>
           <div className="mt-3 overflow-auto">
-            <table className="w-full min-w-[640px] text-left text-xs">
+            <table className="w-full min-w-[420px] text-left text-xs">
               <caption className="pb-2 text-left text-stage-muted">
                 省份 × 馆藏数 × 国家级保护 × 编辑口径濒危（数据源与 COLLECTION_SUMMARY 一致）
               </caption>
@@ -369,7 +377,7 @@ export default function LightMapPage() {
             </table>
           </div>
         </details>
-      </section>
+      </aside>
     </div>
   );
 }
