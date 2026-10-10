@@ -1,53 +1,45 @@
 import { describe, expect, test } from 'vitest';
 import { breeds } from '@/data/breeds';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
-import { buildDigest, buildPillars, hasMappableLocation, categoryTally, PILLAR_BASE_HEIGHT } from '../lightMapData';
+import { buildSiteClusters } from '../clusterSites';
+import { buildDigest, hasMappableLocation, categoryTally, lightMapSummary } from '../lightMapData';
 
 /**
- * 光图数据装配契约：
+ * 光图数据口径契约：
  * - 落点数量必须等于 COLLECTION_SUMMARY.mappable；
  * - 待核验省份与哨兵坐标一律不落点；
- * - 同一坐标的记录确定性铺开（刷新后位置一致）；
- * - 摘要表与运行时聚合一致（无障碍等价物）。
+ * - 摘要表与运行时聚合一致（无障碍等价物）；
+ * - 产区簇的合计与摘要表逐省对得上（同一份事实，两个视图）。
  */
 
-test('pillars only include records with a verified location', () => {
-  const pillars = buildPillars();
-  expect(pillars).toHaveLength(COLLECTION_SUMMARY.mappable);
-  expect(breeds.filter(hasMappableLocation)).toHaveLength(COLLECTION_SUMMARY.mappable);
+test('only records with a verified location are mappable', () => {
+  const mappable = breeds.filter(hasMappableLocation);
+  expect(mappable).toHaveLength(COLLECTION_SUMMARY.mappable);
 
-  const ids = new Set(pillars.map((pillar) => pillar.id));
   for (const breed of breeds) {
-    if (hasMappableLocation(breed)) {
-      expect(ids.has(breed.id), breed.name).toBe(true);
-    } else {
-      expect(ids.has(breed.id), breed.name + ' 不应落点').toBe(false);
+    if (breed.province === '待核验' || (breed.longitude === 0 && breed.latitude === 0)) {
+      expect(hasMappableLocation(breed), breed.name + ' 不应落点').toBe(false);
     }
   }
 });
 
-test('pillar layout is deterministic and grouped offsets stay inside the audited radius', () => {
-  const first = buildPillars();
-  const second = buildPillars();
-  expect(first).toEqual(second);
+test('clusters and the digest describe the same collection', () => {
+  const clusters = buildSiteClusters();
+  const digest = buildDigest();
+  const summary = lightMapSummary(clusters);
 
-  // 同一坐标的分组：世界坐标偏移半径上限 = 18 / 100
-  const byGroup = new Map<string, typeof first>();
-  for (const pillar of first) {
-    const key = pillar.province;
-    const list = byGroup.get(key) ?? [];
-    list.push(pillar);
-    byGroup.set(key, list);
+  expect(summary.mappable).toBe(digest.mappable);
+  expect(summary.clusters).toBe(clusters.length);
+  expect(summary.provinces).toBe(new Set(clusters.map((cluster) => cluster.province)).size);
+
+  // 每个省的簇合计必须等于摘要表里该省的可落点数
+  const byProvince = new Map<string, number>();
+  for (const cluster of clusters) {
+    byProvince.set(cluster.province, (byProvince.get(cluster.province) ?? 0) + cluster.total);
   }
-  const maxGroup = Math.max(...first.map((pillar) => pillar.groupSize));
-  expect(maxGroup).toBeGreaterThan(1);
-
-  for (const pillar of first) {
-    expect(pillar.position[0]).toBeGreaterThan(-5);
-    expect(pillar.position[0]).toBeLessThan(5);
-    expect(pillar.position[1]).toBeGreaterThan(-4);
-    expect(pillar.position[1]).toBeLessThan(4);
-    expect(pillar.height).toBeGreaterThanOrEqual(PILLAR_BASE_HEIGHT);
+  for (const entry of digest.provinces) {
+    if (entry.province === '待核验') continue;
+    expect(byProvince.get(entry.province) ?? 0, entry.province).toBe(entry.mappable);
   }
 });
 
@@ -73,4 +65,11 @@ test('category tally follows the published order and covers all 15 categories', 
   const ranked = [...tally].sort((a, b) => b.count - a.count).slice(0, 3).map((item) => item.category);
   expect(ranked).toEqual(['鸡', '羊', '牛']);
   expect(tally.find((item) => item.category === '其他')?.count).toBe(11);
+});
+
+test('the largest cluster is the Chengdu-area one, still well inside a province', () => {
+  const clusters = buildSiteClusters();
+  const biggest = clusters.reduce((max, cluster) => Math.max(max, cluster.total), 0);
+  expect(biggest).toBeGreaterThanOrEqual(45);
+  expect(biggest).toBeLessThanOrEqual(60);
 });

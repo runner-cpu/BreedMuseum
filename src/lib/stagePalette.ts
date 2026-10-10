@@ -4,7 +4,7 @@
  * 为什么需要它：页面曾经把舞台底色写死成 `#080b09`，导致浅色模式下内容区仍是黑的；
  * 3D 场景也各自硬编码颜色。现在两套令牌集中在这里，并同步注入 CSS 变量
  * （`--stage*`，见 `src/index.css` 的说明注释与 `stagePalette.test.ts` 的漂移断言），
- * 于是 DOM 上的 `bg-stage` 与三维场景里的省块/光柱永远同一套颜色。
+ * 于是 DOM 上的 `bg-stage` 与三维场景里的省块 / 产区柱永远同一套颜色。
  */
 
 export interface StagePalette {
@@ -21,20 +21,25 @@ export interface StagePalette {
   muted: string;
   /** 强调金（浅色下加深，保证纸底对比度） */
   gold: string;
-  /** 三维专用：浅色舞台上「够金但够深」的高亮色（选中/悬停光柱用它） */
+  /** 三维专用：浅色舞台上「够金但够深」的高亮色（选中/悬停的产区柱用它） */
   goldOnLight: string;
   /** 三维：省块填充 / 自发光 / 描边 */
   province: string;
   provinceEmissive: string;
   provinceEdge: string;
+  /** 三维：含编辑口径濒危记录的产区，柱子底部一圈细环用色（须能在省块上读出） */
+  endangeredRing: string;
   /** 三维：展台台面（三维场景里的“桌面”，让版图不是浮在虚空里） */
   floor: string;
   /** 三维：雾密度与阴影色 */
   fogDensity: number;
   shadow: string;
-  /** 三维：光柱混合方式（浅色底用正常混合，深色底用加性混合才像“光”） */
+  /**
+   * 深 / 浅主题判别位（也是三维材质档位）：深色底 = 'additive'，浅色底 = 'normal'。
+   * 早期版本用它切换光柱的混合方式；现在柱体是实体堆叠柱，混合方式固定，
+   * 但这一位仍被用于「自发光强度 / 环境光强度 / 可读化压色」等主题分支。
+   */
   beamBlending: 'additive' | 'normal';
-  beamOpacity: number;
   /** 三维：星尘（浅色底改为纸面颗粒） */
   stardust: string;
   stardustOpacity: number;
@@ -53,11 +58,11 @@ export const DARK_STAGE: StagePalette = {
   province: '#2c4636',
   provinceEmissive: '#40705a',
   provinceEdge: '#86b79a',
+  endangeredRing: '#d98a4a',
   floor: '#131c18',
   fogDensity: 0.032,
   shadow: '#050807',
   beamBlending: 'additive',
-  beamOpacity: 0.95,
   stardust: '#9fb8a8',
   stardustOpacity: 0.5,
   stardustCount: 600,
@@ -75,11 +80,11 @@ export const LIGHT_STAGE: StagePalette = {
   province: '#c2ad78',
   provinceEmissive: '#6f7f68',
   provinceEdge: '#3f3627',
+  endangeredRing: '#8a3a12',
   floor: '#e6dcc4',
   fogDensity: 0.008,
   shadow: '#6b6252',
   beamBlending: 'normal',
-  beamOpacity: 1,
   stardust: '#9a8f79',
   stardustOpacity: 0.18,
   stardustCount: 220,

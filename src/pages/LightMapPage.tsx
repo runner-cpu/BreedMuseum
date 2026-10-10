@@ -1,19 +1,20 @@
 import { Suspense, lazy, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Compass, Info, Layers, Search, Sparkles } from 'lucide-react';
+import { Compass, Info, Layers, Maximize2, MousePointer2, Search, Sparkles } from 'lucide-react';
 import { breeds, type Breed } from '@/data/breeds';
 import { categories } from '@/data/catalog';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { getBreedById } from '@/data/breedLookup';
 import { matchesBreedQuery } from '@/data/breedSearch';
 import { categoryColors } from '@/lib/categoryIcons';
-import { buildDigest, buildPillars } from '@/lib/geo3d/lightMapData';
+import { buildDigest, lightMapSummary } from '@/lib/geo3d/lightMapData';
+import { buildSiteClusters, type LensId, type SiteCluster } from '@/lib/geo3d/clusterSites';
 import { ChinaMap } from '@/components/ChinaMap';
 import { VerificationBadge } from '@/components/common/VerificationBadge';
 import { detectWebGL } from '@/components/lightmap/useSceneCapability';
 import { useSettings } from '@/contexts/AppSettings';
 import { stagePaletteFor } from '@/lib/stagePalette';
-import type { LensId } from '@/components/lightmap/LightMapScene';
+import { VIEW_PRESETS, type ViewPreset } from '@/lib/geo3d/viewPresets';
 
 const LightMapScene = lazy(() =>
   import('@/components/lightmap/LightMapScene').then((module) => ({ default: module.LightMapScene })),
@@ -23,22 +24,28 @@ const LightMapScene = lazy(() =>
  * 光图主展项（`/`）。
  *
  * 构图：左侧是**满高的展台**（3D 中国版图 + 浮在展台上的 HUD），右侧是**展签栏**
- * （检索 / 省份聚焦 / 光图数据摘要）。窄屏时展签栏落到展台下方，展台仍占主要视高。
+ * （检索 / 省份聚焦 / 产区与摘要）。窄屏时展签栏落到展台下方，展台仍占主要视高。
+ *
+ * 落点形状：每个**产区簇**画成一节分类堆叠柱——底面半径随该产区品种数增长，
+ * 柱身按类别分段上色，段高等于该类别在这个产区的条数（见 `clusterSites`）。
+ *
+ * 交互：拖拽旋转 / 滚轮缩放 / 拖拽平移，外加四个视角预设与复位；点击柱体打开档案，
+ * 点击省份聚焦。所有 3D 交互都有 DOM 等价物（省份胶囊、产区清单、摘要表）。
  *
  * 配色：舞台与展签栏都用 `stage*` 语义令牌（浅色＝宣纸、深色＝墨绿夜色），
  * 三维场景读同一套令牌（`stagePaletteFor(isDark)`），所以主题切换时
- * 画布底色、省块、光柱与页面底色一起变，不会出现「内容区还是黑的」。
+ * 画布底色、省块、堆叠柱与页面底色一起变，不会出现「内容区还是黑的」。
  */
 
 const LENSES: Array<{ id: LensId; label: string; hint: string }> = [
-  { id: 'all', label: '全部分布', hint: '全部可落点记录，按类别着色' },
-  { id: 'category', label: '类别构成', hint: '只看某一类别的分布' },
+  { id: 'all', label: '全部分布', hint: '全部可落点记录，柱身按类别分层' },
+  { id: 'category', label: '类别构成', hint: '只看某一类别' },
   { id: 'protect', label: '国家级保护', hint: `${COLLECTION_SUMMARY.nationalProtectedMatches} 个 940 号公告在册品种` },
   { id: 'risk', label: '濒危之窗', hint: `${COLLECTION_SUMMARY.editorialEndangered} 个编辑口径濒危记录` },
 ];
 
 const LENS_CONCLUSION: Record<LensId, string> = {
-  all: `${COLLECTION_SUMMARY.mappable} 束光落在 ${COLLECTION_SUMMARY.provinces} 个省级行政区的真实产区坐标上`,
+  all: `${COLLECTION_SUMMARY.mappable} 条记录落在 ${COLLECTION_SUMMARY.provinces} 个省级行政区的真实产区上`,
   category: '同一类别在不同省份的分量并不平均——这正是地方品种的地域性',
   protect: `${COLLECTION_SUMMARY.nationalProtectedMatches} 个品种拥有国家级身份，来自农业农村部第 940 号公告`,
   risk: `${COLLECTION_SUMMARY.editorialEndangered} 个记录被编辑标注为濒危（非权威结论）——如果它们消失，光图会缺这些角`,
@@ -56,6 +63,10 @@ export default function LightMapPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [province, setProvince] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [hoveredSite, setHoveredSite] = useState<SiteCluster | null>(null);
+  const [activeSite, setActiveSite] = useState<SiteCluster | null>(null);
+  const [preset, setPreset] = useState<ViewPreset | null>(null);
+  const [resetToken, setResetToken] = useState(0);
   const [query, setQuery] = useState('');
   const [force2d, setForce2d] = useState(false);
 
@@ -63,7 +74,8 @@ export default function LightMapPage() {
   const use3d = webgl && !force2d;
 
   const digest = useMemo(() => buildDigest(), []);
-  const pillarCount = useMemo(() => buildPillars().length, []);
+  const clusters = useMemo(() => buildSiteClusters(), []);
+  const summary = useMemo(() => lightMapSummary(clusters), [clusters]);
 
   const provinceOptions = useMemo(
     () => digest.provinces.filter((item) => item.province !== '待核验'),
@@ -89,6 +101,13 @@ export default function LightMapPage() {
       { replace: true },
     );
     navigate('/breed/' + breed.id);
+  };
+
+  /** 点产区簇：先看成员列表（一个产区可能十几个品种），再决定进哪个档案。 */
+  const openCluster = (cluster: SiteCluster) => {
+    setActiveSite(cluster);
+    setProvince(cluster.province);
+    if (cluster.members.length === 1) openRecord({ id: cluster.members[0].id } as Breed);
   };
 
   const listForProvince = activeProvince
@@ -118,9 +137,14 @@ export default function LightMapPage() {
               selectedId={selectedBreed?.id ?? null}
               palette={palette}
               hudInsets={HUD_INSETS}
-              onSelectProvince={setProvince}
+              preset={preset}
+              resetToken={resetToken}
+              onSelectProvince={(name) => {
+                setPreset(null);
+                setProvince(name);
+              }}
               onHoverProvince={setHovered}
-              onSelectPillar={(pillar) => navigate('/breed/' + pillar.id)}
+              onSelectCluster={openCluster}
             />
           </Suspense>
         ) : (
@@ -154,7 +178,7 @@ export default function LightMapPage() {
         <div className="absolute right-4 top-4 flex flex-col items-end gap-2 lg:right-6">
           <div className="flex items-center gap-2 rounded-full border border-stage-border bg-stage-panel/90 px-3 py-1.5 text-xs text-stage-fg shadow-sm backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-stage-gold" aria-hidden="true" />
-            <span>{pillarCount} 束光</span>
+            <span>{summary.clusters} 个产区 · {summary.mappable} 条记录</span>
             <span aria-hidden="true" className="text-stage-muted">·</span>
             <button
               type="button"
@@ -169,6 +193,51 @@ export default function LightMapPage() {
               {hovered} · {hoveredTotal} 个品种
             </div>
           )}
+          {/* 3D 视角预设：拖拽/滚轮之外，给键盘与触屏一条「一步到位」的路 */}
+          {use3d && (
+            <div
+              role="group"
+              aria-label="视角预设"
+              className="flex items-center gap-1 rounded-full border border-stage-border bg-stage-panel/90 p-1 text-[11px] shadow-sm backdrop-blur"
+            >
+              {VIEW_PRESETS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  title={item.hint}
+                  aria-pressed={preset?.id === item.id}
+                  onClick={() => setPreset(preset?.id === item.id ? null : item)}
+                  className={
+                    'min-h-8 rounded-full px-2.5 transition-colors ' +
+                    (preset?.id === item.id
+                      ? 'bg-stage-gold/20 font-semibold text-stage-gold ring-1 ring-stage-gold/40'
+                      : 'text-stage-fg/80 hover:bg-stage-soft')
+                  }
+                >
+                  {item.label}
+                </button>
+              ))}
+              <span aria-hidden="true" className="mx-0.5 h-4 w-px bg-stage-border" />
+              <button
+                type="button"
+                title="回到自动取景"
+                onClick={() => {
+                  setPreset(null);
+                  setResetToken((value) => value + 1);
+                }}
+                className="inline-flex min-h-8 items-center gap-1 rounded-full px-2.5 text-stage-fg/80 transition-colors hover:bg-stage-soft"
+              >
+                <Maximize2 className="h-3 w-3" aria-hidden="true" />
+                复位
+              </button>
+            </div>
+          )}
+          {use3d && (
+            <p className="flex items-center gap-1 rounded-full border border-stage-border bg-stage-panel/90 px-2.5 py-1 text-[11px] text-stage-muted shadow-sm backdrop-blur">
+              <MousePointer2 className="h-3 w-3" aria-hidden="true" />
+              拖拽旋转 · 滚轮缩放 · 点柱体看产区
+            </p>
+          )}
         </div>
 
         {/* 底部：镜头切换（含分类胶囊） */}
@@ -178,7 +247,7 @@ export default function LightMapPage() {
             aria-label="光图镜头"
             className="flex flex-wrap items-center justify-center gap-1 rounded-full border border-stage-border bg-stage-panel/90 p-1.5 shadow-sm backdrop-blur"
           >
-            {LENSES.map((item) => (
+              {LENSES.map((item) => (
               <button
                 key={item.id}
                 role="tab"
@@ -187,6 +256,7 @@ export default function LightMapPage() {
                 title={item.hint}
                 onClick={() => {
                   setLens(item.id);
+                  setActiveSite(null);
                   if (item.id !== 'category') setCategory(null);
                 }}
                 className={
@@ -279,7 +349,11 @@ export default function LightMapPage() {
                 key={item.province}
                 type="button"
                 aria-pressed={province === item.province}
-                onClick={() => setProvince(province === item.province ? null : item.province)}
+                onClick={() => {
+                  setActiveSite(null);
+                  setPreset(null);
+                  setProvince(province === item.province ? null : item.province);
+                }}
                 className={
                   'min-h-8 rounded-full border px-2.5 text-[11px] transition-colors ' +
                   (province === item.province
@@ -294,7 +368,74 @@ export default function LightMapPage() {
         </div>
 
         <div className="min-h-0 flex-1 space-y-3 lg:overflow-y-auto">
-          {activeProvince ? (
+          {activeSite ? (
+            <>
+              <header className="space-y-1">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h2 className="font-serif text-xl">
+                    {activeSite.province} · {activeSite.total} 个品种的产区
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSite(null)}
+                    className="min-h-8 text-xs text-stage-muted underline underline-offset-2 hover:text-stage-gold"
+                  >
+                    返回省份列表
+                  </button>
+                </div>
+                <p className="text-xs text-stage-muted">
+                  {activeSite.seedCount > 1
+                    ? `这里是 ${activeSite.seedCount} 个相邻产区坐标合并后的中心，合计 ${activeSite.total} 条记录`
+                    : '该坐标只有这一个产区'}
+                  {activeSite.hasNationalProtected && ' · 含国家级保护名录品种'}
+                  {activeSite.hasEndangered && ' · 含编辑口径濒危记录'}
+                </p>
+                <ul className="flex flex-wrap gap-1.5">
+                  {activeSite.slices.map((slice) => (
+                    <li
+                      key={slice.category}
+                      className="inline-flex items-center gap-1 rounded-full border border-stage-border px-2 py-0.5 text-[11px] text-stage-fg/85"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ background: categoryColors[slice.category] ?? '#8d9a92' }}
+                      />
+                      {slice.category} {slice.count}
+                    </li>
+                  ))}
+                </ul>
+              </header>
+              <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {activeSite.members.map((member) => (
+                  <li key={member.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const breed = breeds.find((item) => item.id === member.id);
+                        if (breed) openRecord(breed);
+                      }}
+                      className="flex min-h-11 w-full flex-col items-start gap-1 rounded-lg border border-stage-border px-3 py-2 text-left text-sm hover:bg-stage-soft"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: categoryColors[member.category] ?? '#95A5A6' }}
+                        />
+                        {member.name}
+                      </span>
+                      <span className="text-[11px] text-stage-muted">
+                        {member.category}
+                        {member.protectedByNationalList && ' · 国家级保护名录'}
+                        {member.endangeredEditorial && ' · 编辑口径濒危'}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : activeProvince ? (
             <>
               <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <h2 className="font-serif text-xl">{activeProvince.province}</h2>
@@ -328,8 +469,10 @@ export default function LightMapPage() {
           ) : (
             <p className="flex items-start gap-2 text-sm leading-relaxed text-stage-muted">
               <Compass className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-              点击展台上的省份（或上方省份胶囊）聚焦；点击任意光柱或品种名打开档案。
-              没有 WebGL 的设备会自动使用平面地图，交互与光柱位置完全一致。
+              展台上每个发光的柱体是一个<strong className="font-semibold text-stage-fg">产区</strong>
+              ：柱高与粗细对应该产区的品种数，柱身按类别分段。
+              点柱体看这个产区的品种清单，点省份聚焦，拖拽旋转、滚轮缩放。
+              没有 WebGL 的设备会自动使用平面地图，交互与柱体位置完全一致。
             </p>
           )}
         </div>

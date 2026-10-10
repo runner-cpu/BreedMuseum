@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
-import { getBreedMetadata } from '@/data/breedMetadata';
-import { hasVerifiedCoordinates } from '@/data/catalog';
-import { mapViewBox, projectCoordinate, provincePaths } from '@/data/chinaMap';
+import { mapViewBox, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
+import { buildSiteClusters, markerRadiusFor, type SiteCluster } from '@/lib/geo3d/clusterSites';
 
 interface ChinaMapProps {
   breeds: Breed[];
@@ -13,16 +12,24 @@ interface ChinaMapProps {
   pulseId?: string | null;
   onProvinceClick: (province: string) => void;
   onBreedClick: (breed: Breed) => void;
+  onClusterClick?: (cluster: SiteCluster) => void;
   onClearSelection?: () => void;
 }
 
 interface TooltipInfo {
   x: number;
   y: number;
-  name: string;
-  category: string;
+  title: string;
+  detail: string;
 }
 
+/**
+ * 2D 省域图（无 WebGL 与「切换平面图」时使用）。
+ *
+ * 落点与 3D 完全同源：都用 `buildSiteClusters` 的产区簇。上一版把同坐标的记录按固定
+ * 角度铺成圆环，1,062 条里有 655 条落在 102 个圆环上，页面上就是「密密麻麻围成圈的点」；
+ * 现在一个产区只画一个标记，半径随该产区品种数增长，外圈弧线按类别分段着色。
+ */
 export const ChinaMap: React.FC<ChinaMapProps> = ({
   breeds,
   selectedProvince,
@@ -30,6 +37,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   pulseId,
   onProvinceClick,
   onBreedClick,
+  onClusterClick,
   onClearSelection,
 }) => {
   const { t } = useSettings();
@@ -41,27 +49,53 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
     return set;
   }, [breeds]);
 
-  const breedPoints = useMemo(() => {
-    // 产区未核验的记录停在 (0,0) 哨兵坐标，不是真实地理点，不渲染为可聚焦按钮
-    const mappable = breeds.filter(hasVerifiedCoordinates);
-    const groups = new Map<string, typeof mappable>();
-    mappable.forEach((breed) => {
-      const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
-      const group = groups.get(key) ?? [];
-      group.push(breed);
-      groups.set(key, group);
-    });
-    return mappable.flatMap((breed) => {
-      const key = `${breed.longitude.toFixed(3)},${breed.latitude.toFixed(3)}`;
-      const group = groups.get(key) ?? [breed];
-      const index = group.findIndex((item) => item.id === breed.id);
-      const { x, y } = projectCoordinate(breed.longitude, breed.latitude);
-      if (group.length === 1) return [{ breed, x, y }];
-      const angle = (index / group.length) * Math.PI * 2 - Math.PI / 2;
-      const radius = Math.min(18, 7 + group.length * 0.45);
-      return [{ breed, x: x + Math.cos(angle) * radius, y: y + Math.sin(angle) * radius }];
-    });
-  }, [breeds]);
+  /**
+   * 产区簇与 3D 同源（`buildSiteClusters`），但只聚合**传进来的这批记录**，
+   * 这样筛选后的列表、单元测试里的小样本都能得到对应结果。
+   * 簇的平面坐标 × 100 + 半张图 = 画布像素，与 `projectCoordinate` 互逆。
+   */
+  const clusters = useMemo(
+    () =>
+      buildSiteClusters(breeds).map((cluster) => ({
+        cluster,
+        x: cluster.position[0] * 100 + mapViewBox.width / 2,
+        y: mapViewBox.height / 2 - cluster.position[1] * 100,
+        /** 世界单位 → 画布像素 */
+        r: markerRadiusFor(cluster.total) * 100,
+      })),
+    [breeds],
+  );
+
+  const selectedCluster = useMemo(
+    () => clusters.find((item) => item.cluster.members.some((member) => member.id === selectedBreed?.id)) ?? null,
+    [clusters, selectedBreed],
+  );
+
+  /** 类别弧线：把圆按类别计数切成一段段弧，颜色与 3D 柱身、图例一致。 */
+  const arcsFor = (cluster: SiteCluster, radius: number) => {
+    const total = cluster.slices.reduce((sum, slice) => sum + slice.count, 0) || 1;
+    let cursor = 0;
+    return cluster.slices.map((slice) => {
+      const sweep = (slice.count / total) * 360;
+      const from = cursor;
+      cursor += sweep;
+      return { ...slice, from, sweep, color: categoryColors[slice.category] ?? '#95A5A6' };
+    }).map((slice) => ({ ...slice, radius }));
+  };
+
+  const polar = (cx: number, cy: number, radius: number, degrees: number) => {
+    const rad = ((degrees - 90) * Math.PI) / 180;
+    return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)] as const;
+  };
+
+  const arcPath = (cx: number, cy: number, radius: number, from: number, sweep: number) => {
+    // 整圈用两段半圆拼，避免起终点重合导致 SVG 直接不画
+    const end = from + sweep;
+    const [x0, y0] = polar(cx, cy, radius, from);
+    const [x1, y1] = polar(cx, cy, radius, end);
+    const large = sweep > 180 ? 1 : 0;
+    return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
+  };
 
   return (
     <div className="relative w-full h-full flex items-center justify-center p-2">
@@ -127,120 +161,103 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           );
         })}
 
-        {breedPoints.map(({ breed, x, y }) => {
-          const isSelected = selectedBreed?.id === breed.id;
-          const isPulsing = pulseId === breed.id;
-          const isProtected = getBreedMetadata(breed).protectionStatus === 'national-list';
-          const color = categoryColors[breed.category] ?? 'hsl(var(--primary))';
-          const dotColor = isProtected ? '#d4a853' : color;
+        {clusters.map(({ cluster, x, y, r }) => {
+          const isSelected = selectedCluster?.cluster.id === cluster.id;
+          const isPulsing = cluster.members.some((member) => member.id === pulseId);
+          const color = categoryColors[cluster.slices[0].category] ?? 'hsl(var(--primary))';
+          const title = `${cluster.province} 产区 · ${cluster.total} 个品种`;
+          const detail = cluster.slices.map((slice) => `${slice.category} ${slice.count}`).join(' / ');
           return (
             <g
-              key={breed.id}
+              key={cluster.id}
               className="cursor-pointer"
               role="button"
               tabIndex={0}
-              aria-label={t('map.pointAria').replace('{name}', breed.name)}
+              aria-label={t('map.clusterAria').replace('{province}', cluster.province).replace('{count}', String(cluster.total))}
               aria-pressed={isSelected}
-              onClick={(e) => {
-                e.stopPropagation();
-                onBreedClick(breed);
+              onClick={(event) => {
+                event.stopPropagation();
+                if (onClusterClick) onClusterClick(cluster);
+                else if (cluster.members.length === 1) {
+                  const breed = breeds.find((item) => item.id === cluster.members[0].id);
+                  if (breed) onBreedClick(breed);
+                }
               }}
-              onMouseEnter={() => setTooltip({ x, y, name: breed.name, category: breed.category })}
+              onMouseEnter={() => setTooltip({ x, y, title, detail })}
               onMouseLeave={() => setTooltip(null)}
-              onFocus={() => setTooltip({ x, y, name: breed.name, category: breed.category })}
+              onFocus={() => setTooltip({ x, y, title, detail })}
               onBlur={() => setTooltip(null)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
                   event.stopPropagation();
-                  onBreedClick(breed);
+                  if (onClusterClick) onClusterClick(cluster);
                 }
               }}
             >
-              {/* 国家级保护品种：常驻金色呼吸脉冲圈 */}
-              {isProtected && (
+              {/* 底座淡色圆：让柱身/弧线在纸底上有一块可读的底 */}
+              <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1} />
+              {/* 类别弧线：按类别计数切分，一段一色 */}
+              {arcsFor(cluster, r * 0.72).map((arc) => (
+                <path
+                  key={arc.category}
+                  d={arcPath(x, y, arc.radius, arc.from, arc.sweep)}
+                  fill="none"
+                  stroke={arc.color}
+                  strokeWidth={Math.max(2.5, r * 0.34)}
+                  strokeLinecap="butt"
+                />
+              ))}
+              {/* 单品种产区：核心一个实心点，避免空心看着像未加载 */}
+              {cluster.total === 1 && <circle cx={x} cy={y} r={Math.max(1.6, r * 0.34)} fill={color} />}
+              {/* 含国家级保护名录：外圈金环 */}
+              {cluster.hasNationalProtected && (
+                <circle cx={x} cy={y} r={r * 1.32} fill="none" stroke="#d4a853" strokeWidth={1.6} />
+              )}
+              {/* 含编辑口径濒危：外圈细虚线（非权威结论） */}
+              {cluster.hasEndangered && (
                 <circle
                   cx={x}
                   cy={y}
-                  r={6}
+                  r={r * 1.6}
                   fill="none"
-                  stroke="#d4a853"
-                  strokeWidth={1.5}
-                  className="protected-pulse"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={1}
+                  strokeDasharray="3 3"
+                  opacity={0.7}
                 />
               )}
-              {/* 跳转定位脉冲光晕 */}
               {isPulsing && (
                 <circle
                   cx={x}
                   cy={y}
-                  r={8}
+                  r={r * 1.9}
                   fill="none"
                   stroke={color}
-                  strokeWidth={3}
+                  strokeWidth={2.5}
                   className="pulse-glow"
                   style={{ transformOrigin: `${x}px ${y}px` }}
                 />
               )}
-              <circle
-                cx={x}
-                cy={y}
-                r={isSelected ? 7 : isProtected ? 6 : 5}
-                fill={dotColor}
-                stroke={isProtected ? '#fff5d6' : 'hsl(var(--card))'}
-                strokeWidth={isProtected ? 2 : 2}
-                className="transition-all duration-200"
-              />
-              {/* 国家级保护品种：小金星标识 */}
-              {isProtected && (
-                <path
-                  d={`M ${x} ${y - 11} l 1.2 2.4 2.6.4 -1.9 1.8.5 2.6 -2.4 -1.3 -2.4 1.3.5 -2.6 -1.9 -1.8 2.6 -.4 z`}
-                  fill="#d4a853"
-                  stroke="#7a5a1a"
-                  strokeWidth={0.4}
-                />
-              )}
               {isSelected && (
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={12}
-                  fill="none"
-                  stroke={color}
-                  strokeOpacity={0.4}
-                  className="animate-pulse"
-                />
+                <circle cx={x} cy={y} r={r * 2.2} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={2} />
               )}
-              <text
-                x={x}
-                y={y - (isProtected ? -16 : 10)}
-                textAnchor="middle"
-                fontSize={isProtected ? 10 : 10}
-                fill={isProtected ? '#d4a853' : 'hsl(var(--foreground))'}
-                fontWeight={isProtected ? 700 : 600}
-                className={`pointer-events-none transition-opacity duration-200 ${isSelected || isProtected ? 'opacity-100' : 'opacity-0'}`}
-                style={isProtected ? { textShadow: '0 1px 3px rgba(0,0,0,0.8)' } : undefined}
-              >
-                {breed.name}
-              </text>
             </g>
           );
         })}
       </svg>
 
       {/* 图例说明 */}
-      {(selectedBreed || selectedProvince) && (
-        <div className="absolute bottom-3 left-3 z-10 bg-card/90 backdrop-blur border border-border rounded-lg shadow-lg px-3 py-2 text-xs space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-3 rounded-sm bg-primary border border-border" />
-            <span className="text-muted-foreground">{t('map.legendProvince')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-primary border-2 border-card" />
-            <span className="text-muted-foreground">{t('map.legendSelected')}</span>
-          </div>
+      <div className="absolute bottom-3 left-3 z-10 bg-card/90 backdrop-blur border border-border rounded-lg shadow-lg px-3 py-2 text-xs space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-3 rounded-sm bg-primary border border-border" />
+          <span className="text-muted-foreground">{t('map.legendProvince')}</span>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-[#d4a853]" />
+          <span className="text-muted-foreground">{t('map.legendCluster')}</span>
+        </div>
+      </div>
 
       <div className="absolute top-3 right-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm">
         {t('map.coordNote')}
@@ -256,8 +273,8 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
             transform: 'translate(-50%, -130%)',
           }}
         >
-          <p className="font-semibold text-foreground">{tooltip.name}</p>
-          <p className="text-muted-foreground">{tooltip.category}类</p>
+          <p className="font-semibold text-foreground">{tooltip.title}</p>
+          <p className="max-w-[220px] text-muted-foreground">{tooltip.detail}</p>
         </div>
       )}
     </div>

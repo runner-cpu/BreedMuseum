@@ -10,7 +10,7 @@ import { partitionRings, pointInRing, ringCentroid } from './ringFilter';
  * 调用方负责把 group 旋转到水平面。
  *
  * **平面原点只有一个：视图中心。** SVG 路径的 x/y 是「左上角为原点」的画布像素，
- * 而光柱、相机取景用的是 `project3D()`（视图中心为原点）。两者相差半张图
+ * 而产区柱、相机取景用的是 `project3D()`（视图中心为原点）。两者相差半张图
  * （实测 5.05, −5.23），所以这里所有坐标都必须过 `toPlane()`——
  * 见 `src/lib/geo3d/__tests__/geometry.test.ts` 的坐标系对齐断言。
  *
@@ -33,8 +33,18 @@ export function toPlane(x: number, y: number): [number, number] {
   return [(x - mapViewBox.width / 2) / PLANE_SCALE, -(y - mapViewBox.height / 2) / PLANE_SCALE];
 }
 
-/** 挤出高度分档：按该行政区馆藏量。 */
-export const EXTRUDE_STEPS = [0.05, 0.12, 0.2, 0.3] as const;
+/**
+ * 挤出高度分档（按该行政区馆藏量）。
+ *
+ * 上一版阈值是 ≤0 / ≤20 / ≤40 / 其余，31 个有落点的省份里只有 3 个落进「中台」以下，
+ * 84 条的云南和 50 条的山东都是同一个高度——版图看上去就是一块平顶。
+ * 现在按**真实分位**切三刀（实测省份分布 4…84，四分位 22 / 31 / 42），
+ * 四档高度差 0.11–0.12，让「馆藏量」这条通道真的读得出来。
+ */
+export const EXTRUDE_STEPS = [0.06, 0.16, 0.27, 0.39] as const;
+
+/** 分位阈值：≤22 低台 / ≤31 中台 / ≤42 高台 / 其余 最高台。 */
+const EXTRUDE_THRESHOLDS = [22, 31, 42] as const;
 
 export interface ProvinceGeometry {
   /** 行政区全名（“内蒙古自治区”等，与 chinaMap 键一致） */
@@ -149,11 +159,12 @@ function ringCenter(points: readonly [number, number][]): [number, number] {
   return toPlane((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
-/** 按馆藏量为单个行政区选择挤出高度。 */
+/** 按馆藏量为单个行政区选择挤出高度（分位阈值见 EXTRUDE_THRESHOLDS）。 */
 export function extrudeHeightFor(count: number): number {
   if (count <= 0) return EXTRUDE_STEPS[0];
-  if (count <= 20) return EXTRUDE_STEPS[1];
-  if (count <= 40) return EXTRUDE_STEPS[2];
+  if (count <= EXTRUDE_THRESHOLDS[0]) return EXTRUDE_STEPS[1];
+  if (count <= EXTRUDE_THRESHOLDS[1]) return EXTRUDE_STEPS[2];
+  if (count <= EXTRUDE_THRESHOLDS[2]) return EXTRUDE_STEPS[3];
   return EXTRUDE_STEPS[3];
 }
 

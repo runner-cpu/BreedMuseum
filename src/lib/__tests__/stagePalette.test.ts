@@ -114,6 +114,10 @@ describe('stage palette', () => {
       expect(contrastRatio(palette.goldOnLight, palette.province), `${name} 高亮 vs 省块`).toBeGreaterThanOrEqual(
         edgeFloor,
       );
+      // 濒危产区在柱底另画一圈细环，颜色也要能从省块上读出来
+      expect(contrastRatio(palette.endangeredRing, palette.province), `${name} 濒危环 vs 省块`).toBeGreaterThanOrEqual(
+        3.0,
+      );
     }
   });
 

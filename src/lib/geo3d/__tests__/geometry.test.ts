@@ -115,7 +115,7 @@ test('projection stays consistent with the 2D map and centres on the origin', ()
 });
 
 test('province geometry and pillar projection share one plane origin', () => {
-  // 回归防护：省块几何曾用 SVG 画布像素空间（左上为原点），光柱用视图中心为原点，
+  // 回归防护：省块几何曾用 SVG 画布像素空间（左上为原点），落点柱用视图中心为原点，
   // 两者相差半张图（实测 5.05, −5.23）——症状是「版图缩成一个小点、外面一大片空白」。
   // 这里把投影四角与省块主体包围盒放进同一个参照系比对，漏掉 toPlane() 立刻失败。
   const built = buildProvinceGeometries(new Map());
