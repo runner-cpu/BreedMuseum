@@ -51,11 +51,30 @@ const specialFixes: Record<string, BreedCategory> = {
   'alpaca': '特种畜禽', // 羊驼（名录「特种畜禽/羊驼」在册名称）
 };
 
+/**
+ * 物种级修复：记录的历史名称未逐字出现在名录，但其**物种**在名录
+ * 「特种畜禽」组内有独立章节（马鹿 / 鸵鸟 / 火鸡），按物种映射表归类。
+ * 与 donkeyFixes 的差别：此处依据是物种章节存在，而非名称逐字命中；
+ * 每条都在测试里断言物种确实在名录 sections 中出现。
+ */
+const speciesLevelFixes: Record<string, { category: BreedCategory; species: string }> = {
+  'tianshan-red-deer': { category: '鹿', species: '马鹿' }, // 天山马鹿
+  'yili-red-deer': { category: '鹿', species: '马鹿' }, // 伊犁马鹿
+  'ostrich': { category: '特种畜禽', species: '鸵鸟' }, // 鸵鸟（引入特种禽，名录有鸵鸟章节）
+  'turkey': { category: '特种畜禽', species: '火鸡' }, // 火鸡（名录有火鸡章节）
+};
+
 export const breedCategoryFixes: Record<string, BreedCategory> = {
   ...donkeyFixes,
   ...deerFixes,
   ...specialFixes,
+  ...Object.fromEntries(
+    Object.entries(speciesLevelFixes).map(([id, fix]) => [id, fix.category]),
+  ),
 };
+
+/** 物种级修复表（供契约测试校验物种确实在名录中成章）。 */
+export const breedSpeciesLevelFixes = speciesLevelFixes;
 
 /** 修复项数量（契约测试锁定，防止静默增删）。 */
 export const BREED_CATEGORY_FIX_COUNT = Object.keys(breedCategoryFixes).length;

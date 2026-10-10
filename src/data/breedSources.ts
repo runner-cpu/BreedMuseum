@@ -3,6 +3,10 @@ export interface BreedSource {
   title: string;
   publisher: string;
   url?: string;
+  /** 官方文号（有则填），用于 /about 与档案抽屉展示 */
+  notice?: string;
+  /** 官方 PDF 直链（有则填），逐页核对的原文出处 */
+  pdfUrl?: string;
   publishedAt?: string;
   verifiedAt: string;
   scope: string;
@@ -23,6 +27,8 @@ export const breedSources = {
     title: '《国家畜禽遗传资源品种名录（2024年版）》及蜂、蚕名录（畜资委办〔2025〕18号）',
     publisher: '国家畜禽遗传资源委员会办公室',
     url: 'https://www.nahs.org.cn/gk/tz/202502/t20250210_452797.htm',
+    notice: '畜资委办〔2025〕18号',
+    pdfUrl: 'https://www.nahs.org.cn/gk/tz/202502/P020250210558786784914.pdf',
     publishedAt: '2025-02-06',
     verifiedAt: '2026-10-07',
     scope: '2024 年版国家畜禽（1090）与蜂（39）名录在册名称、物种与名录子类；官方 PDF 逐页核对，全量 manifest 见 src/data/ml2024Catalog.json',
