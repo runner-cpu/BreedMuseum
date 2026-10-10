@@ -31,6 +31,9 @@ const SettingsContext = createContext<SettingsContextValue>(fallbackSettings);
 const dictionary: Record<string, { zh: string; en: string }> = {
   // 导航
   'nav.home': { zh: '首页', en: 'Home' },
+  'nav.lightMap': { zh: '畜种光图', en: 'Light map' },
+  'nav.arcade': { zh: '互动厅', en: 'Interactive hall' },
+  'nav.museum': { zh: '馆史与库房', en: 'About the museum' },
   'nav.map': { zh: '品种地图', en: 'Breed Map' },
   'nav.dashboard': { zh: '数据看板', en: 'Dashboard' },
   'nav.encyclopedia': { zh: '品种百科', en: 'Encyclopedia' },

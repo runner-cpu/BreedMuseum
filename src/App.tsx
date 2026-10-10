@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { WifiOff } from 'lucide-react';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Toaster } from '@/components/ui/sonner';
@@ -8,7 +8,7 @@ import { MuseumProvider, useMuseum } from '@/contexts/MuseumContext';
 import { SettingsProvider, useSettings } from '@/contexts/AppSettings';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
-import { routes } from './routes';
+import { LEGACY_ROUTES, routes } from './routes';
 import { RouteView } from '@/components/routing/RouteView';
 import NotFound from '@/pages/NotFound';
 import { MotionConfig } from 'motion/react';
@@ -46,6 +46,10 @@ const AppContent: React.FC = () => {
             path={route.path}
             element={<RouteView route={route} />}
           />
+        ))}
+        {/* 旧页面路径统一回到光图，保证已发布外链不 404 */}
+        {LEGACY_ROUTES.map((path) => (
+          <Route key={path} path={path} element={<Navigate to="/" replace />} />
         ))}
         <Route path="*" element={<NotFound />} />
       </Routes>

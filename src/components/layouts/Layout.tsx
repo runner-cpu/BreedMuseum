@@ -1,9 +1,7 @@
 import { useEffect, useState, type ReactNode, type FormEvent } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, Sun, Moon, Monitor, Globe, SlidersHorizontal } from 'lucide-react';
-import { categories } from '@/data/catalog';
+import { Search, Menu, Sun, Moon, Monitor, Globe } from 'lucide-react';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
-import { getCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { useSettings } from '@/contexts/AppSettings';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { publicAsset } from '@/lib/publicAsset';
@@ -24,31 +22,21 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const { t, setLanguage, theme, setTheme } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const showCategories = pathname === '/map' || pathname === '/encyclopedia';
+  // 四个路由：光图 / 互动厅 / 馆史；档案页从光图与互动厅进入，不占导航位
+  const onRoute = pathname === '/' || pathname.startsWith('/breed/');
   const navItems = [
-    { to: '/', label: t('nav.home') },
-    { to: '/pasture', label: t('nav.heatStress') },
-    { to: '/map', label: t('nav.germplasmMap') },
-    { to: '/encyclopedia', label: t('nav.encyclopedia') },
+    { to: '/', label: t('nav.lightMap') },
+    { to: '/arcade', label: t('nav.arcade') },
+    { to: '/about', label: t('nav.museum') },
   ];
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   useEffect(() => { setMenuOpen(false); setFilterOpen(false); }, [pathname]);
   const handleSearch = (event: FormEvent) => {
     event.preventDefault();
     setMenuOpen(false);
-    navigate('/map?search=' + encodeURIComponent(searchValue.trim()));
+    // 检索统一回到光图（唯一的检索入口在那里）
+    navigate('/?search=' + encodeURIComponent(searchValue.trim()));
   };
-  const categoryNav = <nav aria-label={t('layout.catNav')} className="grid grid-cols-3 gap-2 lg:flex lg:flex-col">
-    {[null, ...categories].map((category) => {
-      const Icon = category ? getCategorySvgIcon(category) : null;
-      const active = selectedCategory === category;
-      return <button key={category ?? 'all'} type="button" aria-pressed={active}
-        onClick={() => { onSelectCategory(category); setFilterOpen(false); }}
-        className={'min-h-11 rounded-lg px-3 py-2 flex items-center justify-center lg:justify-start gap-2 text-sm transition-colors ' + (active ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-secondary')}>
-        {Icon && <Icon className="h-5 w-5 shrink-0" />}{category ? t('cat.' + category) : t('common.all')}
-      </button>;
-    })}
-  </nav>;
   const utilities = <>
     <DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t('layout.changeTheme')} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><ThemeIcon className="h-5 w-5" /></button></DropdownMenuTrigger>
       <DropdownMenuContent align="end">{(['light', 'dark', 'system'] as const).map(mode => <DropdownMenuItem key={mode} onClick={() => setTheme(mode)} className="min-h-11">{t('theme.' + mode)}{theme === mode ? ' ✓' : ''}</DropdownMenuItem>)}</DropdownMenuContent>
@@ -86,13 +74,10 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
       </SheetContent>
     </Sheet>
     <div className="flex flex-1 min-h-0">
-      {showCategories && <aside className="hidden lg:block w-32 shrink-0 overflow-y-auto border-r border-border/30 bg-card p-3"><p className="mb-3 px-3 text-xs tracking-widest text-muted-foreground">{t('layout.categories')}</p>{categoryNav}</aside>}
       <div className="flex min-w-0 flex-1 flex-col">
-        {showCategories && <div className="lg:hidden shrink-0 border-b border-border/30 px-4 py-2"><button type="button" onClick={() => setFilterOpen(true)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm"><SlidersHorizontal className="h-4 w-4" />{t('layout.filterButton')} · {selectedCategory ? t('cat.' + selectedCategory) : t('common.all')}</button></div>}
         <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"><div className="page-fade h-full">{children}</div></main>
       </div>
     </div>
-    <Sheet open={filterOpen} onOpenChange={setFilterOpen}><SheetContent side="left" className="w-[min(90vw,360px)] overflow-y-auto"><SheetTitle>{t('layout.filterTitle')}</SheetTitle><SheetDescription>{t('layout.filterDesc')}</SheetDescription><div className="mt-5">{categoryNav}</div></SheetContent></Sheet>
     <footer className="shrink-0 bg-museum-ink text-museum-paper/85 px-4 py-2 text-center text-xs leading-relaxed">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span>{t('layout.footerTagline')} {COLLECTION_SUMMARY.total} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>
