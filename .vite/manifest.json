@@ -1,13 +1,13 @@
 {
-  "_CategorySilhouette-WWnlduYX.js": {
-    "file": "assets/CategorySilhouette-WWnlduYX.js",
+  "_CategorySilhouette-Dp5v_w6N.js": {
+    "file": "assets/CategorySilhouette-Dp5v_w6N.js",
     "name": "CategorySilhouette",
     "imports": [
       "index.html"
     ]
   },
-  "_VerificationBadge-ZAJeYuxz.js": {
-    "file": "assets/VerificationBadge-ZAJeYuxz.js",
+  "_VerificationBadge-BCXjqtDm.js": {
+    "file": "assets/VerificationBadge-BCXjqtDm.js",
     "name": "VerificationBadge",
     "imports": [
       "index.html",
@@ -26,8 +26,8 @@
     "file": "assets/breedMetadata-B89t7wxx.js",
     "name": "breedMetadata"
   },
-  "_breedSources-DNC7ZP_4.js": {
-    "file": "assets/breedSources-DNC7ZP_4.js",
+  "_breedSources-C9laCpba.js": {
+    "file": "assets/breedSources-C9laCpba.js",
     "name": "breedSources",
     "imports": [
       "index.html"
@@ -40,8 +40,8 @@
       "_breedMetadata-B89t7wxx.js"
     ]
   },
-  "_lightMapData-D9NnoE7x.js": {
-    "file": "assets/lightMapData-D9NnoE7x.js",
+  "_lightMapData-Dwjd3hnq.js": {
+    "file": "assets/lightMapData-Dwjd3hnq.js",
     "name": "lightMapData",
     "imports": [
       "index.html",
@@ -53,15 +53,15 @@
     "file": "assets/react-BHk431b0.js",
     "name": "react"
   },
-  "_sparkles-CljOcVAF.js": {
-    "file": "assets/sparkles-CljOcVAF.js",
+  "_sparkles-CFULju4n.js": {
+    "file": "assets/sparkles-CFULju4n.js",
     "name": "sparkles",
     "imports": [
       "index.html"
     ]
   },
   "index.html": {
-    "file": "assets/index-CKWUgBoo.js",
+    "file": "assets/index-DMpMXeyQ.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -89,73 +89,73 @@
     ]
   },
   "src/components/lightmap/LightMapScene.tsx": {
-    "file": "assets/LightMapScene-DExd_S4x.js",
+    "file": "assets/LightMapScene-B9SGAP1d.js",
     "name": "LightMapScene",
     "src": "src/components/lightmap/LightMapScene.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-BHk431b0.js",
-      "_lightMapData-D9NnoE7x.js",
+      "_lightMapData-Dwjd3hnq.js",
       "index.html",
       "_breedLookup-BFjqqewa.js",
       "src/pages/LightMapPage.tsx"
     ]
   },
   "src/pages/AboutPage.tsx": {
-    "file": "assets/AboutPage-BJEa9-nV.js",
+    "file": "assets/AboutPage-JKufjHvQ.js",
     "name": "AboutPage",
     "src": "src/pages/AboutPage.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_breedSources-DNC7ZP_4.js",
-      "_sparkles-CljOcVAF.js",
+      "_breedSources-C9laCpba.js",
+      "_sparkles-CFULju4n.js",
       "index.html",
-      "_VerificationBadge-ZAJeYuxz.js",
-      "_CategorySilhouette-WWnlduYX.js"
+      "_VerificationBadge-BCXjqtDm.js",
+      "_CategorySilhouette-Dp5v_w6N.js"
     ]
   },
   "src/pages/ArcadePage.tsx": {
-    "file": "assets/ArcadePage-CGvxEm3d.js",
+    "file": "assets/ArcadePage-TEiayGee.js",
     "name": "ArcadePage",
     "src": "src/pages/ArcadePage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-BHk431b0.js",
-      "_lightMapData-D9NnoE7x.js",
+      "_lightMapData-Dwjd3hnq.js",
       "index.html",
       "_breeds-C4ddFfq9.js",
       "_breedMetadata-B89t7wxx.js",
-      "_CategorySilhouette-WWnlduYX.js"
+      "_CategorySilhouette-Dp5v_w6N.js"
     ]
   },
   "src/pages/BreedRecordPage.tsx": {
-    "file": "assets/BreedRecordPage-DdzemlNi.js",
+    "file": "assets/BreedRecordPage-DxSgRoMZ.js",
     "name": "BreedRecordPage",
     "src": "src/pages/BreedRecordPage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-BHk431b0.js",
-      "_breedSources-DNC7ZP_4.js",
+      "_breedSources-C9laCpba.js",
       "index.html",
       "_breedLookup-BFjqqewa.js",
       "_breedMetadata-B89t7wxx.js",
-      "_VerificationBadge-ZAJeYuxz.js"
+      "_VerificationBadge-BCXjqtDm.js"
     ]
   },
   "src/pages/LightMapPage.tsx": {
-    "file": "assets/LightMapPage-CehYqDiu.js",
+    "file": "assets/LightMapPage-D5bTZLT3.js",
     "name": "LightMapPage",
     "src": "src/pages/LightMapPage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-BHk431b0.js",
-      "_lightMapData-D9NnoE7x.js",
-      "_sparkles-CljOcVAF.js",
+      "_lightMapData-Dwjd3hnq.js",
+      "_sparkles-CFULju4n.js",
       "index.html",
       "_breedLookup-BFjqqewa.js",
       "_breeds-C4ddFfq9.js",
       "_breedMetadata-B89t7wxx.js",
-      "_VerificationBadge-ZAJeYuxz.js"
+      "_VerificationBadge-BCXjqtDm.js"
     ],
     "dynamicImports": [
       "src/components/lightmap/LightMapScene.tsx"
