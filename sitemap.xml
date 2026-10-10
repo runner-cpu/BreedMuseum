@@ -2,6 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://runner-cpu.github.io/BreedMuseum/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://runner-cpu.github.io/BreedMuseum/#/arcade</loc></url>
+  <url><loc>https://runner-cpu.github.io/BreedMuseum/#/arcade/find-home</loc></url>
+  <url><loc>https://runner-cpu.github.io/BreedMuseum/#/arcade/identify</loc></url>
+  <url><loc>https://runner-cpu.github.io/BreedMuseum/#/arcade/quiz</loc></url>
   <url><loc>https://runner-cpu.github.io/BreedMuseum/#/about</loc></url>
   <url><loc>https://runner-cpu.github.io/BreedMuseum/audit/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://runner-cpu.github.io/BreedMuseum/privacy.html</loc><changefreq>yearly</changefreq></url>
