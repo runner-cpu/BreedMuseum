@@ -13,3 +13,6 @@ minimumReleaseAgeExclude:
   - miaoda-react-devkit
 overrides:
   source-map-js@>=1.0.0 <1.2.2: ">=1.2.2"
+  # three-mesh-bvh（经 stats-gl 引入）自带 @types/three 0.163，会与主版本
+  # 形成两份类型副本并污染 BufferGeometry 的模块增强 → 强制统一到目录版本。
+  "@types/three": 0.180.0
