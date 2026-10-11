@@ -9,21 +9,31 @@ export interface RouteConfig {
 
 /**
  * 页面清单：
- *   `/`             光图主展项（四镜头 + 省份聚焦 + 检索）
+ *   `/`             序厅首页（项目介绍、馆藏概览、参观路线与档案入口）
+ *   `/explore`      地图探索（类别、保护与濒危镜头）
+ *   `/map`          地图探索兼容入口（旧外链别名）
  *   `/arcade`       互动厅总览（三台装置入口）
  *   `/arcade/:game` 互动厅子页面（找家 / 识图 / 问答，各自成页）
  *   `/breed/:id`    单卷档案（可分享）
  *   `/dashboard`    馆藏数据中枢（类别、产区与保护概览）
  *   `/about`        馆史与库房（数据来源、诚实映射表、AI 披露、质量仪表盘）
  *
- * 旧路由（/map /encyclopedia /compare /pasture /recommend /ai /home）
+ * 旧路由（/encyclopedia /compare /pasture /recommend /ai /home）
  * 由 `App.tsx` 里的 `<Navigate replace>` 统一重定向到 `/`，避免已发布外链 404。
  * 顺序有意义：`/arcade/:game` 必须排在 `/arcade` 之后以免被通配吞掉（React Router 按特异性匹配）。
  */
 export const routes: RouteConfig[] = [
   { path: '/', Component: lazy(() => import('./pages/LightMapPage')), meta: {
-    zh: { title: '畜种光图 · 中国地方畜禽品种数字博物馆', description: '一座把来源和核验过程摊开给观众看的数字博物馆：在 2D 光图看 1186 条记录的真实产区，去互动厅玩一局，再回到卷宗查证。' },
-    en: { title: 'Breed Light Map · China Local Livestock Digital Museum', description: 'A transparent digital museum for 1,186 verified records: explore the 2D light map, play a data-backed exhibit, then trace each breed back to its source.' },
+    zh: { title: '首页序厅 · 中国地方畜禽品种数字博物馆', description: '认识中国地方畜禽品种数字博物馆的馆藏、来源与参观路线，再进入地图探索 1,186 条可追溯记录。' },
+    en: { title: 'Museum Foyer · China Local Livestock Digital Museum', description: 'Meet the collection, sources, and visitor route of the China Local Livestock Digital Museum, then explore 1,186 traceable records on the map.' },
+  } },
+  { path: '/explore', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别，探索 1,186 条地方畜禽品种馆藏记录。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Explore 1,186 local livestock records by province, production site, category, and conservation lens.' },
+  } },
+  { path: '/map', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别，探索 1,186 条地方畜禽品种馆藏记录。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Explore 1,186 local livestock records by province, production site, category, and conservation lens.' },
   } },
   { path: '/arcade', Component: lazy(() => import('./pages/ArcadePage')), meta: {
     zh: { title: '互动厅 · 三台展教装置', description: '找家挑战、识图挑战与知识问答：三台装置各自成页，题目全部由已核验的馆藏数据生成，每局结束可进入档案页核对官方来源。' },
@@ -52,9 +62,8 @@ export const routes: RouteConfig[] = [
  * 前者渲染具体装置；未知装置名由页面自身重定向回总览。
  */
 
-/** 旧页面路径 → 一律回到光图（保留外链可用性）。 */
+/** 旧页面路径 → 一律回到首页序厅（保留外链可用性）。`/map` 是地图探索兼容入口，故不列入此表。 */
 export const LEGACY_ROUTES = [
-  '/map',
   '/encyclopedia',
   '/compare',
   '/pasture',

@@ -34,7 +34,7 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'nav.lightMap': { zh: '畜种光图', en: 'Light map' },
   'nav.arcade': { zh: '互动厅', en: 'Interactive hall' },
   'nav.museum': { zh: '馆史与库房', en: 'About the museum' },
-  'nav.map': { zh: '品种地图', en: 'Breed Map' },
+  'nav.map': { zh: '地图探索', en: 'Explore Map' },
   'nav.dashboard': { zh: '数据看板', en: 'Dashboard' },
   'nav.encyclopedia': { zh: '品种百科', en: 'Encyclopedia' },
   'nav.ai': { zh: 'AI助手', en: 'AI Assistant' },

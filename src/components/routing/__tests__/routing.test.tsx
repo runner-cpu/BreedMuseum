@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { expect, test } from 'vitest';
-import { renderAppAt } from '@/test/render';
 import { LEGACY_ROUTES } from '@/routes';
+import { renderAppAt } from '@/test/render';
 
 test('unknown address stays visible on a true 404', async () => {
   renderAppAt('/missing-breed-page');
@@ -12,14 +12,23 @@ test('unknown address stays visible on a true 404', async () => {
 });
 
 /**
- * 页面清单：`/` 光图、`/arcade` 互动厅总览、`/arcade/:game` 单台装置、
- * `/breed/:id` 档案、`/about` 馆史；其余旧路径必须重定向到光图，不能 404。
+ * 页面清单：`/` 序厅首页、`/explore` 地图探索、`/arcade` 互动厅总览、`/arcade/:game` 单台装置、
+ * `/breed/:id` 档案、`/about` 馆史；其余旧路径必须重定向到首页序厅，不能 404。
  */
-test('legacy routes redirect to the light map instead of 404', async () => {
+test('legacy routes redirect to the museum foyer instead of 404', async () => {
   for (const legacy of LEGACY_ROUTES) {
     renderAppAt(legacy);
     await waitFor(() => expect(window.location.hash).toBe('#/'), { timeout: 5000 });
     expect(screen.queryByRole('heading', { name: '页面未找到' })).toBeNull();
+  }
+});
+
+test('explore route and map alias render the standalone map page', async () => {
+  for (const path of ['/explore', '/map']) {
+    const view = renderAppAt(path);
+    expect(await screen.findByRole('heading', { name: /把全国馆藏放回它们的土地/ })).toBeVisible();
+    expect(screen.getByRole('tablist', { name: '光图镜头' })).toBeVisible();
+    view.unmount();
   }
 });
 

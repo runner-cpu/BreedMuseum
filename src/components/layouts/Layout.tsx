@@ -22,21 +22,20 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const { t, setLanguage, theme, setTheme } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  // 主导航覆盖光图、数据看板、互动厅与馆史；档案页从光图与互动厅进入。
-  const onRoute = pathname === '/' || pathname.startsWith('/breed/');
+  // 主导航把首页介绍与地图探索分开；完整馆史与来源披露由首页入口进入。
   const navItems = [
-    { to: '/', label: t('nav.lightMap') },
+    { to: '/', label: t('nav.home') },
+    { to: '/explore', label: t('nav.map') },
     { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
-    { to: '/about', label: t('nav.museum') },
   ];
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   useEffect(() => { setMenuOpen(false); setFilterOpen(false); }, [pathname]);
   const handleSearch = (event: FormEvent) => {
     event.preventDefault();
     setMenuOpen(false);
-    // 检索统一回到光图（唯一的检索入口在那里）
-    navigate('/?search=' + encodeURIComponent(searchValue.trim()));
+    // 全局检索统一进入地图探索，结果与空间上下文保持一致。
+    navigate('/explore?search=' + encodeURIComponent(searchValue.trim()));
   };
   const utilities = <>
     <DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t('layout.changeTheme')} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><ThemeIcon className="h-5 w-5" /></button></DropdownMenuTrigger>

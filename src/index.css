@@ -270,6 +270,12 @@
     color: #fff;
   }
 
+  /* SVG 地图的省份与产区簇可用键盘聚焦；金色描边让当前焦点在深色舞台上清晰可见。 */
+  .museum-map-surface [role='button']:focus-visible {
+    outline: none;
+    filter: drop-shadow(0 0 5px rgb(244 201 108 / 0.95));
+  }
+
   .museum-subtle-track {
     background: rgb(111 127 158 / 0.24);
   }

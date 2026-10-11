@@ -200,13 +200,13 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
       <svg
         viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
         className="h-full w-full max-h-[calc(100vh-14rem)]"
-        role="img"
+        role="group"
         aria-label={t('map.title')}
         data-lens={lens}
         onClick={onClearSelection}
         style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}
       >
-        <title>{t('map.title')}</title>
+        <title id="china-map-title">{t('map.title')}</title>
         <defs>
           <pattern id="ricePaper" width="20" height="20" patternUnits="userSpaceOnUse">
           <rect width="20" height="20" fill={darkSurface ? '#11182c' : 'hsl(var(--card))'} />

@@ -1,17 +1,16 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { WifiOff } from 'lucide-react';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { Toaster } from '@/components/ui/sonner';
-import Layout from '@/components/layouts/Layout';
-import { MuseumProvider, useMuseum } from '@/contexts/MuseumContext';
-import { SettingsProvider, useSettings } from '@/contexts/AppSettings';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-
-import { LEGACY_ROUTES, routes } from './routes';
-import { RouteView } from '@/components/routing/RouteView';
-import NotFound from '@/pages/NotFound';
 import { MotionConfig } from 'motion/react';
+import React from 'react';
+import { Navigate, Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import Layout from '@/components/layouts/Layout';
+import { RouteView } from '@/components/routing/RouteView';
+import { Toaster } from '@/components/ui/sonner';
+import { SettingsProvider, useSettings } from '@/contexts/AppSettings';
+import { MuseumProvider, useMuseum } from '@/contexts/MuseumContext';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NotFound from '@/pages/NotFound';
+import { LEGACY_ROUTES, routes } from './routes';
 
 /** 断网提示横幅 */
 const OfflineBanner: React.FC = () => {
@@ -47,7 +46,7 @@ const AppContent: React.FC = () => {
             element={<RouteView route={route} />}
           />
         ))}
-        {/* 旧页面路径统一回到光图，保证已发布外链不 404 */}
+        {/* 旧页面路径统一回到首页序厅；/map 作为地图探索兼容入口保留在 routes 中。 */}
         {LEGACY_ROUTES.map((path) => (
           <Route key={path} path={path} element={<Navigate to="/" replace />} />
         ))}

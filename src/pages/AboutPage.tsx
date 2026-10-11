@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
 import { BookOpenCheck, Database, ExternalLink, FileText, Gauge, ShieldCheck, Sparkles } from 'lucide-react';
-import { COLLECTION_SUMMARY, COLLECTION_VERSION, QUALITY_SUMMARY } from '@/data/collectionSummary';
-import { breedSources } from '@/data/breedSources';
-import { VerificationLegend } from '@/components/common/VerificationBadge';
+import { Link } from 'react-router-dom';
+import { AboutOverview } from '@/components/about/AboutOverview';
 import { SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
+import { VerificationLegend } from '@/components/common/VerificationBadge';
+import { breedSources } from '@/data/breedSources';
+import { COLLECTION_SUMMARY, COLLECTION_VERSION, QUALITY_SUMMARY } from '@/data/collectionSummary';
 
 /**
  * 馆史与库房（`/about`）——无现场评审时的自解释材料。
@@ -86,6 +87,9 @@ export default function AboutPage() {
             数据版本 {COLLECTION_VERSION}。
           </p>
         </header>
+
+        {/* 先给观众一张可浏览的馆藏导览，再展开技术细节；避免馆史页从第一屏开始就是长文。 */}
+        <AboutOverview exploreHref="/explore" />
 
         {/* 1. 建馆路线 */}
         <section aria-labelledby="about-pipeline" className="space-y-3">
