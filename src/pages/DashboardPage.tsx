@@ -8,17 +8,18 @@ import { categories } from '@/data/catalog';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { categoryColors } from '@/lib/categoryIcons';
 
-const INK = '#07100d';
-const PANEL = '#0f1b16';
-const PANEL_ALT = '#13241c';
-const LINE = '#294238';
-const MINT = '#a8d0b5';
-const GOLD = '#e6bd67';
-const MUTED = '#91a69a';
+// 颜色引用展厅令牌，确保深浅模式切换会同步改变整个看板。
+const INK = 'var(--stage)';
+const PANEL = 'var(--stage-panel)';
+const PANEL_ALT = 'var(--stage-soft)';
+const LINE = 'var(--stage-border)';
+const MINT = 'var(--stage-fg)';
+const GOLD = 'var(--stage-gold)';
+const MUTED = 'var(--stage-muted)';
 
 const endangeredPalette: Record<string, string> = {
   普通: '#73b58b',
-  易危: '#e6bd67',
+  易危: 'var(--stage-gold)',
   濒危: '#e58b58',
   极危: '#e15f5f',
   待核验: '#687f73',
@@ -39,7 +40,7 @@ function SectionHeading({ eyebrow, title, description, id }: { eyebrow: string; 
   return (
     <div className="relative z-10 mb-5">
       <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.28em]" style={{ color: GOLD }}>{eyebrow}</p>
-      <h2 id={id} className="font-serif text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: '#f1f4ed' }}>{title}</h2>
+      <h2 id={id} className="font-serif text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: 'var(--stage-fg)' }}>{title}</h2>
       {description && <p className="mt-2 max-w-2xl text-xs leading-relaxed sm:text-sm" style={{ color: MUTED }}>{description}</p>}
     </div>
   );
@@ -80,10 +81,10 @@ export default function DashboardPage() {
   const protectionRate = Math.round((protectedCount / breeds.length) * 1000) / 10;
   const endangeredRate = Math.round((endangeredCount / breeds.length) * 1000) / 10;
 
-  const tooltipStyle = { background: '#17251d', border: `1px solid ${LINE}`, borderRadius: 12, color: '#f1f4ed', fontSize: 12 };
+  const tooltipStyle = { background: 'var(--stage-panel)', border: `1px solid ${LINE}`, borderRadius: 12, color: 'var(--stage-fg)', fontSize: 12 };
 
   return (
-    <div className="min-h-full overflow-hidden" style={{ background: INK, color: '#f1f4ed' }}>
+    <div className="min-h-full overflow-hidden" style={{ background: INK, color: 'var(--stage-fg)' }}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[26rem] opacity-70" style={{ background: 'radial-gradient(circle at 78% 6%, rgba(102,143,111,.28), transparent 46%), radial-gradient(circle at 12% 10%, rgba(211,161,73,.1), transparent 32%)' }} />
       <div className="relative mx-auto max-w-[1440px] px-4 pb-16 pt-8 sm:px-8 lg:px-12 lg:pt-12">
         <header className="mb-8 flex flex-col justify-between gap-5 border-b pb-7 lg:flex-row lg:items-end" style={{ borderColor: LINE }}>
@@ -130,12 +131,12 @@ export default function DashboardPage() {
                     <Tooltip contentStyle={tooltipStyle} formatter={(value: unknown, name: unknown) => [`${formatNumber(Number(value ?? 0))} 个品种`, String(name ?? '类别')]} />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"><span className="font-mono text-3xl font-semibold" style={{ color: '#f1f4ed' }}>{formatNumber(pieTotal)}</span><span className="text-xs" style={{ color: MUTED }}>条馆藏记录</span></div>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"><span className="font-mono text-3xl font-semibold" style={{ color: 'var(--stage-fg)' }}>{formatNumber(pieTotal)}</span><span className="text-xs" style={{ color: MUTED }}>条馆藏记录</span></div>
               </div>
               <div className="max-h-[18rem] space-y-1.5 overflow-y-auto pr-1" role="list" aria-label="类别图例">
                 {categoryData.map((item) => {
                   const active = focusCategory === item.name;
-                  return <button type="button" role="listitem" aria-pressed={active} key={item.name} onClick={() => setFocusCategory(active ? null : item.name)} className="flex min-h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-xs transition-colors hover:bg-white/5" style={{ background: active ? 'rgba(230,189,103,.12)' : undefined }}><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: item.color, boxShadow: active ? `0 0 12px ${item.color}` : undefined }} /><span className="min-w-0 flex-1 truncate" style={{ color: active ? '#f1f4ed' : MINT }}>{item.name}</span><span className="font-mono tabular-nums" style={{ color: active ? GOLD : MUTED }}>{item.value}</span><span className="w-10 text-right font-mono text-[0.65rem]" style={{ color: MUTED }}>{Math.round((item.value / pieTotal) * 100)}%</span></button>;
+                  return <button type="button" role="listitem" aria-pressed={active} key={item.name} onClick={() => setFocusCategory(active ? null : item.name)} className="flex min-h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-xs transition-colors hover:bg-white/5" style={{ background: active ? 'rgb(230 189 103 / .12)' : undefined }}><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: item.color, boxShadow: active ? `0 0 12px ${item.color}` : undefined }} /><span className="min-w-0 flex-1 truncate" style={{ color: active ? 'var(--stage-fg)' : MINT }}>{item.name}</span><span className="font-mono tabular-nums" style={{ color: active ? GOLD : MUTED }}>{item.value}</span><span className="w-10 text-right font-mono text-[0.65rem]" style={{ color: MUTED }}>{Math.round((item.value / pieTotal) * 100)}%</span></button>;
                 })}
               </div>
             </div>
@@ -146,7 +147,7 @@ export default function DashboardPage() {
             <div className="space-y-5">
               <div className="rounded-xl border p-4" style={{ borderColor: LINE, background: 'rgba(255,255,255,.025)' }}>
                 <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-sm" style={{ color: MINT }}>国家级保护名录</p><p className="mt-1 font-mono text-2xl font-semibold" style={{ color: GOLD }}>{formatNumber(protectedCount)} <span className="font-sans text-xs font-normal" style={{ color: MUTED }}>个匹配</span></p></div><ShieldCheck className="h-7 w-7" style={{ color: GOLD }} aria-hidden="true" /></div>
-                <div className="h-2 overflow-hidden rounded-full" style={{ background: '#26382f' }}><div className="h-full rounded-full" style={{ width: `${Math.min(protectionRate * 2.4, 100)}%`, background: `linear-gradient(90deg, ${GOLD}, #f3da9a)` }} /></div>
+                <div className="h-2 overflow-hidden rounded-full" style={{ background: 'var(--stage-soft)' }}><div className="h-full rounded-full" style={{ width: `${Math.min(protectionRate * 2.4, 100)}%`, background: `linear-gradient(90deg, ${GOLD}, #f3da9a)` }} /></div>
                 <p className="mt-2 text-[0.7rem]" style={{ color: MUTED }}>覆盖馆藏 {protectionRate}% · 以名录匹配为准</p>
               </div>
               <div className="rounded-xl border p-4" style={{ borderColor: LINE, background: 'rgba(255,255,255,.025)' }}>

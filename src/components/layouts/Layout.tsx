@@ -26,6 +26,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const navItems = [
     { to: '/', label: t('nav.home') },
     { to: '/explore', label: t('nav.map') },
+    { to: '/encyclopedia', label: t('nav.encyclopedia') },
     { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
   ];

@@ -15,7 +15,8 @@ describe('static discovery assets', () => {
     expect(sitemap).toContain('runner-cpu.github.io/BreedMuseum');
     expect(sitemap).toContain('https://runner-cpu.github.io/BreedMuseum/audit/');
     expect(sitemap).toContain('https://runner-cpu.github.io/BreedMuseum/privacy.html');
-    // 数据看板 + 互动厅总览 + 三个装置子页 / 馆史与库房；档案页按需生成，不进 sitemap
+    // 百科、数据看板 + 互动厅总览 + 三个装置子页 / 馆史与库房；档案页按需生成，不进 sitemap
+    expect(sitemap).toContain('#/encyclopedia');
     expect(sitemap).toContain('#/explore');
     expect(sitemap).toContain('#/dashboard');
     expect(sitemap).toContain('#/arcade');
@@ -24,7 +25,7 @@ describe('static discovery assets', () => {
     }
     expect(sitemap).toContain('#/about');
     // 旧路由已重定向，不再出现在 sitemap
-    for (const legacy of ['#/encyclopedia', '#/compare']) {
+    for (const legacy of ['#/compare']) {
       expect(sitemap).not.toContain(legacy);
     }
   });

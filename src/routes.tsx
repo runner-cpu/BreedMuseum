@@ -12,13 +12,14 @@ export interface RouteConfig {
  *   `/`             序厅首页（项目介绍、馆藏概览、参观路线与档案入口）
  *   `/explore`      地图探索（类别、保护与濒危镜头）
  *   `/map`          地图探索兼容入口（旧外链别名）
+ *   `/encyclopedia` 品种百科（检索、筛选与图片卡片）
  *   `/arcade`       互动厅总览（三台装置入口）
  *   `/arcade/:game` 互动厅子页面（找家 / 识图 / 问答，各自成页）
  *   `/breed/:id`    单卷档案（可分享）
  *   `/dashboard`    馆藏数据中枢（类别、产区与保护概览）
  *   `/about`        馆史与库房（数据来源、诚实映射表、AI 披露、质量仪表盘）
  *
- * 旧路由（/encyclopedia /compare /pasture /recommend /ai /home）
+ * 旧路由（/compare /pasture /recommend /ai /home）
  * 由 `App.tsx` 里的 `<Navigate replace>` 统一重定向到 `/`，避免已发布外链 404。
  * 顺序有意义：`/arcade/:game` 必须排在 `/arcade` 之后以免被通配吞掉（React Router 按特异性匹配）。
  */
@@ -34,6 +35,10 @@ export const routes: RouteConfig[] = [
   { path: '/map', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
     zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别，探索 1,186 条地方畜禽品种馆藏记录。' },
     en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Explore 1,186 local livestock records by province, production site, category, and conservation lens.' },
+  } },
+  { path: '/encyclopedia', Component: lazy(() => import('./pages/EncyclopediaPage')), meta: {
+    zh: { title: '品种百科 · 中国地方畜禽品种数字博物馆', description: '按名称、类别、省份与濒危等级检索 1,186 条地方畜禽品种馆藏记录。' },
+    en: { title: 'Breed Encyclopedia · China Local Livestock Digital Museum', description: 'Search 1,186 local livestock records by name, category, province, and conservation level.' },
   } },
   { path: '/arcade', Component: lazy(() => import('./pages/ArcadePage')), meta: {
     zh: { title: '互动厅 · 三台展教装置', description: '找家挑战、识图挑战与知识问答：三台装置各自成页，题目全部由已核验的馆藏数据生成，每局结束可进入档案页核对官方来源。' },
@@ -64,7 +69,6 @@ export const routes: RouteConfig[] = [
 
 /** 旧页面路径 → 一律回到首页序厅（保留外链可用性）。`/map` 是地图探索兼容入口，故不列入此表。 */
 export const LEGACY_ROUTES = [
-  '/encyclopedia',
   '/compare',
   '/pasture',
   '/recommend',

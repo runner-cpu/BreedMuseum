@@ -61,7 +61,7 @@ for (const path of [
 }
 
 /** 旧路由必须重定向到首页序厅，不能 404（已发布外链兼容）。地图旧入口保留为探索页别名。 */
-for (const legacy of ['/encyclopedia', '/compare', '/pasture', '/recommend', '/ai']) {
+for (const legacy of ['/compare', '/pasture', '/recommend', '/ai']) {
   test('legacy route ' + legacy + ' redirects to the museum foyer', async ({ page }) => {
     await page.goto('/#' + legacy);
     await expect(page).toHaveURL(/#\/$/);
@@ -81,7 +81,7 @@ test('home introduces the museum and guides visitors into exploration', async ({
   await page.goto('/#/');
   await expect(page.getByRole('heading', { name: /中国地方畜禽.*品种数字博物馆/ })).toBeVisible();
   await expect(page.getByText('关于这座馆')).toBeVisible();
-  await expect(page.getByRole('heading', { name: /从一份名录开始/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /一张地图，三种进入方式/ })).toBeVisible();
   await expect(page.getByRole('region', { name: '参观路线' })).toBeVisible();
   await expect(page.getByText('来源与方法', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '进入地图探索' }).first()).toBeVisible();
@@ -90,11 +90,11 @@ test('home introduces the museum and guides visitors into exploration', async ({
 
 test('explore route exposes four map lenses and source-backed search', async ({ page }) => {
   await page.goto('/#/explore');
-  await expect(page.getByRole('heading', { name: /把全国馆藏放回它们的土地/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /一张地图，四个看法/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '全国品种分布' })).toBeVisible();
   await expect(page.getByRole('tab')).toHaveCount(4);
   await page.getByRole('tab', { name: '国家级保护' }).click();
-  await expect(page.getByText(/个品种拥有国家级身份/)).toBeVisible();
+  await expect(page.getByText(/271 条 ·/)).toBeVisible();
   const search = page.getByRole('searchbox', { name: '检索品种档案' });
   await search.fill('河田鸡');
   await page.getByRole('button', { name: /^河田鸡/ }).first().click();
@@ -104,16 +104,16 @@ test('explore route exposes four map lenses and source-backed search', async ({ 
 test('lens switching keeps the conclusion line in sync', async ({ page }) => {
   await page.goto('/#/explore');
   await page.getByRole('tab', { name: '国家级保护' }).click();
-  await expect(page.getByText(/271 个品种拥有国家级身份/)).toBeVisible();
+  await expect(page.getByText(/271 条 ·/)).toBeVisible();
   await page.getByRole('tab', { name: '濒危之窗' }).click();
-  await expect(page.getByText(/82 个记录被编辑标注为濒危/)).toBeVisible();
+  await expect(page.getByText(/82 条 ·/)).toBeVisible();
 });
 
-test('home archive search opens a breed record', async ({ page }) => {
-  await page.goto('/#/');
-  const search = page.getByRole('searchbox', { name: /检索品种/ });
+test('encyclopedia search opens a breed record', async ({ page }) => {
+  await page.goto('/#/encyclopedia');
+  const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
   await search.fill('河田鸡');
-  await page.getByRole('button', { name: /^河田鸡/ }).first().click();
+  await page.getByRole('link', { name: /河田鸡/ }).first().click();
   await expect(page).toHaveURL(/#\/breed\//);
   await expect(page.getByRole('heading', { name: '河田鸡', level: 1 })).toBeVisible();
 });
@@ -229,8 +229,8 @@ test('mobile menu exposes the three primary destinations and closes by keyboard'
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  // 导航为 4 项：首页 / 地图探索 / 数据看板 / 互动厅
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(4);
+  // 导航为 5 项：首页 / 地图探索 / 品种百科 / 数据看板 / 互动厅
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(5);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
 });
 
