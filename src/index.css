@@ -198,6 +198,236 @@
 }
 
 @layer components {
+  /* 参考展厅的暗海军蓝信息架构：首页独立于档案页的宣纸舞台，
+     让地图、统计和互动模块形成一条连续的沉浸式叙事。 */
+  .museum-home {
+    --museum-night: #0a0b1b;
+    --museum-panel: #11182c;
+    --museum-panel-raised: #171f38;
+    --museum-line: #34425f;
+    background:
+      radial-gradient(circle at 50% 8%, rgb(39 53 91 / 0.42), transparent 26rem),
+      radial-gradient(circle at 15% 42%, rgb(29 62 57 / 0.18), transparent 24rem),
+      #0a0b1b;
+  }
+
+  .museum-home-inner {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .museum-home-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.32;
+    background-image: radial-gradient(circle, rgb(193 208 236 / 0.45) 0 1px, transparent 1.5px);
+    background-size: 76px 76px;
+    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .museum-section {
+    width: min(100%, 1440px);
+    margin-inline: auto;
+    padding: 5.5rem clamp(1rem, 4vw, 4rem);
+  }
+
+  .museum-eyebrow {
+    color: #d4a853;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .museum-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(83 97 126 / 0.72);
+    border-radius: 0.85rem;
+    background: linear-gradient(145deg, rgb(24 33 60 / 0.95), rgb(13 18 35 / 0.97));
+    box-shadow: 0 18px 48px rgb(3 5 14 / 0.24);
+  }
+
+  .museum-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 100% 0%, rgb(212 168 83 / 0.12), transparent 22rem);
+  }
+
+  .museum-ghost-hover {
+    cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  .museum-ghost-hover:hover {
+    background-color: rgb(255 255 255 / 0.09);
+    color: #fff;
+  }
+
+  .museum-subtle-track {
+    background: rgb(111 127 158 / 0.24);
+  }
+
+  .museum-link {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    gap: 0.45rem;
+    color: #e2bd6d;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  .museum-link:hover {
+    color: #f4d790;
+    transform: translateX(2px);
+  }
+
+  .museum-map-workbench {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .museum-rail {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.75rem;
+    border: 1px solid var(--museum-line);
+    border-radius: 0.75rem;
+    background: rgb(17 24 44 / 0.9);
+    scrollbar-width: thin;
+  }
+
+  .museum-rail-item {
+    display: inline-flex;
+    min-height: 2.75rem;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    color: #aab5c9;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: 180ms ease;
+  }
+
+  .museum-rail-item:hover {
+    border-color: rgb(212 168 83 / 0.38);
+    background: rgb(255 255 255 / 0.06);
+    color: #fff;
+  }
+
+  .museum-rail-item.is-active {
+    background: #d4a853;
+    color: #192033;
+    font-weight: 700;
+  }
+
+  .museum-rail-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #d4a853;
+    box-shadow: 0 0 12px rgb(212 168 83 / 0.45);
+  }
+
+  .museum-rail-icon {
+    display: inline-flex;
+    width: 1.65rem;
+    height: 1.65rem;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border: 1px solid rgb(83 97 126 / 0.72);
+    border-radius: 0.45rem;
+    background: rgb(32 43 70 / 0.8);
+  }
+
+  .museum-rail-item.is-active .museum-rail-icon {
+    border-color: rgb(25 32 51 / 0.26);
+    background: rgb(255 255 255 / 0.3);
+  }
+
+  .museum-map-card,
+  .museum-detail {
+    min-width: 0;
+    border: 1px solid var(--museum-line);
+    border-radius: 0.85rem;
+    background: rgb(17 24 44 / 0.94);
+  }
+
+  .museum-map-card {
+    overflow: hidden;
+  }
+
+  .museum-detail {
+    padding: 1rem;
+  }
+
+  .museum-status {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgb(212 168 83 / 0.6);
+    border-radius: 0.45rem;
+    padding: 0.25rem 0.5rem;
+    color: #e6c678;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .museum-rail {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 42rem;
+    }
+
+    .museum-rail-item {
+      min-height: 3rem;
+      justify-content: flex-start;
+    }
+
+    .museum-map-workbench {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+    }
+
+    .museum-detail {
+      grid-column: 2;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .museum-map-workbench {
+      grid-template-columns: 10rem minmax(0, 1fr) 22rem;
+      align-items: stretch;
+    }
+
+    .museum-detail {
+      grid-column: auto;
+      min-height: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .museum-section {
+      padding-block: 3.5rem;
+    }
+  }
+
   .ink-card {
     @apply bg-card border border-border rounded shadow-card;
     background-image: var(--gradient-card);

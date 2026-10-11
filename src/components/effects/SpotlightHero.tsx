@@ -1,10 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Search } from 'lucide-react';
-import { provincePaths, mapViewBox } from '@/data/chinaMap';
-import { useSettings } from '@/contexts/AppSettings';
-import { publicAsset } from '@/lib/publicAsset';
+import { motion, useReducedMotion } from 'motion/react';
+import { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useSettings } from '@/contexts/AppSettings';
+import { mapViewBox, provincePaths } from '@/data/chinaMap';
 
 // 各省份高亮配色（聚光时显示的彩色地图）
 const palette = [
@@ -60,17 +59,11 @@ const SpotlightHero = ({
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-black"
+      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-[#080b18]"
     >
-      {/* 底图：高原牧场大场景插画（项目原创 SVG，浅色地图轮廓压在其上） */}
-      <img
-        src={publicAsset('brand/plateau-hero.svg')}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {/* 压暗层：保证标题与地图线条在亮部仍可读 */}
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/80" />
+      {/* 参考初版的深海军蓝地图舞台：让中国轮廓成为首屏主角。 */}
+      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_52%_45%,rgba(66,87,145,.5),transparent_34%),radial-gradient(circle_at_80%_18%,rgba(212,168,83,.16),transparent_24%),linear-gradient(180deg,#080b18,#0d1329_60%,#080b18)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgba(181,198,230,.7)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
@@ -172,24 +165,24 @@ const SpotlightHero = ({
       </div>
 
       {/* 底部左侧描述 */}
-      <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 max-w-xs">
+      <div className="absolute bottom-6 left-6 z-20 max-w-xs md:bottom-10 md:left-10">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-xs md:text-sm text-white/60 leading-relaxed text-pretty"
+          className="text-xs leading-relaxed text-[#d5dbea] text-pretty md:text-sm"
         >
           {descLeft}
         </motion.p>
       </div>
 
       {/* 底部右侧描述 */}
-      <div className="hidden md:block absolute bottom-6 right-6 md:bottom-10 md:right-10 max-w-xs text-right">
+      <div className="absolute bottom-6 right-6 z-20 hidden max-w-xs text-right md:bottom-10 md:right-10 md:block">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="text-xs md:text-sm text-white/60 leading-relaxed text-pretty"
+          className="text-xs leading-relaxed text-[#d5dbea] text-pretty md:text-sm"
         >
           {descRight}
         </motion.p>

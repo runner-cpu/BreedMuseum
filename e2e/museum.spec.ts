@@ -30,6 +30,7 @@ for (const path of [
   '/arcade/find-home',
   '/arcade/identify',
   '/arcade/quiz',
+  '/dashboard',
   '/about',
   '/breed/hetian-chicken',
   '/breed/not-a-real-breed',
@@ -58,7 +59,7 @@ for (const path of [
 }
 
 /** 旧路由必须重定向到光图，不能 404（已发布外链兼容）。 */
-for (const legacy of ['/map', '/encyclopedia', '/dashboard', '/compare', '/pasture', '/recommend', '/ai']) {
+for (const legacy of ['/map', '/encyclopedia', '/compare', '/pasture', '/recommend', '/ai']) {
   test('legacy route ' + legacy + ' redirects to the light map', async ({ page }) => {
     await page.goto('/#' + legacy);
     await expect(page).toHaveURL(/#\/$/);
@@ -66,11 +67,19 @@ for (const legacy of ['/map', '/encyclopedia', '/dashboard', '/compare', '/pastu
   });
 }
 
+test('dashboard route exposes interactive collection charts', async ({ page }) => {
+  await page.goto('/#/dashboard');
+  await expect(page.getByRole('heading', { name: '馆藏数据中枢' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '馆藏类别占比图' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '省份品种数量排行图' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('国家级保护名录')).toBeVisible();
+});
+
 test('home exposes the look-play-verify journey and digest table', async ({ page }) => {
   await page.goto('/#/');
   // 首屏文案与主动作
   await expect(page.getByText(/你家的省份亮了几个/)).toBeVisible();
-  await expect(page.getByRole('link', { name: /看分布/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: '开始探索' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /一张地图，四个看法/ })).toBeVisible();
   // 四个镜头
   const tabs = page.getByRole('tab');
@@ -217,8 +226,8 @@ test('mobile menu exposes the three primary destinations and closes by keyboard'
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  // 导航为 3 项：畜种光图 / 互动厅 / 馆史与库房
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(3);
+  // 导航为 4 项：畜种光图 / 数据看板 / 互动厅 / 馆史与库房
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(4);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
 });
 

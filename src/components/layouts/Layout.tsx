@@ -1,13 +1,13 @@
-import { useEffect, useState, type ReactNode, type FormEvent } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, Sun, Moon, Monitor, Globe } from 'lucide-react';
-import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
-import { useSettings } from '@/contexts/AppSettings';
+import { Globe, Menu, Monitor, Moon, Search, Sun } from 'lucide-react';
+import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '@/components/brand/BrandLogo';
-import { publicAsset } from '@/lib/publicAsset';
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { useSettings } from '@/contexts/AppSettings';
+import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
+import { publicAsset } from '@/lib/publicAsset';
 
 interface LayoutProps {
   children: ReactNode;
@@ -22,10 +22,11 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const { t, setLanguage, theme, setTheme } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  // 四个路由：光图 / 互动厅 / 馆史；档案页从光图与互动厅进入，不占导航位
+  // 主导航覆盖光图、数据看板、互动厅与馆史；档案页从光图与互动厅进入。
   const onRoute = pathname === '/' || pathname.startsWith('/breed/');
   const navItems = [
     { to: '/', label: t('nav.lightMap') },
+    { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
     { to: '/about', label: t('nav.museum') },
   ];

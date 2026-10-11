@@ -6,11 +6,11 @@ import { categoryColors } from '@/lib/categoryIcons';
 import {
   buildSiteClusters,
   clustersForLens,
-  markerRadiusFor,
   type LensId,
+  markerRadiusFor,
   type SiteCluster,
 } from '@/lib/geo/clusterSites';
-import { CHOROPLETH_DARK_COLORS, buildProvinceChoropleth } from '@/lib/geo/provinceChoropleth';
+import { buildProvinceChoropleth, CHOROPLETH_DARK_COLORS } from '@/lib/geo/provinceChoropleth';
 
 export type { LensId };
 
@@ -30,6 +30,10 @@ export interface ChinaMapProps {
   onClusterClick?: (cluster: SiteCluster) => void;
   onClearSelection?: () => void;
   onProvinceHover?: (province: string | null) => void;
+  /** Render the map as a dark exhibition surface with clean point markers. */
+  darkSurface?: boolean;
+  /** Province names are useful for study mode but too noisy for the hero map. */
+  showProvinceLabels?: boolean;
   className?: string;
 }
 
@@ -96,9 +100,12 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   onClusterClick,
   onClearSelection,
   onProvinceHover,
+  darkSurface = false,
+  showProvinceLabels = true,
   className,
 }) => {
   const { t, isDark } = useSettings();
+  const mapIsDark = isDark || darkSurface;
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -175,7 +182,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
     });
   };
 
-  const mapClassName = ['relative flex h-full w-full items-center justify-center p-2', className]
+  const mapClassName = [
+    'relative flex h-full w-full items-center justify-center p-2',
+    darkSurface ? 'museum-map-surface' : '',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -198,12 +209,28 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         <title>{t('map.title')}</title>
         <defs>
           <pattern id="ricePaper" width="20" height="20" patternUnits="userSpaceOnUse">
-            <rect width="20" height="20" fill="hsl(var(--card))" />
+          <rect width="20" height="20" fill={darkSurface ? '#11182c' : 'hsl(var(--card))'} />
             <circle cx="2" cy="2" r="0.5" fill="hsl(var(--border))" opacity="0.3" />
             <circle cx="12" cy="12" r="0.5" fill="hsl(var(--border))" opacity="0.2" />
           </pattern>
         </defs>
-        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="url(#ricePaper)" opacity={0.48} />
+        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill={darkSurface ? '#11182c' : 'url(#ricePaper)'} opacity={darkSurface ? 1 : 0.48} />
+        {darkSurface && (
+          <>
+            <defs>
+              <radialGradient id="mapHalo" cx="50%" cy="46%" r="65%">
+                <stop offset="0%" stopColor="#25365d" stopOpacity="0.72" />
+                <stop offset="65%" stopColor="#11182c" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#0a0d1c" stopOpacity="0.8" />
+              </radialGradient>
+              <filter id="mapGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="5" />
+              </filter>
+            </defs>
+            <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="url(#mapHalo)" />
+            <ellipse cx={mapViewBox.width * 0.52} cy={mapViewBox.height * 0.48} rx="280" ry="190" fill="#d4a853" opacity="0.08" filter="url(#mapGlow)" />
+          </>
+        )}
 
         {provinceEntries.map(({ fullName, name, path, label }) => {
           const count = choropleth.values[name] ?? 0;
@@ -214,10 +241,12 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           const isDimmed = Boolean(activeProvince) && !isSelected;
           const isRevealed = prefersReducedMotion || !hasData || revealedProvinces.has(name);
           const fill = hasData
-            ? isDark
-              ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
-              : choropleth.colorFor(count)
-            : 'hsl(var(--muted))';
+            ? darkSurface
+              ? '#1f2c49'
+              : mapIsDark
+                ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
+                : choropleth.colorFor(count)
+            : darkSurface ? '#141b30' : 'hsl(var(--muted))';
           return (
             <g key={fullName} data-province={name}>
               <path
@@ -227,11 +256,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 aria-label={t('map.provinceAria').replace('{name}', name)}
                 aria-pressed={isSelected}
                 fill={fill}
-                stroke={isHovered || isSelected ? '#d4a853' : 'hsl(var(--border))'}
-                strokeWidth={isHovered || isSelected ? 2.5 : 1}
+                stroke={isHovered || isSelected ? '#d4a853' : darkSurface ? '#53617e' : 'hsl(var(--border))'}
+                strokeWidth={isHovered || isSelected ? 2.5 : darkSurface ? 1.2 : 1}
                 className="cursor-pointer transition-[opacity,stroke,filter] duration-200"
                 opacity={(hasData && !isRevealed ? 0.34 : hasData ? 1 : 0.6) * (isDimmed ? 0.35 : 1)}
-                style={{ filter: isHovered ? 'brightness(1.1)' : undefined }}
+                style={{ filter: isHovered ? 'brightness(1.28)' : undefined }}
                 onMouseEnter={() => {
                   setHoveredProvince(fullName);
                   onProvinceHover?.(name);
@@ -262,6 +291,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               >
                 <title>{`${name} · ${count} ${t('map.breedUnit')}`}</title>
               </path>
+              {showProvinceLabels && (
               <text
                 x={label.x}
                 y={label.y}
@@ -271,14 +301,15 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 aria-hidden="true"
                 fontSize={label.width < 24 || label.height < 20 ? 7 : 9}
                 fontWeight={isSelected || isHovered ? 700 : 500}
-                fill="hsl(var(--foreground))"
+                fill={darkSurface ? '#cbd5e1' : 'hsl(var(--foreground))'}
                 opacity={(isDimmed ? 0.35 : 0.82) * (isRevealed ? 1 : 0.55)}
-                stroke="hsl(var(--card))"
+                stroke={darkSurface ? '#11182c' : 'hsl(var(--card))'}
                 strokeWidth={1.7}
                 paintOrder="stroke"
               >
                 {name}
               </text>
+              )}
             </g>
           );
         })}
@@ -340,8 +371,8 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 }
               }}
             >
-              <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1.5} />
-              {arcsFor(cluster, r * 0.72).map((arc) => (
+              {!darkSurface && <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1.5} />}
+              {!darkSurface && arcsFor(cluster, r * 0.72).map((arc) => (
                 <path
                   key={arc.category}
                   d={arcPath(x, y, arc.radius, arc.from, arc.sweep)}
@@ -351,9 +382,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                   strokeLinecap="butt"
                 />
               ))}
-              {cluster.total === 1 && <circle cx={x} cy={y} r={Math.max(1.6, r * 0.34)} fill={color} />}
-              {cluster.hasNationalProtected && <circle cx={x} cy={y} r={r * 1.32} fill="none" stroke="#d4a853" strokeWidth={2} />}
-              {cluster.hasEndangered && <circle cx={x} cy={y} r={r * 1.6} fill="none" stroke="hsl(var(--primary))" strokeWidth={1} strokeDasharray="3 3" opacity={0.7} />}
+              {darkSurface ? (
+                <circle cx={x} cy={y} r={Math.max(2.2, Math.min(7.5, r * 0.62))} fill={color} stroke="#f4f6f8" strokeWidth={1.1} />
+              ) : cluster.total === 1 && <circle cx={x} cy={y} r={Math.max(1.6, r * 0.34)} fill={color} />}
+              {cluster.hasNationalProtected && <circle cx={x} cy={y} r={darkSurface ? Math.max(5, r * 0.9) : r * 1.32} fill="none" stroke="#d4a853" strokeWidth={darkSurface ? 1.5 : 2} />}
+              {cluster.hasEndangered && <circle cx={x} cy={y} r={darkSurface ? Math.max(7, r * 1.12) : r * 1.6} fill="none" stroke={darkSurface ? '#e8748c' : 'hsl(var(--primary))'} strokeWidth={1} strokeDasharray="3 3" opacity={0.7} />}
               {isPulsing && <circle cx={x} cy={y} r={r * 1.9} fill="none" stroke={color} strokeWidth={2.5} className="pulse-glow" />}
               {isSelected && <circle cx={x} cy={y} r={r * 2.2} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={2} />}
             </g>
@@ -362,43 +395,43 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
       </svg>
 
       <div
-        className="absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border border-border bg-card/90 px-3 py-2 text-xs shadow-lg backdrop-blur"
+        className={`absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border px-3 py-2 text-xs shadow-lg backdrop-blur ${darkSurface ? 'border-[#53617e] bg-[#11182c]/90 text-[#e6edf8]' : 'border-border bg-card/90'}`}
         role="group"
         aria-label="省份品种数量图例"
       >
-        <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-medium text-foreground">
+        <div className={`mb-1 flex items-center justify-between gap-3 text-[11px] font-medium ${darkSurface ? 'text-[#e6edf8]' : 'text-foreground'}`}>
           <span>省份品种数</span>
-          <span className="text-muted-foreground">{lens === 'all' ? '全部落点记录' : '当前镜头'}</span>
+          <span className={darkSurface ? 'text-[#aab5c9]' : 'text-muted-foreground'}>{lens === 'all' ? '全部落点记录' : '当前镜头'}</span>
         </div>
         <div className="flex items-center gap-1.5" aria-label="省份品种数分级">
           {choropleth.legend.map((item) => (
             <span key={item.bin} className="flex items-center gap-1" title={formatRange(item.from, item.to)}>
-              <span className="h-3 w-5 rounded-sm border border-black/10" style={{ backgroundColor: isDark ? CHOROPLETH_DARK_COLORS[item.bin] : item.color }} />
+              <span className="h-3 w-5 rounded-sm border border-black/10" style={{ backgroundColor: mapIsDark ? CHOROPLETH_DARK_COLORS[item.bin] : item.color }} />
               <span className="sr-only">{formatRange(item.from, item.to)}</span>
             </span>
           ))}
         </div>
-        <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+        <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[#aab5c9]' : 'text-muted-foreground'}`}>
           <span className="inline-block h-3 w-3 rounded-full border-2 border-[#d4a853]" aria-hidden="true" />
           <span>{t('map.legendCluster')}</span>
         </div>
       </div>
 
-      <div className="absolute right-3 top-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm backdrop-blur">
+      <div className={`absolute right-3 top-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[#53617e] bg-[#11182c]/90 text-[#aab5c9]' : 'border-border bg-card/90 text-muted-foreground'}`}>
         {t('map.coordNote')}
       </div>
 
       {tooltip && (
         <div
-          className="pointer-events-none absolute z-10 rounded-md border border-border bg-card px-3 py-2 text-xs shadow-lg"
+          className={`pointer-events-none absolute z-10 rounded-md border px-3 py-2 text-xs shadow-lg ${darkSurface ? 'border-[#53617e] bg-[#11182c] text-[#e6edf8]' : 'border-border bg-card'}`}
           style={{
             left: `${(tooltip.x / mapViewBox.width) * 100}%`,
             top: `${(tooltip.y / mapViewBox.height) * 100}%`,
             transform: 'translate(-50%, -130%)',
           }}
         >
-          <p className="font-semibold text-foreground">{tooltip.title}</p>
-          <p className="max-w-[220px] text-muted-foreground">{tooltip.detail}</p>
+          <p className={darkSurface ? 'font-semibold text-[#f3f6fb]' : 'font-semibold text-foreground'}>{tooltip.title}</p>
+          <p className={darkSurface ? 'max-w-[220px] text-[#aab5c9]' : 'max-w-[220px] text-muted-foreground'}>{tooltip.detail}</p>
         </div>
       )}
     </div>

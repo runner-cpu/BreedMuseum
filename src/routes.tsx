@@ -1,4 +1,4 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
+import { type ComponentType, type LazyExoticComponent, lazy } from 'react';
 
 interface MetaText { title: string; description: string }
 export interface RouteConfig {
@@ -13,9 +13,10 @@ export interface RouteConfig {
  *   `/arcade`       互动厅总览（三台装置入口）
  *   `/arcade/:game` 互动厅子页面（找家 / 识图 / 问答，各自成页）
  *   `/breed/:id`    单卷档案（可分享）
+ *   `/dashboard`    馆藏数据中枢（类别、产区与保护概览）
  *   `/about`        馆史与库房（数据来源、诚实映射表、AI 披露、质量仪表盘）
  *
- * 旧路由（/map /encyclopedia /dashboard /compare /pasture /recommend /ai /home）
+ * 旧路由（/map /encyclopedia /compare /pasture /recommend /ai /home）
  * 由 `App.tsx` 里的 `<Navigate replace>` 统一重定向到 `/`，避免已发布外链 404。
  * 顺序有意义：`/arcade/:game` 必须排在 `/arcade` 之后以免被通配吞掉（React Router 按特异性匹配）。
  */
@@ -31,6 +32,10 @@ export const routes: RouteConfig[] = [
   { path: '/arcade/:game', Component: lazy(() => import('./pages/ArcadeGamePage')), meta: {
     zh: { title: '展教装置 · 互动厅', description: '互动厅单台装置：一次只玩一台，可随时切换到另外两台，题目只取自已核验字段并附官方来源入口。' },
     en: { title: 'Exhibit · Interactive Hall', description: 'One interactive exhibit at a time, switchable at any moment; every question comes from verified fields.' },
+  } },
+  { path: '/dashboard', Component: lazy(() => import('./pages/DashboardPage')), meta: {
+    zh: { title: '馆藏数据中枢 · 中国地方畜禽品种数字博物馆', description: '从类别构成、产区密度与保护状态阅读 1,186 条地方畜禽品种馆藏记录。' },
+    en: { title: 'Collection Intelligence · China Local Livestock Digital Museum', description: 'Read the collection through category composition, regional density, and conservation status.' },
   } },
   { path: '/breed/:id', Component: lazy(() => import('./pages/BreedRecordPage')), meta: {
     zh: { title: '品种档案 · 畜种光图', description: '单卷档案件：档案编号、收录批次、三态核验徽章、体貌与生产性能，以及可点击的官方来源链。' },
@@ -51,7 +56,6 @@ export const routes: RouteConfig[] = [
 export const LEGACY_ROUTES = [
   '/map',
   '/encyclopedia',
-  '/dashboard',
   '/compare',
   '/pasture',
   '/recommend',
