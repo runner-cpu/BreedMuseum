@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useSettings } from '@/contexts/AppSettings';
 import { getBreedMetadata, getBreedSource } from '@/data/breedMetadata';
 import { breedImageOverrides } from '@/data/breedImageOverrides';
-import { BreedImage } from '@/components/common/BreedImage';
+import { BreedImage, BREED_IMAGE_FALLBACK } from '@/components/common/BreedImage';
 
 interface BreedDetailProps {
   breed: Breed | null;
@@ -73,6 +73,9 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   const hasRadarData = Object.values(breed.radar).every((value) => value !== null);
   const metadata = getBreedMetadata(breed);
   const imageCredit = breedImageOverrides[breed.id];
+  // 未经核验的历史外链不进入首图：它们可能失配、失效或没有可复用授权。
+  // 原始状态仍在下方「图片来源」行披露，待人工核验后再登记本地覆盖图。
+  const displayImage = imageCredit?.src ?? BREED_IMAGE_FALLBACK;
   const sourceRecords = metadata.sourceIds
     .map((sourceId) => getBreedSource(sourceId))
     .filter((source): source is NonNullable<typeof source> => Boolean(source));
@@ -87,7 +90,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   const endColor = endangeredColors[breed.endangered] ?? 'hsl(var(--muted-foreground))';
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#/map?breed_id=${breed.id}`;
+    const url = `${window.location.origin}${window.location.pathname}#/breed/${breed.id}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t('common.copied'));
@@ -100,7 +103,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted shrink-0">
         <BreedImage
-          src={breed.image}
+          src={displayImage}
           alt={breed.name}
           className="absolute inset-0 h-full w-full"
           imgClassName="object-cover"
@@ -240,6 +243,11 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
                 : metadata.imageRights === 'verified'
                   ? t('detail.imageVerified')
                   : t('detail.imageUnverified')}
+              {metadata.imageRights === 'unverified' && (
+                <span className="mt-1 block text-muted-foreground">
+                  原始外链已隐藏，待核验图片与授权后再展示。
+                </span>
+              )}
               {metadata.imageRights === 'verified' && imageCredit && (
                 <span className="mt-1 block text-muted-foreground">
                   {t('detail.imageCredit').replace('{author}', imageCredit.author).replace('{license}', imageCredit.license)}

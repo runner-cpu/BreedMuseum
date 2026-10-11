@@ -1,10 +1,16 @@
 import { breeds as allBreeds, type Breed } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { hasVerifiedCoordinates } from '@/data/catalog';
-import { project3D } from './buildProvinceGeometry';
+import { mapViewBox, projectCoordinate } from '@/data/chinaMap';
+
+/** Project longitude/latitude into the same centered plane used by the SVG map. */
+const projectMap = (longitude: number, latitude: number): [number, number] => {
+  const point = projectCoordinate(longitude, latitude);
+  return [(point.x - mapViewBox.width / 2) / 100, -(point.y - mapViewBox.height / 2) / 100];
+};
 
 /**
- * 产区落点聚合（纯函数，2D 与 3D 两个视图共用）。
+ * 产区落点聚合（纯函数，地图与互动厅共用）。
  *
  * 为什么必须聚合：1,062 条可落点记录只落在 **509 个不同坐标**上，
  * 其中 102 个坐标挤了 655 条（占 62%），最大的几个坐标各有 45 / 44 / 38 / 34 / 29 条
@@ -20,7 +26,7 @@ import { project3D } from './buildProvinceGeometry';
  * - 簇内按分类分段上色，读得出「这个产区养什么为主」；
  * - 落点不再被人工偏移到不存在的位置上——簇中心的偏移量有硬上限（radius）。
  *
- * 恒定不变式（由 `clusterSites.test.ts` 断言）：
+ * 恒定不变式（由地图数据测试断言）：
  * - 每条可落点记录恰好属于一个簇（合起来 = `COLLECTION_SUMMARY.mappable`）；
  * - 每个成员到簇中心的距离 ≤ radius（不会把两个真实相距很远的坐标硬并到一起）；
  * - 输入顺序无关：先按省份分组、组内按记录数降序，输出再按 id 排序；
@@ -56,9 +62,9 @@ export interface SiteCluster {
   /**
    * 全量口径下的记录数（与镜头无关）。
    *
-   * 光束的半径与高度必须读它，不能读 `total`：镜头切换会改 `total`，
-   * 若几何跟着变，同一根光束在「濒危之窗」下会突然变细变矮，
-   * 观众会以为换了一张图。位置与形状只有一份，变的只是「谁亮着」。
+   * 产区环的半径必须读它，不能读 `total`：镜头切换会改 `total`，
+   * 若环径跟着变，同一产区在「濒危之窗」下会突然缩小，观众会以为换了一张图。
+   * 位置与基准形状只有一份，变的只是「谁亮着」。
    */
   baseTotal: number;
   /** 簇内不同的原始坐标点数（1 = 单一坐标） */
@@ -106,7 +112,7 @@ function seedsFor(source: readonly Breed[]): Map<string, Map<string, Seed>> {
       found.breeds.push(breed);
       continue;
     }
-    const [x, y] = project3D(breed.longitude, breed.latitude);
+    const [x, y] = projectMap(breed.longitude, breed.latitude);
     byKey.set(key, { key, x, y, breeds: [breed] });
   }
   return byProvince;
@@ -190,83 +196,12 @@ export function buildSiteClusters(
 }
 
 /**
- * 拾取半径：盖住光束本体再放宽一大截，密集区里点得中。
- * 光束本身只有 0.012–0.047 世界单位粗，不加这个下限就只剩几个像素可点。
- */
-export function hitRadiusFor(total: number): number {
-  return Math.max(beamRadiusFor(total) * 2.6, 0.085);
-}
-
-/**
  * 记录数 → 2D 平面半径（`ChinaMap` 的 SVG 标记用）。
  *
- * 注意它**不再**兼作 3D 光束半径：2D 的圆点要够大才好点、好看，
- * 3D 的光束要「细而高」才读成光。共用一套半径会把其中一边做坏——
- * 上一版让 3D 也吃这套（最大 0.295），结果柱子粗成软木塞。
+ * 2D 的圆点要够大才好点、好看，同时保留记录数的单调映射。
  */
 export function markerRadiusFor(total: number): number {
   return 0.055 + 0.006 * Math.min(total, 40);
-}
-
-/** 记录数 → 光束半径（世界单位）。细是刻意的：光靠细长读出来，柱靠粗壮读出来。 */
-export function beamRadiusFor(total: number): number {
-  return 0.011 + 0.00055 * Math.min(total, 64);
-}
-
-/**
- * 记录数 → 光束高度（世界单位）；对数压缩，53 条与 45 条不会差出一个量级。
- *
- * 下限 0.65 是硬要求：省块最高挤出 0.39（`EXTRUDE_STEPS` 上限），
- * 光束必须明显高出版图，否则整片光场会缩回「地图上插了几个土墩」。
- * 上限约 1.4（64 条封顶）——再高就要为取景让出大片空白，版图会缩成一小块。
- */
-export function beamHeightFor(total: number): number {
-  return 0.5 + 0.15 * Math.log2(1 + Math.min(total, 64));
-}
-
-/** 光束最高值（64 条及以上封顶），取景时用它当包围盒的竖向范围。 */
-export const MAX_BEAM_HEIGHT = beamHeightFor(64);
-
-/** 一段束身（类别分段），不含颜色——配色由渲染层按主题决定。 */
-export interface BeamSegment {
-  category: string;
-  count: number;
-  /** 段底相对束底的高度（世界单位） */
-  from: number;
-  height: number;
-}
-
-/**
- * 把产区的类别构成摊成一段段束身。类别多于 `tailLimit` 时，尾部的都并成
- * 「其他类别」——否则 11 个类别会切成 11 段，每段几像素高，既看不出颜色也点不中。
- *
- * 高度按 **`baseTotal`**（筛选前的整簇记录数）算，不按当前 `total`：
- * 镜头切换会让 `total` 变小，若高度跟着变，同一根光束在「濒危之窗」下会突然变矮，
- * 观众会以为是另一张图。位置与形状只有一份，变的只是「谁亮着」。
- */
-export function beamSegmentsFor(
-  cluster: Pick<SiteCluster, 'slices' | 'total' | 'baseTotal'>,
-  tailLimit = 6,
-): BeamSegment[] {
-  const head = cluster.slices.slice(0, tailLimit);
-  const tail = cluster.slices.slice(tailLimit);
-  const merged: CategorySlice[] = tail.length
-    ? [...head, { category: '其他类别', count: tail.reduce((sum, item) => sum + item.count, 0) }]
-    : [...head];
-  const total = merged.reduce((sum, item) => sum + item.count, 0) || 1;
-  const height = beamHeightFor(cluster.baseTotal);
-  let cursor = 0;
-  return merged.map((slice) => {
-    const segmentHeight = (slice.count / total) * height;
-    const segment: BeamSegment = {
-      category: slice.category,
-      count: slice.count,
-      from: cursor,
-      height: segmentHeight,
-    };
-    cursor += segmentHeight;
-    return segment;
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -307,3 +242,4 @@ export function clustersForLens(
   }
   return visible;
 }
+

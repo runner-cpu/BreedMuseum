@@ -1,7 +1,7 @@
 import { breeds, type Breed } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { categories } from '@/data/catalog';
-import { hasMappableLocation } from '@/lib/geo3d/lightMapData';
+import { hasMappableLocation } from '@/lib/geo/lightMapData';
 
 /**
  * 互动厅出题器（纯函数，可单测）。

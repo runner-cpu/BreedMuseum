@@ -1,19 +1,36 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
-import { buildSiteClusters, markerRadiusFor, type SiteCluster } from '@/lib/geo3d/clusterSites';
+import {
+  buildSiteClusters,
+  clustersForLens,
+  markerRadiusFor,
+  type LensId,
+  type SiteCluster,
+} from '@/lib/geo/clusterSites';
+import { CHOROPLETH_DARK_COLORS, buildProvinceChoropleth } from '@/lib/geo/provinceChoropleth';
 
-interface ChinaMapProps {
+export type { LensId };
+
+export interface ChinaMapProps {
   breeds: Breed[];
   selectedProvince: string | null;
   selectedBreed: Breed | null;
   pulseId?: string | null;
+  /** Active map lens; optional to preserve the original API. */
+  lens?: LensId;
+  /** Category selected while `lens === 'category'`. */
+  lensCategory?: string | null;
+  /** Parent focus is an alias of selectedProvince for the new home layout. */
+  focusedProvince?: string | null;
   onProvinceClick: (province: string) => void;
   onBreedClick: (breed: Breed) => void;
   onClusterClick?: (cluster: SiteCluster) => void;
   onClearSelection?: () => void;
+  onProvinceHover?: (province: string | null) => void;
+  className?: string;
 }
 
 interface TooltipInfo {
@@ -23,55 +40,130 @@ interface TooltipInfo {
   detail: string;
 }
 
+const simpleProvinceName = (name: string): string =>
+  name.replace(/省|市|壮族自治区|回族自治区|维吾尔自治区|自治区|特别行政区/g, '');
+
+const provinceLabelPoint = (path: string): { x: number; y: number; width: number; height: number } => {
+  const numbers = path.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (let index = 0; index + 1 < numbers.length; index += 2) {
+    xs.push(numbers[index]);
+    ys.push(numbers[index + 1]);
+  }
+  if (xs.length === 0) return { x: mapViewBox.width / 2, y: mapViewBox.height / 2, width: 0, height: 0 };
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2, width: maxX - minX, height: maxY - minY };
+};
+
+const polar = (cx: number, cy: number, radius: number, degrees: number) => {
+  const rad = ((degrees - 90) * Math.PI) / 180;
+  return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)] as const;
+};
+
+const arcPath = (cx: number, cy: number, radius: number, from: number, sweep: number) => {
+  const end = from + sweep;
+  const [x0, y0] = polar(cx, cy, radius, from);
+  const [x1, y1] = polar(cx, cy, radius, end);
+  const large = sweep > 180 ? 1 : 0;
+  return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
+};
+
+const formatRange = (from: number, to: number | null): string => {
+  const lower = Math.max(0, Math.round(from));
+  if (to === null) return `${lower}+`;
+  const upper = Math.max(lower, Math.round(to));
+  return lower === upper ? `${lower}` : `${lower}–${upper}`;
+};
+
 /**
- * 2D 省域图（无 WebGL 与「切换平面图」时使用）。
- *
- * 落点与 3D 完全同源：都用 `buildSiteClusters` 的产区簇。上一版把同坐标的记录按固定
- * 角度铺成圆环，1,062 条里有 655 条落在 102 个圆环上，页面上就是「密密麻麻围成圈的点」；
- * 现在一个产区只画一个标记，半径随该产区品种数增长，外圈弧线按类别分段着色。
+ * Main 2D map. Province fills encode the active lens, rings encode production
+ * site composition, and labels remain in the DOM for accessible navigation.
  */
 export const ChinaMap: React.FC<ChinaMapProps> = ({
   breeds,
   selectedProvince,
   selectedBreed,
   pulseId,
+  lens = 'all',
+  lensCategory = null,
+  focusedProvince,
   onProvinceClick,
   onBreedClick,
   onClusterClick,
   onClearSelection,
+  onProvinceHover,
+  className,
 }) => {
-  const { t } = useSettings();
+  const { t, isDark } = useSettings();
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [revealedProvinces, setRevealedProvinces] = useState<Set<string>>(() => new Set());
 
-  const provinceHasData = useMemo(() => {
-    const set = new Set(breeds.map((b) => b.province));
-    return set;
-  }, [breeds]);
-
-  /**
-   * 产区簇与 3D 同源（`buildSiteClusters`），但只聚合**传进来的这批记录**，
-   * 这样筛选后的列表、单元测试里的小样本都能得到对应结果。
-   * 簇的平面坐标 × 100 + 半张图 = 画布像素，与 `projectCoordinate` 互逆。
-   */
+  const allClusters = useMemo(() => buildSiteClusters(breeds), [breeds]);
   const clusters = useMemo(
-    () =>
-      buildSiteClusters(breeds).map((cluster) => ({
-        cluster,
-        x: cluster.position[0] * 100 + mapViewBox.width / 2,
-        y: mapViewBox.height / 2 - cluster.position[1] * 100,
-        /** 世界单位 → 画布像素 */
-        r: markerRadiusFor(cluster.total) * 100,
-      })),
-    [breeds],
+    () => clustersForLens(allClusters, lens, lens === 'category' ? lensCategory : null),
+    [allClusters, lens, lensCategory],
   );
 
+  const provinceEntries = useMemo(
+    () => Object.entries(provincePaths).map(([fullName, path]) => ({
+      fullName,
+      name: simpleProvinceName(fullName),
+      path,
+      label: provinceLabelPoint(path),
+    })),
+    [],
+  );
+
+  const provinceCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const cluster of clusters) counts.set(cluster.province, (counts.get(cluster.province) ?? 0) + cluster.total);
+    return counts;
+  }, [clusters]);
+
+  const choropleth = useMemo(() => buildProvinceChoropleth(provinceCounts), [provinceCounts]);
   const selectedCluster = useMemo(
-    () => clusters.find((item) => item.cluster.members.some((member) => member.id === selectedBreed?.id)) ?? null,
+    () => clusters.find((item) => item.members.some((member) => member.id === selectedBreed?.id)) ?? null,
     [clusters, selectedBreed],
   );
+  const revealOrder = useMemo(
+    () => [...provinceCounts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([province]) => province),
+    [provinceCounts],
+  );
 
-  /** 类别弧线：把圆按类别计数切成一段段弧，颜色与 3D 束身、图例一致。 */
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setPrefersReducedMotion(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || revealOrder.length === 0) {
+      setRevealedProvinces(new Set(revealOrder));
+      return undefined;
+    }
+    setRevealedProvinces(new Set());
+    let cursor = 0;
+    // Keep the full reveal under 1.4s even when all 34 units have data.
+    const intervalMs = Math.min(90, 1400 / Math.max(1, revealOrder.length));
+    const timer = window.setInterval(() => {
+      cursor += 1;
+      setRevealedProvinces(new Set(revealOrder.slice(0, cursor)));
+      if (cursor >= revealOrder.length) window.clearInterval(timer);
+    }, intervalMs);
+    return () => window.clearInterval(timer);
+  }, [prefersReducedMotion, revealOrder]);
+
   const arcsFor = (cluster: SiteCluster, radius: number) => {
     const total = cluster.slices.reduce((sum, slice) => sum + slice.count, 0) || 1;
     let cursor = 0;
@@ -79,32 +171,31 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
       const sweep = (slice.count / total) * 360;
       const from = cursor;
       cursor += sweep;
-      return { ...slice, from, sweep, color: categoryColors[slice.category] ?? '#95A5A6' };
-    }).map((slice) => ({ ...slice, radius }));
+      return { ...slice, from, sweep, radius, color: categoryColors[slice.category] ?? '#95A5A6' };
+    });
   };
 
-  const polar = (cx: number, cy: number, radius: number, degrees: number) => {
-    const rad = ((degrees - 90) * Math.PI) / 180;
-    return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)] as const;
-  };
-
-  const arcPath = (cx: number, cy: number, radius: number, from: number, sweep: number) => {
-    // 整圈用两段半圆拼，避免起终点重合导致 SVG 直接不画
-    const end = from + sweep;
-    const [x0, y0] = polar(cx, cy, radius, from);
-    const [x1, y1] = polar(cx, cy, radius, end);
-    const large = sweep > 180 ? 1 : 0;
-    return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
-  };
+  const mapClassName = ['relative flex h-full w-full items-center justify-center p-2', className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center p-2">
+    <div
+      className={mapClassName}
+      data-lens={lens}
+      data-focused-province={focusedProvince ?? selectedProvince ?? ''}
+      data-reduced-motion={prefersReducedMotion ? 'true' : 'false'}
+    >
       <svg
         viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
-        className="w-full h-full max-h-[calc(100vh-14rem)]"
-        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}
+        className="h-full w-full max-h-[calc(100vh-14rem)]"
+        role="img"
+        aria-label={t('map.title')}
+        data-lens={lens}
         onClick={onClearSelection}
+        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}
       >
+        <title>{t('map.title')}</title>
         <defs>
           <pattern id="ricePaper" width="20" height="20" patternUnits="userSpaceOnUse">
             <rect width="20" height="20" fill="hsl(var(--card))" />
@@ -112,69 +203,107 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
             <circle cx="12" cy="12" r="0.5" fill="hsl(var(--border))" opacity="0.2" />
           </pattern>
         </defs>
-        {/* 透明背景层：点击空白区域清除当前高亮 */}
-        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="transparent" />
+        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="url(#ricePaper)" opacity={0.48} />
 
-        {Object.entries(provincePaths).map(([fullName, d]) => {
-          const simpleName = fullName.replace(/省|市|壮族自治区|回族自治区|维吾尔自治区|自治区|特别行政区/g, '');
-          const isSelected = selectedProvince === simpleName;
+        {provinceEntries.map(({ fullName, name, path, label }) => {
+          const count = choropleth.values[name] ?? 0;
+          const hasData = count > 0;
+          const activeProvince = focusedProvince ?? selectedProvince;
+          const isSelected = activeProvince === name;
           const isHovered = hoveredProvince === fullName;
-          const hasData = provinceHasData.has(simpleName);
+          const isDimmed = Boolean(activeProvince) && !isSelected;
+          const isRevealed = prefersReducedMotion || !hasData || revealedProvinces.has(name);
+          const fill = hasData
+            ? isDark
+              ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
+              : choropleth.colorFor(count)
+            : 'hsl(var(--muted))';
           return (
-            <path
-              key={fullName}
-              d={d}
-              role="button"
-              tabIndex={0}
-              aria-label={t('map.provinceAria').replace('{name}', simpleName)}
-              aria-pressed={isSelected}
-              fill={
-                isSelected
-                  ? 'hsl(var(--primary))'
-                  : isHovered
-                    ? 'hsl(var(--accent))'
-                    : hasData
-                      ? 'url(#ricePaper)'
-                      : 'hsl(var(--muted))'
-              }
-              stroke="hsl(var(--border))"
-              strokeWidth={isSelected ? 2 : 1}
-              className="cursor-pointer transition-all duration-200"
-              opacity={hasData ? 1 : 0.6}
-              onMouseEnter={() => setHoveredProvince(fullName)}
-              onMouseLeave={() => setHoveredProvince(null)}
-              onFocus={() => setHoveredProvince(fullName)}
-              onBlur={() => setHoveredProvince(null)}
-              onClick={(event) => {
-                // 阻止冒泡到 SVG 根的“点击空白清除选择”，否则省份选中会被立即清空
-                event.stopPropagation();
-                onProvinceClick(simpleName);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
+            <g key={fullName} data-province={name}>
+              <path
+                d={path}
+                role="button"
+                tabIndex={0}
+                aria-label={t('map.provinceAria').replace('{name}', name)}
+                aria-pressed={isSelected}
+                fill={fill}
+                stroke={isHovered || isSelected ? '#d4a853' : 'hsl(var(--border))'}
+                strokeWidth={isHovered || isSelected ? 2.5 : 1}
+                className="cursor-pointer transition-[opacity,stroke,filter] duration-200"
+                opacity={(hasData && !isRevealed ? 0.34 : hasData ? 1 : 0.6) * (isDimmed ? 0.35 : 1)}
+                style={{ filter: isHovered ? 'brightness(1.1)' : undefined }}
+                onMouseEnter={() => {
+                  setHoveredProvince(fullName);
+                  onProvinceHover?.(name);
+                }}
+                onMouseLeave={() => {
+                  setHoveredProvince(null);
+                  onProvinceHover?.(null);
+                }}
+                onFocus={() => {
+                  setHoveredProvince(fullName);
+                  onProvinceHover?.(name);
+                }}
+                onBlur={() => {
+                  setHoveredProvince(null);
+                  onProvinceHover?.(null);
+                }}
+                onClick={(event) => {
                   event.stopPropagation();
-                  onProvinceClick(simpleName);
-                }
-              }}
-            />
+                  onProvinceClick(name);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onProvinceClick(name);
+                  }
+                }}
+              >
+                <title>{`${name} · ${count} ${t('map.breedUnit')}`}</title>
+              </path>
+              <text
+                x={label.x}
+                y={label.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                pointerEvents="none"
+                aria-hidden="true"
+                fontSize={label.width < 24 || label.height < 20 ? 7 : 9}
+                fontWeight={isSelected || isHovered ? 700 : 500}
+                fill="hsl(var(--foreground))"
+                opacity={(isDimmed ? 0.35 : 0.82) * (isRevealed ? 1 : 0.55)}
+                stroke="hsl(var(--card))"
+                strokeWidth={1.7}
+                paintOrder="stroke"
+              >
+                {name}
+              </text>
+            </g>
           );
         })}
 
-        {clusters.map(({ cluster, x, y, r }) => {
-          const isSelected = selectedCluster?.cluster.id === cluster.id;
+        {clusters.map((cluster) => {
+          const x = cluster.position[0] * 100 + mapViewBox.width / 2;
+          const y = mapViewBox.height / 2 - cluster.position[1] * 100;
+          const r = markerRadiusFor(cluster.baseTotal) * 100;
+          const isSelected = selectedCluster?.id === cluster.id;
           const isPulsing = cluster.members.some((member) => member.id === pulseId);
-          const color = categoryColors[cluster.slices[0].category] ?? 'hsl(var(--primary))';
+          const color = categoryColors[cluster.slices[0]?.category] ?? 'hsl(var(--primary))';
           const title = `${cluster.province} 产区 · ${cluster.total} 个品种`;
           const detail = cluster.slices.map((slice) => `${slice.category} ${slice.count}`).join(' / ');
+          const activeProvince = focusedProvince ?? selectedProvince;
+          const isFocusedOut = Boolean(activeProvince) && cluster.province !== activeProvince;
+          const provinceIsRevealed = prefersReducedMotion || revealedProvinces.has(cluster.province) || revealOrder.length === 0;
           return (
             <g
               key={cluster.id}
-              className="cursor-pointer"
+              className="cursor-pointer transition-opacity duration-300"
               role="button"
               tabIndex={0}
               aria-label={t('map.clusterAria').replace('{province}', cluster.province).replace('{count}', String(cluster.total))}
               aria-pressed={isSelected}
+              opacity={(provinceIsRevealed ? 1 : 0.28) * (isFocusedOut ? 0.25 : 1)}
               onClick={(event) => {
                 event.stopPropagation();
                 if (onClusterClick) onClusterClick(cluster);
@@ -183,21 +312,35 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                   if (breed) onBreedClick(breed);
                 }
               }}
-              onMouseEnter={() => setTooltip({ x, y, title, detail })}
-              onMouseLeave={() => setTooltip(null)}
-              onFocus={() => setTooltip({ x, y, title, detail })}
-              onBlur={() => setTooltip(null)}
+              onMouseEnter={() => {
+                setTooltip({ x, y, title, detail });
+                onProvinceHover?.(cluster.province);
+              }}
+              onMouseLeave={() => {
+                setTooltip(null);
+                onProvinceHover?.(null);
+              }}
+              onFocus={() => {
+                setTooltip({ x, y, title, detail });
+                onProvinceHover?.(cluster.province);
+              }}
+              onBlur={() => {
+                setTooltip(null);
+                onProvinceHover?.(null);
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
                   event.stopPropagation();
                   if (onClusterClick) onClusterClick(cluster);
+                  else if (cluster.members.length === 1) {
+                    const breed = breeds.find((item) => item.id === cluster.members[0].id);
+                    if (breed) onBreedClick(breed);
+                  }
                 }
               }}
             >
-              {/* 底座淡色圆：让光束/弧线在纸底上有一块可读的底 */}
-              <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1} />
-              {/* 类别弧线：按类别计数切分，一段一色 */}
+              <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1.5} />
               {arcsFor(cluster, r * 0.72).map((arc) => (
                 <path
                   key={arc.category}
@@ -208,65 +351,46 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                   strokeLinecap="butt"
                 />
               ))}
-              {/* 单品种产区：核心一个实心点，避免空心看着像未加载 */}
               {cluster.total === 1 && <circle cx={x} cy={y} r={Math.max(1.6, r * 0.34)} fill={color} />}
-              {/* 含国家级保护名录：外圈金环 */}
-              {cluster.hasNationalProtected && (
-                <circle cx={x} cy={y} r={r * 1.32} fill="none" stroke="#d4a853" strokeWidth={1.6} />
-              )}
-              {/* 含编辑口径濒危：外圈细虚线（非权威结论） */}
-              {cluster.hasEndangered && (
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={r * 1.6}
-                  fill="none"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={1}
-                  strokeDasharray="3 3"
-                  opacity={0.7}
-                />
-              )}
-              {isPulsing && (
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={r * 1.9}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={2.5}
-                  className="pulse-glow"
-                  style={{ transformOrigin: `${x}px ${y}px` }}
-                />
-              )}
-              {isSelected && (
-                <circle cx={x} cy={y} r={r * 2.2} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={2} />
-              )}
+              {cluster.hasNationalProtected && <circle cx={x} cy={y} r={r * 1.32} fill="none" stroke="#d4a853" strokeWidth={2} />}
+              {cluster.hasEndangered && <circle cx={x} cy={y} r={r * 1.6} fill="none" stroke="hsl(var(--primary))" strokeWidth={1} strokeDasharray="3 3" opacity={0.7} />}
+              {isPulsing && <circle cx={x} cy={y} r={r * 1.9} fill="none" stroke={color} strokeWidth={2.5} className="pulse-glow" />}
+              {isSelected && <circle cx={x} cy={y} r={r * 2.2} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={2} />}
             </g>
           );
         })}
       </svg>
 
-      {/* 图例说明 */}
-      <div className="absolute bottom-3 left-3 z-10 bg-card/90 backdrop-blur border border-border rounded-lg shadow-lg px-3 py-2 text-xs space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="w-4 h-3 rounded-sm bg-primary border border-border" />
-          <span className="text-muted-foreground">{t('map.legendProvince')}</span>
+      <div
+        className="absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border border-border bg-card/90 px-3 py-2 text-xs shadow-lg backdrop-blur"
+        role="group"
+        aria-label="省份品种数量图例"
+      >
+        <div className="mb-1 flex items-center justify-between gap-3 text-[11px] font-medium text-foreground">
+          <span>省份品种数</span>
+          <span className="text-muted-foreground">{lens === 'all' ? '全部落点记录' : '当前镜头'}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-[#d4a853]" />
-          <span className="text-muted-foreground">{t('map.legendCluster')}</span>
+        <div className="flex items-center gap-1.5" aria-label="省份品种数分级">
+          {choropleth.legend.map((item) => (
+            <span key={item.bin} className="flex items-center gap-1" title={formatRange(item.from, item.to)}>
+              <span className="h-3 w-5 rounded-sm border border-black/10" style={{ backgroundColor: isDark ? CHOROPLETH_DARK_COLORS[item.bin] : item.color }} />
+              <span className="sr-only">{formatRange(item.from, item.to)}</span>
+            </span>
+          ))}
+        </div>
+        <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span className="inline-block h-3 w-3 rounded-full border-2 border-[#d4a853]" aria-hidden="true" />
+          <span>{t('map.legendCluster')}</span>
         </div>
       </div>
 
-      <div className="absolute top-3 right-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm">
+      <div className="absolute right-3 top-3 z-10 rounded-md border border-border bg-card/90 px-2.5 py-1.5 text-[11px] text-muted-foreground shadow-sm backdrop-blur">
         {t('map.coordNote')}
       </div>
 
-      {/* 悬停信息卡片 */}
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-10 bg-card border border-border rounded-md shadow-lg px-3 py-2 text-xs"
+          className="pointer-events-none absolute z-10 rounded-md border border-border bg-card px-3 py-2 text-xs shadow-lg"
           style={{
             left: `${(tooltip.x / mapViewBox.width) * 100}%`,
             top: `${(tooltip.y / mapViewBox.height) * 100}%`,

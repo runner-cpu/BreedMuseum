@@ -4,7 +4,7 @@
  * importing the complete collection just to render a footer statistic.
  *
  * 落点口径：`mappable` = 运行时记录中同时具备已核验省份与已核验坐标的数量；
- * 3D 光图与 2D 地图只渲染这些记录，哨兵坐标（0,0）与“待核验”省份不落点。
+ * 2D 光图只渲染这些记录，哨兵坐标（0,0）与“待核验”省份不落点。
  */
 export const COLLECTION_VERSION = '2026-09-27';
 
@@ -37,7 +37,7 @@ export const COLLECTION_SUMMARY = {
  * 「这个项目有自动化测试体系」，不是每次提交的实时计数。
  */
 export const QUALITY_SUMMARY = {
-  unitTests: 177,
+  unitTests: 140,
   e2eTests: 54,
   auditChecks: 11,
   workflows: 2,

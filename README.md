@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。主展项是 **「畜种光图」**——一座可旋转的 3D 中国，1062 条可落点记录先聚成 **161 个产区**，每个产区立起一道细长的自发光光束（束身按类别分段、束顶金环、束底橙环），四个镜头切换看法，点任意一束光直达品种清单；配套 **互动厅**（找家挑战 / 识图挑战 / 知识问答，出题只用已核验字段）与 **馆史页**（来源链、诚实映射表、质量仪表盘与 AI 披露）。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。主展项是 **「畜种光图」**——一张把真实产区、类别构成和保护身份放在同一视野里的 2D 数据地图，1062 条可落点记录先聚成 **161 个产区**，环形分段表达类别构成，省块五档色阶兑现“你家的省份亮了几个”，四个镜头切换看法，点任意产区直达品种卷宗；配套 **互动厅**（找家挑战 / 识图挑战 / 知识问答，出题只用已核验字段）与 **馆史页**（来源链、诚实映射表、质量仪表盘与 AI 披露）。品种描述、雷达指数和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -72,7 +72,7 @@
 编辑濒危标签统计（非权威保护结论）：普通 421；易危 165；濒危 82；待核验 518。
 <!-- data-summary:end -->
 
-Vite、TypeScript、React、HashRouter、Three.js（`@react-three/fiber` / `drei`）、Recharts、Tailwind CSS。3D 光图零后处理、零 HDR，DPR 上限 2；无 WebGL 或开启系统「减少动态效果」时自动回落到既有 2D 省域图，交互与结论不受影响。
+Vite、TypeScript、React、HashRouter、SVG/CSS、Recharts、Tailwind CSS。光图以 2D SVG 为主展项，省块、产区环、图例与镜头在所有设备上使用同一套数据口径；系统开启「减少动态效果」时直接呈现静态帧，交互与结论不受影响。
 
 ## 本地开发
 
@@ -95,7 +95,7 @@ Vite、TypeScript、React、HashRouter、Three.js（`@react-three/fiber` / `drei
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则；三级核验徽章（官方 / 编辑 / 待核验）由 `src/data/verification.ts` 单点判定，馆史页的「诚实映射表」逐条说明每个视觉通道对应哪个已核验字段。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；本轮已通过 39 个测试文件、177 项 Vitest 测试，Playwright 结果见审计报告。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；当前已通过 34 个测试文件、140 项 Vitest 测试，Playwright 结果见审计报告。
 - 当前 Playwright 共 27 个用例 × 桌面/移动双视口，合计 54 项运行，53 项通过、1 项按桌面条件跳过、0 项失败。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 

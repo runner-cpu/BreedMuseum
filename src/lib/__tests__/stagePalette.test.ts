@@ -16,7 +16,7 @@ import {
  * 展厅令牌契约。
  *
  * 背景：页面曾经把舞台底色写死成 `#080b09`，导致浅色模式内容区仍是黑的。
- * 现在 DOM 用 CSS 变量、WebGL 场景用 `stagePaletteFor(isDark)`，两者必须**同源**——
+ * 现在 DOM 用 CSS 变量、SVG 光图用 `stagePaletteFor(isDark)`，两者必须**同源**——
  * 本测试直接解析 `src/index.css`，把 `--stage*` 变量与 TS 常量逐项比对，
  * 任何一侧改了名字或取值都会立刻失败。
  */
@@ -92,7 +92,7 @@ describe('stage palette', () => {
     expect(contrastRatio(LIGHT_STAGE.gold, LIGHT_STAGE.panel)).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('三维省块、描边与台面在两套主题下都留出可读的明度差', () => {
+  it('省块、描边与台面在两套主题下都留出可读的明度差', () => {
     // 浅色纸底上曾经出现过「版图几乎看不见」：省块 #cfc3a4 与纸底 #f1ece0 只差 1.49，
     // 描边 #7d6f4e 对填充只有 2.82，加上光照压暗后就糊成一片。
     // 这里锁死三组关系（渲染实测：省块 ≈ #a29771、台面 ≈ #c1baa6，见 index.css 注释）。

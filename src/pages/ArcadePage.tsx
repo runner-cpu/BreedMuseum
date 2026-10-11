@@ -1,21 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Gamepad2, Info, MapPinned, ScanEye, Trophy } from 'lucide-react';
+import { Gamepad2, Info } from 'lucide-react';
 import { categories } from '@/data/catalog';
 import { SILHOUETTE_CATEGORIES, silhouetteCoverage } from '@/components/arcade/CategorySilhouette';
+import { ExhibitCard } from '@/components/home/ExhibitCard';
 import { ARCADE_GAMES } from '@/lib/arcade/games';
-
-/**
- * 互动厅（`/arcade`）：装置总览。
- *
- * 三台装置各自是一个独立子页面（`/arcade/:game`）——同一时间只玩一台，
- * 页面给足空间、题面不再挤在一起；总览页负责介绍、讲清玩法与红线，再让人自选进场。
- */
-
-const ICONS = {
-  findHome: MapPinned,
-  identify: ScanEye,
-  quiz: Trophy,
-} as const;
 
 export default function ArcadePage() {
   return (
@@ -35,28 +23,11 @@ export default function ArcadePage() {
         </header>
 
         <ul className="grid gap-4 md:grid-cols-3">
-          {ARCADE_GAMES.map((game) => {
-            const Icon = ICONS[game.id as keyof typeof ICONS] ?? Gamepad2;
-            return (
-              <li key={game.id}>
-                <Link
-                  to={'/arcade/' + game.id}
-                  className="flex h-full flex-col gap-3 rounded-2xl border border-stage-border bg-stage-panel p-5 transition-colors hover:border-stage-gold/60 hover:bg-stage-soft"
-                >
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-stage-gold/15 text-stage-gold">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="font-serif text-xl">{game.title}</span>
-                  <span className="text-xs text-stage-muted">{game.rounds} · {game.skill}</span>
-                  <span className="text-sm leading-relaxed text-stage-fg/85">{game.summary}</span>
-                  <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-medium text-stage-gold">
-                    进场
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
+          {ARCADE_GAMES.map((game) => (
+            <li key={game.id}>
+              <ExhibitCard game={game} />
+            </li>
+          ))}
         </ul>
 
         <section

@@ -3,7 +3,7 @@ import { getBreedMetadata } from '@/data/breedMetadata';
 import { categories, hasVerifiedCoordinates } from '@/data/catalog';
 
 /**
- * 光图数据口径（纯函数，可在无 WebGL 环境下单测）。
+ * 光图数据口径（纯函数，可在浏览器与测试环境复用）。
  *
  * 落点几何本身在 `clusterSites.ts`（空间聚合），这里只保留两件事：
  * 1. `hasMappableLocation` —— 「这条记录能不能落点」的唯一判定；

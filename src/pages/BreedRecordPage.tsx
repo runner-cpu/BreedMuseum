@@ -10,9 +10,9 @@ import batchMap from '@/data/breedBatch.generated.json';
 /**
  * 单卷档案（`/breed/:id`）——可独立分享的品种页。
  *
- * 保留既有 `BreedDetail`（图片、体貌、性能、雷达、来源核验区），
+ * 保留既有 `BreedDetail`（项目占位图、体貌、性能、雷达、来源核验区），
  * 外层补上「卷宗头部」：档案编号 + 批次 + 三态核验徽章 + 官方来源链接，
- * 让光图上任意一道产区光束都能在 3 次点击内链回官方文件。
+ * 让光图上任意一个产区都能在 3 次点击内链回官方文件。
  */
 
 export default function BreedRecordPage() {

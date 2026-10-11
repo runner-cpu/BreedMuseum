@@ -66,22 +66,27 @@ for (const legacy of ['/map', '/encyclopedia', '/dashboard', '/compare', '/pastu
   });
 }
 
-test('light map exposes the lens switcher, province focus and the digest table', async ({ page }) => {
+test('home exposes the look-play-verify journey and digest table', async ({ page }) => {
   await page.goto('/#/');
-  // HUD 文案：钩子句与落点计数
+  // 首屏文案与主动作
   await expect(page.getByText(/你家的省份亮了几个/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /看分布/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /一张地图，四个看法/ })).toBeVisible();
   // 四个镜头
   const tabs = page.getByRole('tab');
   await expect(tabs).toHaveCount(4);
   await expect(page.getByRole('tab', { name: '国家级保护' })).toBeVisible();
-  // 省份聚焦侧栏：点一个省份后出现该省品种列表
-  await page.getByRole('button', { name: /^云南 \d+$/ }).click();
-  await expect(page.getByRole('heading', { name: '云南' })).toBeVisible();
-  // 无障碍等价物：摘要表必须存在且合计与馆藏一致
+  await expect(page.getByRole('group', { name: '省份品种数量图例' })).toBeVisible();
+  // 省份聚焦：点地图上的省份后出现速览条
+  const yunnan = page.locator('path[role="button"][aria-label="云南"]');
+  await yunnan.focus();
+  await yunnan.press('Enter');
+  await expect(page.getByRole('region', { name: '云南省份速览' })).toBeVisible();
+  // 无障碍等价物：摘要表必须存在且馆藏记录与首屏一致
   const summary = page.locator('details', { hasText: '光图数据摘要' });
   await summary.locator('summary').click();
   await expect(summary.locator('table')).toBeVisible();
-  await expect(summary.getByRole('row', { name: /合计/ })).toContainText('1186');
+  await expect(summary.getByRole('row', { name: /馆藏记录/ })).toContainText('1186');
 });
 
 test('lens switching keeps the conclusion line in sync', async ({ page }) => {

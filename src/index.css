@@ -54,7 +54,7 @@
     --shadow-hover: 0 4px 12px hsl(0 0% 17% / 0.1);
 
     /*
-     * 展厅令牌（stage）：DOM 舞台与 WebGL 场景共用的唯一色彩源。
+     * 展厅令牌（stage）：DOM 舞台与 SVG 光图共用的唯一色彩源。
      * 取值必须与 `src/lib/stagePalette.ts` 的 LIGHT_STAGE / DARK_STAGE 完全一致，
      * 由 `src/lib/__tests__/stagePalette.test.ts` 断言，改一处必改另一处。
      * 同时提供 `-rgb` 通道三元组，供 Tailwind 的 `<alpha-value>` 生成透明度变体。

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { breeds } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
-import { hasMappableLocation } from '@/lib/geo3d/lightMapData';
+import { hasMappableLocation } from '@/lib/geo/lightMapData';
 import {
   generateFindHomeRounds,
   generateQuiz,

@@ -16,41 +16,34 @@ import { SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
 /** 诚实映射表：光图上每个视觉通道对应的字段，含"故意不映射"的说明。 */
 const MAPPING_ROWS: Array<{ channel: string; field: string; note: string }> = [
   {
-    channel: '光束平面位置',
+    channel: '产区环平面位置',
     field: '真实经纬度（同省相邻坐标聚为产区簇）',
     note: `${COLLECTION_SUMMARY.mappable} 条已核验产区；其余 ${COLLECTION_SUMMARY.unverifiedProvince} 条不落点`,
   },
   {
-    channel: '光束粗细',
+    channel: '产区环半径',
     field: '该产区的品种记录数',
-    note: '一束光 = 一个产区；不再按记录数铺成圆环（旧画法把 45 条画成一圈 45 个点）',
+    note: '一个环 = 一个产区；环径随记录数分段映射，便于比较产区体量',
   },
-  { channel: '光束高度', field: '同一产区的品种记录数（对数压缩）', note: '0.65–1.4 世界单位；镜头切换只改分段构成，不改高度与位置' },
   {
-    channel: '束身分段色相',
+    channel: '环形分段色相',
     field: '该产区的类别构成（15 色，与平面图一致）',
-    note: '段高 = 该类别在这个产区的条数；超过 6 个类别时尾部并成「其他类别」',
+    note: '弧段 = 该类别在这个产区的条数；类别色板在地图与互动厅保持一致',
   },
   {
-    channel: '束顶金环',
+    channel: '国家级保护金环',
     field: '该产区含国家级保护名录匹配',
     note: `940 号公告在册 ${COLLECTION_SUMMARY.nationalProtectedMatches} 个`,
   },
   {
-    channel: '束底橙环',
+    channel: '濒危橙环',
     field: '该产区含编辑口径濒危记录',
     note: `编辑标注口径 ${COLLECTION_SUMMARY.editorialEndangered} 个，非权威结论`,
   },
   {
-    channel: '省域挤出高度',
-    field: '该省馆藏量（按省份分布的真实四分位分档）',
-    note: '阈值 22 / 31 / 42；四档 0.06 / 0.16 / 0.27 / 0.39，让省份之间真的看得出差别',
-  },
-  { channel: '省域自发光', field: '同上（连续值）', note: '与高度同源，双通道强调同一事实' },
-  {
-    channel: '聚类半径',
-    field: '——（几何参数，不是数据）',
-    note: '同省内平面距离 ≤ 0.22 世界单位才合并，簇内最大偏移有硬上限，可被审计',
+    channel: '省块五档色阶',
+    field: '该省已核验落点的记录数',
+    note: '按运行时分位数切五档；空省与待核验记录不被伪造成落点',
   },
   { channel: '尺寸 / 亮度 / 排序', field: '——（不映射）', note: '明确留白，避免观众脑补不存在的编码' },
 ];
@@ -66,11 +59,10 @@ const AI_DISCLOSURE: Array<{ item: string; content: string }> = [
 
 const THIRD_PARTY: Array<{ name: string; note: string }> = [
   { name: 'React / Vite / TypeScript', note: '基础框架，按项目结构自行组织状态与路由。' },
-  { name: 'three.js + @react-three/fiber + drei', note: '三维渲染底座；省域挤出、光束实例化与光晕、相机运镜均为自研，未引入后处理、HDR 或环境贴图。' },
   { name: 'Recharts', note: '平面图表库（档案页雷达图）；配色与刻度按站内令牌重设。' },
+  { name: 'SVG / CSS', note: '省域轮廓、类别剪影与装置卡视觉均为站内绘制，优先保证低端设备可访问。' },
   { name: 'motion', note: '入场与计数动画；全部带 reduced-motion 直显分支。' },
   { name: 'lucide-react', note: '图标库。' },
-  { name: 'china-map-3d (MIT)', note: '同类开源项目的工程做法参考（坐标约定、预算纪律、交互设计）；未复制其源码，实现与材质方案自研。' },
 ];
 
 export default function AboutPage() {
@@ -237,7 +229,7 @@ export default function AboutPage() {
               单独抬高某一区域会削弱馆藏完整性，最终改为按省份同构展示。
             </li>
             <li className="rounded-lg border border-stage-border bg-stage-panel p-3">
-              交互形式从"更多功能"收敛到"三台展教装置 + 一个三维光图"：
+              交互形式从"更多功能"收敛到"三台展教装置 + 一张二维光图"：
               与其堆功能，不如让观众动手用一次真实数据。
             </li>
           </ul>
