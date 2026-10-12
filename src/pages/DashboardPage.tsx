@@ -1,6 +1,7 @@
 import { ArrowUpRight, BookOpen, Database, MapPinned, ShieldCheck, Sparkles } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChinaMap } from '@/components/ChinaMap';
 import {
   Bar,
   BarChart,
@@ -107,6 +108,12 @@ export default function DashboardPage() {
     .map((name) => ({ name, value: breeds.filter((breed) => breed.endangered === name).length, color: endangeredPalette[name] }))
     .filter((item) => item.value > 0), []);
 
+  const protectionData = useMemo(() => [
+    { name: '国家级保护名录', value: breeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'national-list').length, color: gold },
+    { name: '未匹配名录', value: breeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'not-on-national-list').length, color: green },
+    { name: '待核验', value: breeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'unverified').length, color: '#8b9b92' },
+  ], []);
+
   const protectedCount = useMemo(() => breeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'national-list').length, []);
   const mappedPercent = Math.round((COLLECTION_SUMMARY.mappable / breeds.length) * 1000) / 10;
   const protectedPercent = Math.round((protectedCount / breeds.length) * 1000) / 10;
@@ -120,6 +127,7 @@ export default function DashboardPage() {
     { axis: '坐标', value: mappedPercent },
     { axis: '图片', value: Math.round((breeds.filter((breed) => Boolean(breed.image)).length / breeds.length) * 100) },
   ];
+  const [dashboardProvince, setDashboardProvince] = useState<string | null>(null);
 
   return (
     <div className="min-h-full overflow-hidden" style={{ background: stage, color: foreground }}>
@@ -144,21 +152,26 @@ export default function DashboardPage() {
         </section>
 
         <div className="grid gap-5 xl:grid-cols-[1.12fr_.88fr]">
-          <Panel labelledBy="category-title">
-            <SectionHeading id="category-title" eyebrow="01 / Composition" title="类别构成" />
-            <div className="h-[23rem]" role="img" aria-label="馆藏类别数量横向条形图">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryData} layout="vertical" margin={{ top: 2, right: 22, left: 2, bottom: 2 }} barCategoryGap="19%">
-                  <CartesianGrid horizontal={false} stroke={line} strokeDasharray="2 6" />
-                  <XAxis type="number" allowDecimals={false} tick={{ fill: muted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" width={58} tick={{ fill: foreground, fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: 'rgb(255 255 255 / .035)' }} contentStyle={tooltipStyle} formatter={(value: unknown) => [`${formatNumber(Number(value ?? 0))} 个品种`, '馆藏']} />
-                  <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={16}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}</Bar>
-                </BarChart>
-              </ResponsiveContainer>
+          <Panel labelledBy="region-title">
+            <SectionHeading id="region-title" eyebrow="01 / Geography" title="区域落点" />
+            <div className="h-[23rem]" role="img" aria-label="馆藏品种区域分布图">
+              <ChinaMap breeds={breeds} selectedProvince={dashboardProvince} selectedBreed={null} focusedProvince={dashboardProvince} darkSurface showProvinceLabels={false} onProvinceClick={setDashboardProvince} onBreedClick={() => undefined} onClusterClick={() => undefined} onClearSelection={() => setDashboardProvince(null)} />
             </div>
           </Panel>
 
+          <Panel labelledBy="category-title">
+            <SectionHeading id="category-title" eyebrow="02 / Composition" title="畜种构成" />
+            <div className="h-[18rem]" role="img" aria-label="馆藏类别构成环形图">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart><Pie data={categoryData} dataKey="value" nameKey="name" innerRadius="52%" outerRadius="78%" paddingAngle={2} stroke={stage} strokeWidth={2}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} formatter={(value: unknown, name: unknown) => [`${formatNumber(Number(value ?? 0))} 个品种`, String(name ?? '类别')]} /></PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-[-2.2rem] grid grid-cols-2 gap-x-3 gap-y-1.5 pb-2 text-[0.68rem] sm:grid-cols-3">{categoryData.slice(0, 9).map((entry) => <span key={entry.name} className="inline-flex items-center gap-1.5" style={{ color: muted }}><i className="h-2 w-2 rounded-full" style={{ background: entry.color }} />{entry.name}<b className="font-mono font-normal" style={{ color: foreground }}>{formatNumber(entry.value)}</b></span>)}</div>
+          </Panel>
+
+        </div>
+
+        <div className="mt-5">
           <Panel labelledBy="risk-title">
             <SectionHeading id="risk-title" eyebrow="02 / Conservation" title="保护与风险" />
             <div className="grid items-center gap-3 sm:grid-cols-[minmax(0,1fr)_9rem]">
@@ -178,6 +191,23 @@ export default function DashboardPage() {
             <div className="mt-4 grid grid-cols-2 gap-2 border-t pt-4" style={{ borderColor: line }}>
               <div><p className="text-[0.68rem]" style={{ color: muted }}>国家级名录匹配</p><p className="mt-1 font-mono text-xl" style={{ color: gold }}>{formatNumber(protectedCount)}</p></div>
               <div><p className="text-[0.68rem]" style={{ color: muted }}>占馆藏比例</p><p className="mt-1 font-mono text-xl" style={{ color: gold }}>{protectedPercent}%</p></div>
+            </div>
+          </Panel>
+        </div>
+
+        <div className="mt-5">
+          <Panel labelledBy="protection-title">
+            <SectionHeading id="protection-title" eyebrow="03 / Protection" title="保护名录匹配" />
+            <div className="h-[15rem]" role="img" aria-label="保护名录匹配横向条形图">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={protectionData} layout="vertical" margin={{ top: 4, right: 28, left: 8, bottom: 4 }} barCategoryGap="30%">
+                  <CartesianGrid horizontal={false} stroke={line} strokeDasharray="2 6" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fill: muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" width={92} tick={{ fill: foreground, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={{ fill: 'rgb(255 255 255 / .035)' }} contentStyle={tooltipStyle} formatter={(value: unknown) => [`${formatNumber(Number(value ?? 0))} 条记录`, '口径']} />
+                  <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={24}>{protectionData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}</Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </Panel>
         </div>

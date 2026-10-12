@@ -9,13 +9,13 @@ export interface RouteConfig {
 
 /**
  * 页面清单：
- *   `/`             序厅首页（项目介绍、馆藏概览、参观路线与档案入口）
- *   `/explore`      地图探索（类别、保护与濒危镜头）
+ *   `/`             序厅首页（项目介绍、搜索、入口与精选品种）
+ *   `/explore`      地图探索（类别标签、地图与选中品种卡）
  *   `/map`          地图探索兼容入口（旧外链别名）
  *   `/encyclopedia` 品种百科（检索、筛选与图片卡片）
  *   `/arcade`       互动厅总览（三台装置入口）
  *   `/arcade/:game` 互动厅子页面（找家 / 识图 / 问答，各自成页）
- *   `/dashboard`    馆藏数据中枢（类别、产区与保护概览）
+ *   `/dashboard`    馆藏数据中枢（地图、类别、产区、保护与覆盖度图表）
  *   `/compare`      品种对比（最多 4 条记录）
  *
  * 旧路由（/pasture /recommend /ai /home）
@@ -40,12 +40,12 @@ export const routes: RouteConfig[] = [
     en: { title: 'Breed Encyclopedia · China Local Livestock Digital Museum', description: 'Search 1,186 local livestock records by name, category, province, and conservation level.' },
   } },
   { path: '/arcade', Component: lazy(() => import('./pages/ArcadePage')), meta: {
-    zh: { title: '互动厅 · 三台展教装置', description: '找家挑战、识图挑战与知识问答：三台装置各自成页，题目全部由已核验的馆藏数据生成，每局结束可进入档案页核对官方来源。' },
-    en: { title: 'Interactive Hall · Three Exhibits', description: 'Find-the-home, silhouette and quiz games generated from verified collection fields, each linking back to official sources.' },
+    zh: { title: '互动厅 · 三台展教装置', description: '找家挑战、识图挑战与知识问答：三台装置各自成页，题目全部由已核验的馆藏数据生成，答题后可打开百科详情。' },
+    en: { title: 'Interactive Hall · Three Exhibits', description: 'Find-the-home, silhouette and quiz games generated from verified collection fields, each linking back to an encyclopedia detail drawer.' },
   } },
   { path: '/arcade/:game', Component: lazy(() => import('./pages/ArcadeGamePage')), meta: {
-    zh: { title: '展教装置 · 互动厅', description: '互动厅单台装置：一次只玩一台，可随时切换到另外两台，题目只取自已核验字段并附官方来源入口。' },
-    en: { title: 'Exhibit · Interactive Hall', description: 'One interactive exhibit at a time, switchable at any moment; every question comes from verified fields.' },
+    zh: { title: '展教装置 · 互动厅', description: '互动厅单台装置：一次只玩一台，可随时切换到另外两台，题目只取自已核验字段并可打开百科详情。' },
+    en: { title: 'Exhibit · Interactive Hall', description: 'One interactive exhibit at a time, switchable at any moment; every question comes from verified fields and opens an encyclopedia detail drawer.' },
   } },
   { path: '/dashboard', Component: lazy(() => import('./pages/DashboardPage')), meta: {
     zh: { title: '馆藏数据中枢 · 中国地方畜禽品种数字博物馆', description: '从类别构成、产区密度与保护状态阅读 1,186 条地方畜禽品种馆藏记录。' },

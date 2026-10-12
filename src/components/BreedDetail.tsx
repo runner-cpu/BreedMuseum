@@ -105,6 +105,8 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
         <BreedImage
           src={displayImage}
           alt={breed.name}
+          category={breed.category}
+          breedName={breed.name}
           className="absolute inset-0 h-full w-full"
           imgClassName="object-cover"
         />

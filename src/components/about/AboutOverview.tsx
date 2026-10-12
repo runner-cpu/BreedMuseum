@@ -5,7 +5,7 @@ import { breedSources } from '@/data/breedSources';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION, QUALITY_SUMMARY } from '@/data/collectionSummary';
 
 export interface AboutOverviewProps {
-  /** 首页使用紧凑叙事，馆史页使用完整导览。 */
+  /** 保留为可复用的首页叙事素材；独立馆史路由已移除。 */
   compact?: boolean;
   /** 地图已独立成页时由调用方传入实际路径。 */
   exploreHref?: string;

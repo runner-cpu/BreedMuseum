@@ -50,7 +50,7 @@ export function VerificationBadge({ breed, className, compact = false }: Verific
   );
 }
 
-/** 徽章图例（档案库页头 / 关于页共用）。 */
+/** 徽章图例（百科详情与数据说明共用）。 */
 export function VerificationLegend({ className }: { className?: string }) {
   return (
     <ul className={cn('flex flex-wrap items-center gap-3 text-[11px] text-stage-muted', className)}>

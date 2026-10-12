@@ -23,7 +23,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   const { t, setLanguage, theme, setTheme } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  // 主导航把首页介绍与地图探索分开；完整馆史与来源披露由首页入口进入。
+  // 主导航把首页介绍与地图探索分开；档案与馆史页不再作为独立入口。
   const navItems = [
     { to: '/', label: t('nav.home') },
     { to: '/explore', label: t('nav.map') },

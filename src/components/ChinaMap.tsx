@@ -9,6 +9,22 @@ import {
   type SiteCluster,
 } from '@/lib/geo/clusterSites';
 import { buildProvinceChoropleth, CHOROPLETH_DARK_COLORS } from '@/lib/geo/provinceChoropleth';
+const MAP_CATEGORY_COLORS: Record<string, string> = {
+  牛: '#d8b15c',
+  猪: '#c98278',
+  羊: '#79b89c',
+  鸡: '#c9925b',
+  鸭: '#6ea7a0',
+  马: '#9b8db8',
+  其他: '#8cb8aa',
+};
+
+const markerColorForCategory = (category: string): string => {
+  if (MAP_CATEGORY_COLORS[category]) return MAP_CATEGORY_COLORS[category];
+  if (['鹅', '鸽'].includes(category)) return MAP_CATEGORY_COLORS.鸭;
+  if (['驴', '骆驼', '兔', '鹿'].includes(category)) return MAP_CATEGORY_COLORS.马;
+  return MAP_CATEGORY_COLORS.其他;
+};
 
 export type { LensId };
 
@@ -295,7 +311,8 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           // Keep every point visually equal. Counts remain available in the
           // tooltip and detail card; radius is reserved for the active point.
           const r = isSelected ? 8 : 5.2;
-          const color = isSelected ? '#d4a853' : '#8cc7b2';
+          const primaryCategory = cluster.slices[0]?.category ?? '其他';
+          const color = isSelected ? '#d4a853' : markerColorForCategory(primaryCategory);
           const title = `${cluster.province} 产区 · ${cluster.total} 个品种`;
           const detail = cluster.slices.map((slice) => `${slice.category} ${slice.count}`).join(' / ');
           const activeProvince = focusedProvince ?? selectedProvince;
@@ -370,8 +387,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           ))}
         </div>
         <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}`}>
-          <span className="inline-block h-3 w-3 rounded-full bg-[#8cc7b2]" aria-hidden="true" />
-          <span>圆点 = 产区簇 · 金色 = 当前选择</span>
+          <span className="inline-block h-3 w-3 rounded-full bg-[#d4a853]" aria-hidden="true" />
+          <span>金色 = 当前选择</span>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px]" aria-label="畜种类别图例">
+          {['牛', '猪', '羊', '鸡', '鸭', '马', '其他'].map((category) => <span key={category} className="inline-flex items-center gap-1" title={`${category}点位`}><span className="h-2 w-2 rounded-full" style={{ backgroundColor: markerColorForCategory(category) }} aria-hidden="true" />{category}</span>)}
         </div>
       </div>
 

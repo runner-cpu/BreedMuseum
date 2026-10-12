@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { publicAsset } from '@/lib/publicAsset';
+import { CategorySilhouette } from '@/components/arcade/CategorySilhouette';
 
 export const BREED_IMAGE_FALLBACK = publicAsset('brand/breed-placeholder.svg');
 // 站内根路径（/brand/...、/images/...）统一走 publicAsset 以兼容 Pages 子路径部署；外链 URL 原样使用
@@ -13,6 +14,9 @@ export interface BreedImageProps {
   imgClassName?: string;
   eager?: boolean;
   sizes?: string;
+  /** 缺失图片时用于生成有类别辨识度的馆藏示意插画。 */
+  category?: string;
+  breedName?: string;
 }
 
 export function BreedImage({
@@ -22,6 +26,8 @@ export function BreedImage({
   imgClassName,
   eager = false,
   sizes,
+  category = '其他',
+  breedName,
 }: BreedImageProps) {
   const [currentSrc, setCurrentSrc] = useState(resolveSrc(src));
 
@@ -30,12 +36,21 @@ export function BreedImage({
   }, [src]);
 
   const isFallback = currentSrc === BREED_IMAGE_FALLBACK;
+  const label = breedName ?? alt.replace(/图片$/, '');
 
   return (
     <div
-      className={cn('overflow-hidden bg-muted', className)}
+      className={cn('relative overflow-hidden bg-muted', className)}
       data-fallback={isFallback ? 'true' : undefined}
     >
+      {isFallback && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_28%,rgb(216_177_92_/_0.26),transparent_42%),linear-gradient(145deg,var(--stage-soft),var(--stage-panel))] px-4 text-center text-stage-fg">
+          <span className="absolute right-3 top-3 rounded border border-stage-gold/45 bg-stage-panel/70 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.16em] text-stage-gold">示意图</span>
+          <CategorySilhouette category={category} label={`${label}示意插画`} className="h-24 w-24 text-stage-gold/80" />
+          <span className="mt-2 max-w-full truncate font-serif text-sm">{label}</span>
+          <span className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stage-muted">breed museum archive</span>
+        </div>
+      )}
       <img
         src={currentSrc}
         alt={alt}
@@ -43,7 +58,7 @@ export function BreedImage({
         decoding="async"
         sizes={sizes}
         data-fallback={isFallback ? 'true' : undefined}
-        className={cn('h-full w-full object-cover', imgClassName)}
+        className={cn('h-full w-full object-cover', isFallback ? 'relative opacity-0' : '', imgClassName)}
         onError={() => setCurrentSrc(BREED_IMAGE_FALLBACK)}
       />
     </div>

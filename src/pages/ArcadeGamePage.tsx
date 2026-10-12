@@ -67,7 +67,7 @@ export default function ArcadeGamePage() {
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stage-gold" aria-hidden="true" />
           <span className="leading-relaxed">
             出题红线：题干与选项只取自已核验字段（类别 / 产区 / 940 号公告保护状态）；产区待核验的记录不出题，
-            也不作干扰项。每局结束都能点进档案页，顺着来源链回到官方文件。
+            也不作干扰项。答题后可打开百科详情抽屉，查看当前记录的资料边界与来源。
           </span>
         </p>
       </div>

@@ -18,9 +18,9 @@ import { cn } from '@/lib/utils';
  * 每台装置是**独立子页面**（`/arcade/:game`）的内容出口，由 `ArcadeGamePage` 挂载；
  * 一次只渲染一台，题面不再挤在一起。
  *
- * 设计口径（与 /about、总览页的说明一致）：
+ * 设计口径（与首页、总览页的说明一致）：
  * - 每台装置只玩**已核验字段**（类别 / 产区 / 保护状态），待核验记录不出题；
- * - 每局结束都强链档案页，把「答题」变成「进档案看官方来源」的入口；
+ * - 每局结束都回到百科详情抽屉，把「答题」变成「查看品种资料」的入口；
  * - 全部操作可键盘完成；`prefers-reduced-motion` 下只有状态文字变化，无动画；
  * - 配色走 stage 语义令牌，浅色/深色两套主题下都保证题面与选项对比度充足。
  */
@@ -73,13 +73,13 @@ function FindHomeGame() {
   if (finished) {
     return (
       <div className={PANEL}>
-        <p className="text-sm">本局结束——你找到的每一个产区都能点开看官方来源。</p>
+        <p className="text-sm">本局结束——你找到的每一个产区都能点开查看品种资料。</p>
         <ul className="mt-3 space-y-1 text-sm">
           {rounds.map((item) => (
             <li key={item.breed.id}>
               <Link
                 className="inline-flex min-h-9 items-center gap-1.5 underline underline-offset-4 hover:text-stage-gold"
-                to={'/encyclopedia?breed=' + encodeURIComponent(item.breed.name)}
+                to={'/encyclopedia?breed=' + encodeURIComponent(item.breed.id)}
               >
                 {item.breed.name} · {item.answerProvince}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -148,8 +148,8 @@ function FindHomeGame() {
         <button type="button" onClick={next} disabled={!feedback} className={cn(GHOST_BUTTON, feedback ? '' : 'opacity-40')}>
           下一题
         </button>
-        <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/encyclopedia?breed=' + encodeURIComponent(round.breed.name)}>
-          先看这卷档案
+        <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/encyclopedia?breed=' + encodeURIComponent(round.breed.id)}>
+          查看品种详情
         </Link>
       </div>
     </div>
@@ -192,7 +192,7 @@ function IdentifyGame() {
   if (finished) {
     return (
       <div className={PANEL}>
-        <p className="text-sm">本局结束。每一类的代表品种都能在档案库里查到官方来源。</p>
+        <p className="text-sm">本局结束。每一类的代表品种都能在百科里查看资料。</p>
         <button type="button" onClick={restart} className={cn(GHOST_BUTTON, 'mt-4')}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           再来一局
@@ -251,7 +251,7 @@ function IdentifyGame() {
               .map((breed) => (
                 <Link
                   key={breed.id}
-                  to={'/encyclopedia?breed=' + encodeURIComponent(breed.name)}
+                  to={'/encyclopedia?breed=' + encodeURIComponent(breed.id)}
                   className="inline-flex min-h-9 items-center rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
                 >
                   {breed.name}
@@ -344,10 +344,10 @@ function QuizGame() {
           <p role="status" className="text-sm text-stage-fg/90">{question.explanation}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              to={'/encyclopedia?breed=' + encodeURIComponent(question.subject.name)}
+              to={'/encyclopedia?breed=' + encodeURIComponent(question.subject.id)}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
             >
-              查看「{question.subject.name}」档案
+              查看「{question.subject.name}」详情
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
             <button type="button" onClick={next} className={GHOST_BUTTON}>

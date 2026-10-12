@@ -212,7 +212,7 @@
 }
 
 @layer components {
-  /* 参考展厅的深墨绿信息架构：首页独立于档案页的宣纸舞台，
+  /* 参考展厅的深墨绿信息架构：首页独立于详情抽屉的宣纸舞台，
      让地图、统计和互动模块形成一条连续的沉浸式叙事。 */
   .museum-home {
     --museum-night: var(--museum-bg);
@@ -306,6 +306,36 @@
   .museum-link:hover {
     color: #f4d790;
     transform: translateX(2px);
+  }
+
+  .museum-featured-rail,
+  .museum-category-rail {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .museum-category-rail {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .museum-map-category-tabs {
+    display: flex;
+    max-width: min(65vw, 48rem);
+    align-items: center;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding-bottom: 0.15rem;
+  }
+
+  .museum-breed-drawer {
+    animation: museum-drawer-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes museum-drawer-in {
+    from { transform: translateX(2rem); opacity: 0.4; }
+    to { transform: translateX(0); opacity: 1; }
   }
 
   .museum-map-workbench {
@@ -443,6 +473,37 @@
   @media (max-width: 767px) {
     .museum-section {
       padding-block: 3.5rem;
+    }
+
+    .museum-featured-rail,
+    .museum-category-rail {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding-bottom: 0.35rem;
+    }
+
+    .museum-featured-rail::-webkit-scrollbar,
+    .museum-category-rail::-webkit-scrollbar { display: none; }
+
+    .museum-featured-card { min-width: min(72vw, 18rem); scroll-snap-align: start; }
+    .museum-category-rail > * { min-width: 8.5rem; scroll-snap-align: start; }
+
+    .museum-map-category-tabs { max-width: 100%; }
+
+    .museum-breed-drawer {
+      height: min(88dvh, 46rem);
+      max-width: none;
+      border-left: 0;
+      border-top: 1px solid var(--stage-border);
+      border-radius: 1.25rem 1.25rem 0 0;
+      animation-name: museum-drawer-up;
+    }
+
+    @keyframes museum-drawer-up {
+      from { transform: translateY(2rem); opacity: 0.4; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     /* On touch screens the detail card behaves like a bottom sheet. It stays

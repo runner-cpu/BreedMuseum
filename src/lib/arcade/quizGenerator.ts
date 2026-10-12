@@ -108,7 +108,7 @@ function provinceQuestion(random: () => number): QuizQuestion {
     subject: { id: subject.id, name: subject.name, category: subject.category },
     options,
     answerId: subject.province,
-    explanation: `${subject.name} 的产区坐标为已核验记录，可在档案页核对来源。`,
+    explanation: `${subject.name} 的产区坐标为已核验记录，可在百科详情中查看来源范围。`,
   };
 }
 

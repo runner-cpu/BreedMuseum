@@ -73,7 +73,9 @@ for (const legacy of ['/pasture', '/recommend', '/ai', '/home']) {
 test('dashboard route exposes interactive collection charts', async ({ page }) => {
   await page.goto('/#/dashboard');
   await expect(page.getByRole('heading', { name: '看见地方品种的分布与缺口' })).toBeVisible();
-  await expect(page.getByRole('img', { name: '馆藏类别数量横向条形图' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '馆藏品种区域分布图' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '馆藏类别构成环形图' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '保护名录匹配横向条形图' })).toBeVisible();
   await expect(page.getByRole('img', { name: '省份馆藏数量排名图' })).toBeVisible();
   await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('国家级保护匹配')).toBeVisible();
 });
@@ -96,26 +98,23 @@ test('home introduces the museum and guides visitors into exploration', async ({
   await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
 });
 
-test('explore route exposes map lenses and source-backed search', async ({ page }) => {
+test('explore route exposes category tabs and a focused map', async ({ page }) => {
   await page.goto('/#/explore');
   await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '全国品种分布' })).toBeVisible();
-  await expect(page.getByRole('tab')).toHaveCount(3);
-  await page.getByRole('tab', { name: '国家级保护' }).click();
-  await expect(page.getByText(/271 条 ·/)).toBeVisible();
-  const search = page.getByRole('searchbox', { name: '检索品种档案' });
-  await search.fill('河田鸡');
-  await page.getByRole('button', { name: /^河田鸡/ }).first().click();
-  await expect(page).toHaveURL(/#\/explore$/);
-  await expect(page.getByRole('heading', { name: '河田鸡', level: 2 })).toBeVisible();
+  await expect(page.getByRole('tablist', { name: '地图镜头' })).toBeVisible();
+  await expect(page.getByRole('tab')).toHaveCount(16);
+  await page.getByRole('tab', { name: '鸡' }).click();
+  await expect(page.getByRole('tab', { name: '鸡' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByText(/个产区簇 ·/)).toBeVisible();
 });
 
-test('lens switching keeps the conclusion line in sync', async ({ page }) => {
+test('explore category tabs keep the map focused', async ({ page }) => {
   await page.goto('/#/explore');
-  await page.getByRole('tab', { name: '国家级保护' }).click();
-  await expect(page.getByText(/271 条 ·/)).toBeVisible();
-  await page.getByRole('tab', { name: '濒危之窗' }).click();
-  await expect(page.getByText(/82 条 ·/)).toBeVisible();
+  await page.getByRole('tab', { name: '全部' }).click();
+  await expect(page.getByRole('tab', { name: '全部' })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: '牛' }).click();
+  await expect(page.getByRole('tab', { name: '牛' })).toHaveAttribute('aria-selected', 'true');
 });
 
 test('encyclopedia search opens a breed detail panel', async ({ page }) => {
@@ -154,7 +153,7 @@ test('each arcade exhibit is its own page and switches without going back', asyn
   await expect(page).toHaveURL(/#\/arcade\/quiz$/);
   await expect(page.getByRole('heading', { name: '知识问答' })).toBeVisible();
   await page.getByRole('group', { name: '选择答案' }).getByRole('button').first().click();
-  await expect(page.getByRole('link', { name: /查看「.+」档案/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /查看「.+」详情/ })).toBeVisible();
   // 第三台：识图
   await page.getByRole('navigation', { name: '切换展教装置' }).getByRole('link', { name: '识图挑战' }).click();
   await page.getByRole('group', { name: '选择类别' }).getByRole('button').first().click();
