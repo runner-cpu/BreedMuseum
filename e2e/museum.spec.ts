@@ -84,7 +84,15 @@ test('home introduces the museum and guides visitors into exploration', async ({
   await expect(page.getByRole('heading', { name: '四个数字，认识这座馆' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '选择一种进入方式' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '从一张品种卡开始' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '进入地图' })).toBeVisible();
+  // The foyer's primary CTA is labelled "开始探索".  It should take visitors
+  // to the dedicated map instead of relying on the removed home overview block.
+  await page.getByRole('button', { name: '开始探索' }).click();
+  await expect(page).toHaveURL(/#\/explore$/);
+  await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/#\/$/);
+  // The old long-form about/collection panel was removed from the foyer.
+  await expect(page.getByRole('heading', { name: '把名录里的名字，重新放回土地', exact: true })).toHaveCount(0);
   await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
 });
 
