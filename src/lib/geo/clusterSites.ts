@@ -62,9 +62,8 @@ export interface SiteCluster {
   /**
    * 全量口径下的记录数（与镜头无关）。
    *
-   * 产区环的半径必须读它，不能读 `total`：镜头切换会改 `total`，
-   * 若环径跟着变，同一产区在「濒危之窗」下会突然缩小，观众会以为换了一张图。
-   * 位置与基准形状只有一份，变的只是「谁亮着」。
+   * 保留全量记录数，供详情提示与数据审计使用。镜头切换只改变成员筛选，
+   * 不会移动产区簇的位置。
    */
   baseTotal: number;
   /** 簇内不同的原始坐标点数（1 = 单一坐标） */
@@ -196,9 +195,9 @@ export function buildSiteClusters(
 }
 
 /**
- * 记录数 → 2D 平面半径（`ChinaMap` 的 SVG 标记用）。
+ * 记录数 → 2D 平面半径（历史 API）。
  *
- * 2D 的圆点要够大才好点、好看，同时保留记录数的单调映射。
+ * 地图当前采用统一点径以保持视觉秩序；保留此纯函数供旧调用方与数据审计兼容。
  */
 export function markerRadiusFor(total: number): number {
   return 0.055 + 0.006 * Math.min(total, 40);

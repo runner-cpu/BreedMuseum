@@ -13,7 +13,7 @@ test('unknown address stays visible on a true 404', async () => {
 
 /**
  * 页面清单：`/` 序厅首页、`/explore` 地图探索、`/arcade` 互动厅总览、`/arcade/:game` 单台装置、
- * `/breed/:id` 档案、`/about` 馆史；其余旧路径必须重定向到首页序厅，不能 404。
+ * 档案与馆史页面已移除；其余兼容旧路径仍重定向到首页序厅。
  */
 test('legacy routes redirect to the museum foyer instead of 404', async () => {
   for (const legacy of LEGACY_ROUTES) {
@@ -64,18 +64,12 @@ test('an unknown exhibit name falls back to the arcade overview', async () => {
   await waitFor(() => expect(window.location.hash).toBe('#/arcade'));
 });
 
-test('about route exposes provenance, mapping table and AI disclosure', async () => {
+test('removed about route is a true 404', async () => {
   renderAppAt('/about');
-  expect(await screen.findByRole('heading', { name: '馆史与库房' })).toBeVisible();
-  expect(screen.getByRole('heading', { name: '数据来源链' })).toBeVisible();
-  expect(screen.getByText(/诚实映射表/)).toBeVisible();
-  expect(screen.getByRole('heading', { name: /AI 使用披露与第三方资源/ })).toBeVisible();
-  // 官方来源链必须可点击
-  expect(screen.getAllByRole('link', { name: /官方页面|官方 PDF|公告页面/ }).length).toBeGreaterThanOrEqual(2);
+  expect(await screen.findByRole('heading', { name: '页面未找到' })).toBeVisible();
 });
 
-test('breed record route explains a missing id and links back', async () => {
+test('removed breed record route is a true 404', async () => {
   renderAppAt('/breed/not-a-real-breed');
-  expect(await screen.findByRole('heading', { name: '档案未找到' })).toBeVisible();
-  expect(screen.getByRole('link', { name: /返回光图/ })).toBeVisible();
+  expect(await screen.findByRole('heading', { name: '页面未找到' })).toBeVisible();
 });

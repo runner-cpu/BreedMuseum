@@ -20,8 +20,8 @@ test.afterEach(async ({ page }) => { expect(errors.get(page)).toEqual([]); });
 /**
  * 页面清单（本轮重设计后的全部页面）：
  * `/`（序厅首页）、`/explore`（地图探索）、`/arcade`（总览）、`/arcade/:game`（三台装置各自成页）、
- * `/breed/:id`、`/about`、以及 404。
- * 用例在 `reducedMotion: 'reduce'` 下运行：3D 场景走「直显」分支，
+ * `/compare`、已移除的 `/breed/:id` 与 `/about`、以及其他未知路径的 404。
+ * 用例在 `reducedMotion: 'reduce'` 下运行：地图与互动装置走静态可验证分支，
  * 断言基于 DOM（计数、表格、按钮），不依赖帧动画。
  */
 for (const path of [
@@ -33,6 +33,7 @@ for (const path of [
   '/arcade/identify',
   '/arcade/quiz',
   '/dashboard',
+  '/compare',
   '/about',
   '/breed/hetian-chicken',
   '/breed/not-a-real-breed',
@@ -54,14 +55,14 @@ for (const path of [
       await expect(page.getByRole('heading', { name: '页面未找到' })).toBeVisible();
       expect(page.url()).toContain('/not-a-route');
     }
-    if (path === '/breed/not-a-real-breed') {
-      await expect(page.getByRole('heading', { name: '档案未找到' })).toBeVisible();
+    if (path === '/about' || path.startsWith('/breed/')) {
+      await expect(page.getByRole('heading', { name: '页面未找到' })).toBeVisible();
     }
   });
 }
 
 /** 旧路由必须重定向到首页序厅，不能 404（已发布外链兼容）。地图旧入口保留为探索页别名。 */
-for (const legacy of ['/compare', '/pasture', '/recommend', '/ai']) {
+for (const legacy of ['/pasture', '/recommend', '/ai', '/home']) {
   test('legacy route ' + legacy + ' redirects to the museum foyer', async ({ page }) => {
     await page.goto('/#' + legacy);
     await expect(page).toHaveURL(/#\/$/);
@@ -71,34 +72,34 @@ for (const legacy of ['/compare', '/pasture', '/recommend', '/ai']) {
 
 test('dashboard route exposes interactive collection charts', async ({ page }) => {
   await page.goto('/#/dashboard');
-  await expect(page.getByRole('heading', { name: '馆藏数据中枢' })).toBeVisible();
-  await expect(page.getByRole('img', { name: '馆藏类别占比图' })).toBeVisible();
-  await expect(page.getByRole('img', { name: '省份品种数量排行图' })).toBeVisible();
-  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('国家级保护名录')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '看见地方品种的分布与缺口' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '馆藏类别数量横向条形图' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '省份馆藏数量排名图' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('国家级保护匹配')).toBeVisible();
 });
 
 test('home introduces the museum and guides visitors into exploration', async ({ page }) => {
   await page.goto('/#/');
   await expect(page.getByRole('heading', { name: /中国地方畜禽.*品种数字博物馆/ })).toBeVisible();
-  await expect(page.getByText('关于这座馆')).toBeVisible();
-  await expect(page.getByRole('heading', { name: /一张地图，三种进入方式/ })).toBeVisible();
-  await expect(page.getByRole('region', { name: '参观路线' })).toBeVisible();
-  await expect(page.getByText('来源与方法', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '进入地图探索' }).first()).toBeVisible();
-  await expect(page.getByText('1186', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '四个数字，认识这座馆' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '选择一种进入方式' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '从一张品种卡开始' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '进入地图' })).toBeVisible();
+  await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
 });
 
-test('explore route exposes four map lenses and source-backed search', async ({ page }) => {
+test('explore route exposes map lenses and source-backed search', async ({ page }) => {
   await page.goto('/#/explore');
   await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '全国品种分布' })).toBeVisible();
-  await expect(page.getByRole('tab')).toHaveCount(4);
+  await expect(page.getByRole('tab')).toHaveCount(3);
   await page.getByRole('tab', { name: '国家级保护' }).click();
   await expect(page.getByText(/271 条 ·/)).toBeVisible();
   const search = page.getByRole('searchbox', { name: '检索品种档案' });
   await search.fill('河田鸡');
   await page.getByRole('button', { name: /^河田鸡/ }).first().click();
-  await expect(page).toHaveURL(/#\/breed\//);
+  await expect(page).toHaveURL(/#\/explore$/);
+  await expect(page.getByRole('heading', { name: '河田鸡', level: 2 })).toBeVisible();
 });
 
 test('lens switching keeps the conclusion line in sync', async ({ page }) => {
@@ -109,27 +110,20 @@ test('lens switching keeps the conclusion line in sync', async ({ page }) => {
   await expect(page.getByText(/82 条 ·/)).toBeVisible();
 });
 
-test('encyclopedia search opens a breed record', async ({ page }) => {
+test('encyclopedia search opens a breed detail panel', async ({ page }) => {
   await page.goto('/#/encyclopedia');
   const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
   await search.fill('河田鸡');
-  await page.getByRole('link', { name: /河田鸡/ }).first().click();
-  await expect(page).toHaveURL(/#\/breed\//);
-  await expect(page.getByRole('heading', { name: '河田鸡', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: /河田鸡/ }).first().click();
+  await expect(page).toHaveURL(/#\/encyclopedia\?.*breed=hetian-chicken/);
+  await expect(page.getByRole('dialog', { name: '河田鸡详情' })).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: '河田鸡', level: 2 })).toBeVisible();
 });
 
-test('breed record shows the archive header and official source links', async ({ page }, testInfo) => {
+test('removed breed archive route remains a true 404', async ({ page }) => {
   await page.goto('/#/breed/hetian-chicken');
-  await expect(page.getByRole('heading', { name: '河田鸡', level: 1 })).toBeVisible();
-  await expect(page.getByText(/^档案编号 BM-/)).toBeVisible();
-  // 卷宗头部必须给出官方来源入口
-  await expect(page.getByRole('link', { name: /2024 名录官方页面/ })).toHaveAttribute(
-    'href',
-    /nahs\.org\.cn/,
-  );
-  if (testInfo.project.name === 'desktop') {
-    await expect(page.getByRole('heading', { name: '数据来源与核验' })).toBeVisible();
-  }
+  await expect(page.getByRole('heading', { name: '页面未找到' })).toBeVisible();
+  await expect(page.getByText('/breed/hetian-chicken', { exact: true })).toBeVisible();
 });
 
 test('arcade overview hands out one entrance per exhibit', async ({ page }) => {
@@ -187,7 +181,7 @@ async function stageLuminance(page: Page): Promise<number> {
 }
 
 test('theme switch repaints the stage instead of leaving it black', async ({ page }) => {
-  await page.goto('/#/about');
+  await page.goto('/#/');
 
   await chooseTheme(page, /浅色模式/);
   await expect(page.locator('html')).not.toHaveClass(/dark/);
@@ -211,17 +205,12 @@ test('theme switch repaints the stage instead of leaving it black', async ({ pag
   expect(lightStage).not.toBe(darkStage);
 });
 
-test('about page carries provenance, mapping table, quality dashboard and disclosure', async ({ page }) => {
-  await page.goto('/#/about');
-  await expect(page.getByRole('heading', { name: '馆史与库房' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '数据来源链' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '质量仪表盘' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /AI 使用披露与第三方资源/ })).toBeVisible();
-  // 官方来源链与映射表
-  await expect(page.getByRole('link', { name: /官方 PDF/ })).toHaveAttribute('href', /nahs\.org\.cn/);
-  await expect(page.getByText('诚实映射表', { exact: false })).toBeVisible();
-  // 质量仪表盘数字来自常量：馆藏记录总数
-  await expect(page.getByText('1186', { exact: true })).toBeVisible();
+test('dashboard page exposes collection coverage and quality summaries', async ({ page }) => {
+  await page.goto('/#/dashboard');
+  await expect(page.getByRole('heading', { name: '看见地方品种的分布与缺口' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '数据覆盖度' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '保护与风险' })).toBeVisible();
+  await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
 });
 
 test('mobile menu exposes the three primary destinations and closes by keyboard', async ({ page }, testInfo) => {
@@ -229,8 +218,8 @@ test('mobile menu exposes the three primary destinations and closes by keyboard'
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  // 导航为 5 项：首页 / 地图探索 / 品种百科 / 数据看板 / 互动厅
-  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(5);
+  // 导航为 6 项：首页 / 地图探索 / 品种百科 / 品种对比 / 数据看板 / 互动厅
+  await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(6);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
 });
 

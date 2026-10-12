@@ -2,12 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
-import { categoryColors } from '@/lib/categoryIcons';
 import {
   buildSiteClusters,
   clustersForLens,
   type LensId,
-  markerRadiusFor,
   type SiteCluster,
 } from '@/lib/geo/clusterSites';
 import { buildProvinceChoropleth, CHOROPLETH_DARK_COLORS } from '@/lib/geo/provinceChoropleth';
@@ -18,6 +16,7 @@ export interface ChinaMapProps {
   breeds: Breed[];
   selectedProvince: string | null;
   selectedBreed: Breed | null;
+  /** Legacy pulse hook; retained for callers while marker styling stays static. */
   pulseId?: string | null;
   /** Active map lens; optional to preserve the original API. */
   lens?: LensId;
@@ -63,19 +62,6 @@ const provinceLabelPoint = (path: string): { x: number; y: number; width: number
   return { x: (minX + maxX) / 2, y: (minY + maxY) / 2, width: maxX - minX, height: maxY - minY };
 };
 
-const polar = (cx: number, cy: number, radius: number, degrees: number) => {
-  const rad = ((degrees - 90) * Math.PI) / 180;
-  return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)] as const;
-};
-
-const arcPath = (cx: number, cy: number, radius: number, from: number, sweep: number) => {
-  const end = from + sweep;
-  const [x0, y0] = polar(cx, cy, radius, from);
-  const [x1, y1] = polar(cx, cy, radius, end);
-  const large = sweep > 180 ? 1 : 0;
-  return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
-};
-
 const formatRange = (from: number, to: number | null): string => {
   const lower = Math.max(0, Math.round(from));
   if (to === null) return `${lower}+`;
@@ -84,14 +70,13 @@ const formatRange = (from: number, to: number | null): string => {
 };
 
 /**
- * Main 2D map. Province fills encode the active lens, rings encode production
- * site composition, and labels remain in the DOM for accessible navigation.
+ * Main 2D map. Province fills encode the active lens and one compact dot marks
+ * each production cluster. Labels remain in the DOM for accessible navigation.
  */
 export const ChinaMap: React.FC<ChinaMapProps> = ({
   breeds,
   selectedProvince,
   selectedBreed,
-  pulseId,
   lens = 'all',
   lensCategory = null,
   focusedProvince,
@@ -170,17 +155,6 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
     }, intervalMs);
     return () => window.clearInterval(timer);
   }, [prefersReducedMotion, revealOrder]);
-
-  const arcsFor = (cluster: SiteCluster, radius: number) => {
-    const total = cluster.slices.reduce((sum, slice) => sum + slice.count, 0) || 1;
-    let cursor = 0;
-    return cluster.slices.map((slice) => {
-      const sweep = (slice.count / total) * 360;
-      const from = cursor;
-      cursor += sweep;
-      return { ...slice, from, sweep, radius, color: categoryColors[slice.category] ?? '#95A5A6' };
-    });
-  };
 
   const mapClassName = [
     'relative flex h-full w-full items-center justify-center p-2',
@@ -317,10 +291,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         {clusters.map((cluster) => {
           const x = cluster.position[0] * 100 + mapViewBox.width / 2;
           const y = mapViewBox.height / 2 - cluster.position[1] * 100;
-          const r = markerRadiusFor(cluster.baseTotal) * 100;
           const isSelected = selectedCluster?.id === cluster.id;
-          const isPulsing = cluster.members.some((member) => member.id === pulseId);
-          const color = categoryColors[cluster.slices[0]?.category] ?? 'hsl(var(--primary))';
+          // Keep every point visually equal. Counts remain available in the
+          // tooltip and detail card; radius is reserved for the active point.
+          const r = isSelected ? 8 : 5.2;
+          const color = isSelected ? '#d4a853' : '#8cc7b2';
           const title = `${cluster.province} 产区 · ${cluster.total} 个品种`;
           const detail = cluster.slices.map((slice) => `${slice.category} ${slice.count}`).join(' / ');
           const activeProvince = focusedProvince ?? selectedProvince;
@@ -371,24 +346,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 }
               }}
             >
-              {!darkSurface && <circle cx={x} cy={y} r={r} fill={color} fillOpacity={0.22} stroke="hsl(var(--card))" strokeWidth={1.5} />}
-              {!darkSurface && arcsFor(cluster, r * 0.72).map((arc) => (
-                <path
-                  key={arc.category}
-                  d={arcPath(x, y, arc.radius, arc.from, arc.sweep)}
-                  fill="none"
-                  stroke={arc.color}
-                  strokeWidth={Math.max(2.5, r * 0.34)}
-                  strokeLinecap="butt"
-                />
-              ))}
-              {darkSurface ? (
-                <circle cx={x} cy={y} r={Math.max(2.2, Math.min(7.5, r * 0.62))} fill={color} stroke="#f4f6f8" strokeWidth={1.1} />
-              ) : cluster.total === 1 && <circle cx={x} cy={y} r={Math.max(1.6, r * 0.34)} fill={color} />}
-              {cluster.hasNationalProtected && <circle cx={x} cy={y} r={darkSurface ? Math.max(5, r * 0.9) : r * 1.32} fill="none" stroke="#d4a853" strokeWidth={darkSurface ? 1.5 : 2} />}
-              {cluster.hasEndangered && <circle cx={x} cy={y} r={darkSurface ? Math.max(7, r * 1.12) : r * 1.6} fill="none" stroke={darkSurface ? '#e8748c' : 'hsl(var(--primary))'} strokeWidth={1} strokeDasharray="3 3" opacity={0.7} />}
-              {isPulsing && <circle cx={x} cy={y} r={r * 1.9} fill="none" stroke={color} strokeWidth={2.5} className="pulse-glow" />}
-              {isSelected && <circle cx={x} cy={y} r={r * 2.2} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={2} />}
+              <circle cx={x} cy={y} r={r} fill={color} stroke={isSelected ? '#f8e7b4' : 'none'} strokeWidth={isSelected ? 1.5 : 0} />
             </g>
           );
         })}
@@ -412,8 +370,8 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           ))}
         </div>
         <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[#aab5c9]' : 'text-muted-foreground'}`}>
-          <span className="inline-block h-3 w-3 rounded-full border-2 border-[#d4a853]" aria-hidden="true" />
-          <span>{t('map.legendCluster')}</span>
+          <span className="inline-block h-3 w-3 rounded-full bg-[#8cc7b2]" aria-hidden="true" />
+          <span>圆点 = 产区簇 · 金色 = 当前选择</span>
         </div>
       </div>
 

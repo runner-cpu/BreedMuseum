@@ -42,7 +42,7 @@ const SpotlightHero = ({
   onExplore,
   onSearch,
 }: SpotlightHeroProps) => {
-  const { t } = useSettings();
+  const { t, isDark } = useSettings();
   const reduceMotion = useReducedMotion();
   const [pos, setPos] = useState({ x: '50%', y: '50%' });
   const [q, setQ] = useState('');
@@ -59,11 +59,12 @@ const SpotlightHero = ({
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden bg-[#080b18]"
+      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
+      style={{ background: isDark ? '#080b18' : '#f1ece0' }}
     >
       {/* 参考初版的深海军蓝地图舞台：让中国轮廓成为首屏主角。 */}
-      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_52%_45%,rgba(66,87,145,.5),transparent_34%),radial-gradient(circle_at_80%_18%,rgba(212,168,83,.16),transparent_24%),linear-gradient(180deg,#080b18,#0d1329_60%,#080b18)]" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgba(181,198,230,.7)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: isDark ? 'radial-gradient(circle at 52% 45%,rgba(66,87,145,.5),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.16),transparent 24%),linear-gradient(180deg,#080b18,#0d1329 60%,#080b18)' : 'radial-gradient(circle at 52% 45%,rgba(116,145,120,.24),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.18),transparent 24%),linear-gradient(180deg,#f7f2e8,#e9e2d2 60%,#f1ece0)' }} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgba(181,198,230,.7)_0_1px,transparent 1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
@@ -73,7 +74,7 @@ const SpotlightHero = ({
           preserveAspectRatio="xMidYMid meet"
         >
           {Object.values(provincePaths).map((d, i) => (
-            <path key={i} d={d} fill="rgba(150,175,220,0.07)" stroke="rgba(150,175,220,0.5)" strokeWidth="0.7" />
+            <path key={i} d={d} fill={isDark ? 'rgba(150,175,220,0.07)' : 'rgba(84,115,94,0.08)'} stroke={isDark ? 'rgba(150,175,220,0.5)' : 'rgba(84,115,94,0.34)'} strokeWidth="0.7" />
           ))}
         </svg>
       </div>
@@ -111,7 +112,8 @@ const SpotlightHero = ({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="font-serif font-bold text-white text-balance leading-tight [text-shadow:0_2px_24px_rgba(0,0,0,0.65)]"
+          className="font-serif font-bold text-balance leading-tight"
+          style={{ color: isDark ? '#fff' : '#173b2c', textShadow: isDark ? '0 2px 24px rgba(0,0,0,.65)' : '0 2px 18px rgba(255,255,255,.75)' }}
         >
           <span className="block text-3xl md:text-6xl">{titleTop}</span>
           <span className="block text-3xl md:text-6xl bg-gradient-to-r from-[#d4a853] via-[#e8c98a] to-[#d4a853] bg-clip-text text-transparent">
@@ -127,16 +129,18 @@ const SpotlightHero = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mt-8 w-full max-w-md flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 backdrop-blur"
+          className="mt-8 w-full max-w-md flex items-center gap-2 rounded-full px-3 py-1.5 backdrop-blur"
+          style={{ background: isDark ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.68)', border: `1px solid ${isDark ? 'rgba(255,255,255,.2)' : 'rgba(23,59,44,.2)'}` }}
         >
-          <Search className="w-4 h-4 text-white/50 shrink-0" />
+          <Search className="w-4 h-4 shrink-0" style={{ color: isDark ? 'rgba(255,255,255,.5)' : 'rgba(23,59,44,.55)' }} />
           <input
             type="search"
             aria-label={t('hero.searchAria')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={searchPh}
-            className="h-11 flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-white/65 outline-none px-1"
+            className="h-11 flex-1 min-w-0 bg-transparent text-sm outline-none px-1"
+            style={{ color: isDark ? '#fff' : '#173b2c' }}
           />
           <Button
             type="submit"
@@ -170,7 +174,8 @@ const SpotlightHero = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-xs leading-relaxed text-[#d5dbea] text-pretty md:text-sm"
+          className="text-xs leading-relaxed text-pretty md:text-sm"
+          style={{ color: isDark ? '#d5dbea' : '#365544' }}
         >
           {descLeft}
         </motion.p>
@@ -182,7 +187,8 @@ const SpotlightHero = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="text-xs leading-relaxed text-[#d5dbea] text-pretty md:text-sm"
+          className="text-xs leading-relaxed text-pretty md:text-sm"
+          style={{ color: isDark ? '#d5dbea' : '#365544' }}
         >
           {descRight}
         </motion.p>

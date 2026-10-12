@@ -37,3 +37,24 @@ test('with an empty registry no breed claims verified imagery', () => {
     expect(breeds.some((breed) => getBreedMetadata(breed).imageRights === 'verified')).toBe(false);
   }
 });
+
+test('dataset image references are explicit and external URLs are not reused', () => {
+  const external = breeds.filter((breed) => /^https?:\/\//.test(breed.image));
+  const placeholder = '/brand/breed-placeholder.svg';
+
+  // Every record must either point at an explicit project placeholder, a
+  // registered local override, or an external historical image. Empty or
+  // relative ad-hoc paths make it impossible for the cards to communicate
+  // whether an image is available and where it came from.
+  for (const breed of breeds) {
+    expect(
+      breed.image === placeholder ||
+        /^https?:\/\//.test(breed.image) ||
+        /^\/images\/breeds\/[\w.-]+$/.test(breed.image),
+    ).toBe(true);
+  }
+
+  // A single image must not silently represent multiple breeds. The
+  // placeholder is intentionally shared and is excluded from this check.
+  expect(new Set(external.map((breed) => breed.image)).size).toBe(external.length);
+});

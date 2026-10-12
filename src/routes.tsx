@@ -15,11 +15,10 @@ export interface RouteConfig {
  *   `/encyclopedia` 品种百科（检索、筛选与图片卡片）
  *   `/arcade`       互动厅总览（三台装置入口）
  *   `/arcade/:game` 互动厅子页面（找家 / 识图 / 问答，各自成页）
- *   `/breed/:id`    单卷档案（可分享）
  *   `/dashboard`    馆藏数据中枢（类别、产区与保护概览）
- *   `/about`        馆史与库房（数据来源、诚实映射表、AI 披露、质量仪表盘）
+ *   `/compare`      品种对比（最多 4 条记录）
  *
- * 旧路由（/compare /pasture /recommend /ai /home）
+ * 旧路由（/pasture /recommend /ai /home）
  * 由 `App.tsx` 里的 `<Navigate replace>` 统一重定向到 `/`，避免已发布外链 404。
  * 顺序有意义：`/arcade/:game` 必须排在 `/arcade` 之后以免被通配吞掉（React Router 按特异性匹配）。
  */
@@ -52,13 +51,9 @@ export const routes: RouteConfig[] = [
     zh: { title: '馆藏数据中枢 · 中国地方畜禽品种数字博物馆', description: '从类别构成、产区密度与保护状态阅读 1,186 条地方畜禽品种馆藏记录。' },
     en: { title: 'Collection Intelligence · China Local Livestock Digital Museum', description: 'Read the collection through category composition, regional density, and conservation status.' },
   } },
-  { path: '/breed/:id', Component: lazy(() => import('./pages/BreedRecordPage')), meta: {
-    zh: { title: '品种档案 · 畜种光图', description: '单卷档案件：档案编号、收录批次、三态核验徽章、体貌与生产性能，以及可点击的官方来源链。' },
-    en: { title: 'Breed Record · Light Map', description: 'A single archived record with verification badge, editorial profile and links back to official documents.' },
-  } },
-  { path: '/about', Component: lazy(() => import('./pages/AboutPage')), meta: {
-    zh: { title: '馆史与库房 · 数据来源与披露', description: '建馆路线、数据来源链、光图诚实映射表、工程质量仪表盘，以及 AI 使用与第三方资源的逐项披露。' },
-    en: { title: 'About · Sources and Disclosure', description: 'Data provenance chain, honest mapping table, quality dashboard, and itemised AI / third-party disclosure.' },
+  { path: '/compare', Component: lazy(() => import('./pages/ComparisonPage')), meta: {
+    zh: { title: '品种对比 · 中国地方畜禽品种数字博物馆', description: '并列查看最多四条地方畜禽品种馆藏记录。' },
+    en: { title: 'Breed Comparison · China Local Livestock Digital Museum', description: 'Compare up to four local livestock collection records side by side.' },
   } },
 ];
 
@@ -69,7 +64,6 @@ export const routes: RouteConfig[] = [
 
 /** 旧页面路径 → 一律回到首页序厅（保留外链可用性）。`/map` 是地图探索兼容入口，故不列入此表。 */
 export const LEGACY_ROUTES = [
-  '/compare',
   '/pasture',
   '/recommend',
   '/ai',

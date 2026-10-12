@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/
 import { useSettings } from '@/contexts/AppSettings';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
 import { publicAsset } from '@/lib/publicAsset';
+import LocalAssistant from '@/components/assistant/LocalAssistant';
 
 interface LayoutProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     { to: '/', label: t('nav.home') },
     { to: '/explore', label: t('nav.map') },
     { to: '/encyclopedia', label: t('nav.encyclopedia') },
+    { to: '/compare', label: '品种对比' },
     { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
   ];
@@ -40,10 +42,10 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
   };
   const utilities = <>
     <DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t('layout.changeTheme')} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><ThemeIcon className="h-5 w-5" /></button></DropdownMenuTrigger>
-      <DropdownMenuContent align="end">{(['light', 'dark', 'system'] as const).map(mode => <DropdownMenuItem key={mode} onClick={() => setTheme(mode)} className="min-h-11">{t('theme.' + mode)}{theme === mode ? ' ✓' : ''}</DropdownMenuItem>)}</DropdownMenuContent>
+      <DropdownMenuContent align="end" className="bg-popover text-popover-foreground">{(['light', 'dark', 'system'] as const).map(mode => <DropdownMenuItem key={mode} onClick={() => setTheme(mode)} className="min-h-11">{t('theme.' + mode)}{theme === mode ? ' ✓' : ''}</DropdownMenuItem>)}</DropdownMenuContent>
     </DropdownMenu>
     <DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t('layout.changeLang')} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><Globe className="h-5 w-5" /></button></DropdownMenuTrigger>
-      <DropdownMenuContent align="end"><DropdownMenuItem className="min-h-11" onClick={() => setLanguage('zh')}>简体中文</DropdownMenuItem><DropdownMenuItem className="min-h-11" onClick={() => setLanguage('en')}>English · 中文品种资料</DropdownMenuItem></DropdownMenuContent>
+      <DropdownMenuContent align="end" className="bg-popover text-popover-foreground"><DropdownMenuItem className="min-h-11" onClick={() => setLanguage('zh')}>简体中文</DropdownMenuItem><DropdownMenuItem className="min-h-11" onClick={() => setLanguage('en')}>English · 中文品种资料</DropdownMenuItem></DropdownMenuContent>
     </DropdownMenu>
   </>;
   return <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
@@ -79,6 +81,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
         <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"><div className="page-fade h-full">{children}</div></main>
       </div>
     </div>
+    <LocalAssistant />
     <footer className="shrink-0 bg-museum-ink text-museum-paper/85 px-4 py-2 text-center text-xs leading-relaxed">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span>{t('layout.footerTagline')} {COLLECTION_SUMMARY.total} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>

@@ -1,17 +1,16 @@
-import { ArrowLeft, ArrowRight, Search, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Search, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChinaMap, type LensId } from '@/components/ChinaMap';
 import { BreedImage } from '@/components/common/BreedImage';
 import { VerificationLegend } from '@/components/common/VerificationBadge';
 import { useSettings } from '@/contexts/AppSettings';
+import { useMuseum } from '@/contexts/MuseumContext';
 import { getBreedById } from '@/data/breedLookup';
 import { matchesBreedQuery } from '@/data/breedSearch';
 import { type Breed, breeds } from '@/data/breeds';
 import { categories } from '@/data/catalog';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
-import { categoryColors } from '@/lib/categoryIcons';
-import { renderCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { buildSiteClusters, clustersForLens, type SiteCluster } from '@/lib/geo/clusterSites';
 import { buildDigest, lightMapSummary } from '@/lib/geo/lightMapData';
 
@@ -33,12 +32,14 @@ const categoryFromParams = (params: URLSearchParams) => {
  */
 export default function ExploreMapPage() {
   const { isDark } = useSettings();
+  const { isInCompare, toggleCompare } = useMuseum();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [lens, setLens] = useState<LensId>(() => categoryFromParams(params) ? 'category' : 'all');
   const [category, setCategory] = useState<string | null>(() => categoryFromParams(params));
   const [province, setProvince] = useState<string | null>(() => params.get('province'));
   const [query, setQuery] = useState(params.get('search') ?? '');
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(Boolean(params.get('breed_id') || params.get('province')));
   const queryString = params.toString();
 
   // 首页的类别/省份排行通过 query 直达探索页；同步 URL 变化，
@@ -63,25 +64,22 @@ export default function ExploreMapPage() {
     () => (query.trim().length < 2 ? [] : breeds.filter((breed) => matchesBreedQuery(breed, query.trim())).slice(0, 7)),
     [query],
   );
-  const defaultPreviewBreed = useMemo(
-    () => breeds.find((breed) => breed.image && breed.province !== '待核验') ?? breeds[0] ?? null,
-    [],
-  );
   const previewBreed = selectedBreed
-    ?? (province ? breeds.find((breed) => breed.province === province) ?? null : null)
-    ?? defaultPreviewBreed;
+    ?? (province ? breeds.find((breed) => breed.province === province) ?? null : null);
 
   const openBreed = (breed: Breed) => {
     setSelectedBreed(breed);
-    navigate(`/breed/${breed.id}`);
+    setMobileDetailOpen(true);
   };
   const handleCluster = (cluster: SiteCluster) => {
+    setMobileDetailOpen(true);
     setProvince(cluster.province);
     // 产区簇可能包含多个品种；用簇内第一条记录作为详情预览，避免点击地图后右侧仍停留在旧省份。
     const breed = breeds.find((item) => item.id === cluster.members[0]?.id);
     if (breed) setSelectedBreed(breed);
   };
   const handleProvinceClick = (name: string) => {
+    setMobileDetailOpen(true);
     const nextProvince = name === province ? null : name;
     setProvince(nextProvince);
     if (nextProvince) {
@@ -93,7 +91,7 @@ export default function ExploreMapPage() {
   };
 
   return (
-    <div className="museum-home min-h-full text-[var(--museum-fg)]">
+    <div className="museum-home museum-explore-page min-h-full text-[var(--museum-fg)]">
       <div className="museum-home-inner px-3 py-3 sm:px-5 sm:py-4 lg:px-6">
         <header className="mb-3 flex flex-wrap items-center gap-3 border-b border-[var(--museum-line)] pb-3">
           <Link to="/" className="museum-link inline-flex" aria-label="返回首页"><ArrowLeft className="h-4 w-4" />返回首页</Link>
@@ -113,38 +111,39 @@ export default function ExploreMapPage() {
         </header>
 
         <div className="museum-map-workbench museum-map-workbench--focus">
-          <aside className="museum-rail" aria-label="类别筛选">
-            <p className="px-2 pb-1 text-[10px] tracking-[0.18em] text-[#7e8da8]">类别</p>
-            <button type="button" className={`museum-rail-item ${lens === 'all' ? 'is-active' : ''}`} onClick={() => { setLens('all'); setCategory(null); }}><span className="museum-rail-dot" />全部</button>
-            {categories.map((item) => <button type="button" key={item} className={`museum-rail-item ${lens === 'category' && category === item ? 'is-active' : ''}`} onClick={() => { setLens('category'); setCategory(item); }}><span className="museum-rail-icon">{renderCategorySvgIcon(item, categoryColors[item], 20)}</span>{item}</button>)}
-          </aside>
-
           <section className="museum-map-card museum-map-card--focus" aria-labelledby="explore-map-title">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--museum-line)] bg-[var(--museum-panel)]/80 px-3 py-2">
               <div className="flex items-center gap-3"><h2 id="explore-map-title" className="font-serif text-base text-[var(--museum-fg)] sm:text-lg">全国品种分布</h2><span className="font-mono text-xs text-[var(--museum-muted)]">{summary.mappable.toLocaleString()} 条 · {summary.provinces} 省</span></div>
-              <div className="flex flex-wrap gap-1" role="tablist" aria-label="地图镜头">
-                {LENSES.map((item) => <button key={item.id} type="button" role="tab" title={item.hint} aria-selected={lens === item.id} onClick={() => { setLens(item.id); if (item.id !== 'category') setCategory(null); }} className={`min-h-8 rounded-md px-2.5 text-xs transition-colors sm:px-3 ${lens === item.id ? 'bg-[#d4a853] font-semibold text-[#1a2032]' : 'museum-ghost-hover text-[var(--museum-muted)]'}`}>{item.label}</button>)}
+              <div className="flex flex-wrap items-center justify-end gap-1.5" role="tablist" aria-label="地图镜头">
+                {LENSES.filter((item) => item.id !== 'category').map((item) => <button key={item.id} type="button" role="tab" title={item.hint} aria-selected={lens === item.id} onClick={() => { setLens(item.id); setCategory(null); }} className={`min-h-8 rounded-md px-2.5 text-xs transition-colors sm:px-3 ${lens === item.id ? 'bg-[#d4a853] font-semibold text-[#1a2032]' : 'museum-ghost-hover text-[var(--museum-muted)]'}`}>{item.label}</button>)}
+                <label className="sr-only" htmlFor="map-category-filter">按类别筛选地图</label>
+                <select id="map-category-filter" aria-label="按类别筛选地图" value={lens === 'category' ? (category ?? '') : ''} onChange={(event) => { const next = event.target.value; setCategory(next || null); setLens(next ? 'category' : 'all'); }} className="min-h-8 max-w-[8.5rem] rounded-md border border-[var(--museum-line)] bg-transparent px-2 text-xs text-[var(--museum-fg)] outline-none focus:border-[#d4a853]">
+                  <option value="">类别</option>
+                  {categories.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
               </div>
             </div>
-            <div className="museum-map-canvas"><ChinaMap breeds={breeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); }} /></div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] px-3 py-2 text-[11px] text-[var(--museum-muted)]"><span>{summary.clusters} 个产区簇 · {summary.mappable} 条落点记录</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#d4a853]" />金环 = 国家级保护匹配</span></div>
+            <div className="museum-map-canvas"><ChinaMap breeds={breeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] px-3 py-2 text-[11px] text-[var(--museum-muted)]"><span>{summary.clusters} 个产区簇 · {summary.mappable} 条落点记录</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#d4a853]" />点击圆点查看品种</span></div>
           </section>
 
-          <aside className="museum-detail museum-detail--compact" aria-label="当前品种详情">
+          <aside className={`museum-detail museum-detail--compact ${mobileDetailOpen ? 'is-open' : ''}`} aria-label="当前品种详情">
+            <button type="button" className="museum-detail-close" onClick={() => setMobileDetailOpen(false)} aria-label="收起详情">收起</button>
             {previewBreed ? <>
               <BreedImage src={previewBreed.image} alt={previewBreed.name} className="h-28 rounded-lg border border-[var(--museum-line)]" />
               <div className="mt-3 flex items-start justify-between gap-2"><div><h2 className="font-serif text-xl text-[var(--museum-fg)]">{previewBreed.name}</h2><p className="mt-0.5 text-[11px] text-[var(--museum-muted)]">{previewBreed.englishName}</p></div><span className="museum-status">{previewBreed.endangered}</span></div>
-              <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px]"><div><dt className="text-[#7f8ca4]">产区</dt><dd className="mt-0.5 text-[#e5eaf4]">{previewBreed.province}</dd></div><div><dt className="text-[#7f8ca4]">类别</dt><dd className="mt-0.5 text-[#e5eaf4]">{previewBreed.category}</dd></div></dl>
-              <p className="mt-3 line-clamp-3 text-xs leading-5 text-[#c1c9d8]">{previewBreed.story}</p>
-              <button type="button" onClick={() => openBreed(previewBreed)} className="museum-link mt-2 text-xs">打开卷宗 <ArrowRight className="h-3.5 w-3.5" /></button>
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px]"><div><dt className="text-[var(--museum-muted)]">产区</dt><dd className="mt-0.5 text-[var(--museum-fg)]">{previewBreed.province}</dd></div><div><dt className="text-[var(--museum-muted)]">类别</dt><dd className="mt-0.5 text-[var(--museum-fg)]">{previewBreed.category}</dd></div></dl>
+              <p className="mt-3 line-clamp-3 text-xs leading-5 text-[var(--museum-muted)]">{previewBreed.story}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button type="button" onClick={() => navigate(`/encyclopedia?breed=${encodeURIComponent(previewBreed.id)}`)} className="museum-link text-xs">在百科查看 <ArrowRight className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => toggleCompare(previewBreed.id)} className={`inline-flex min-h-8 items-center gap-1 rounded-md border px-2.5 text-[11px] transition-colors ${isInCompare(previewBreed.id) ? 'border-[#d4a853] bg-[#d4a853]/15 text-[#e7c67d]' : 'border-[var(--museum-line)] text-[var(--museum-muted)] hover:border-[#d4a853] hover:text-[var(--museum-fg)]'}`} aria-pressed={isInCompare(previewBreed.id)}>{isInCompare(previewBreed.id) && <Check className="h-3.5 w-3.5" aria-hidden="true" />} {isInCompare(previewBreed.id) ? '已加入对比' : '加入对比'}</button>
+              </div>
             </> : <div className="flex min-h-[220px] flex-col items-center justify-center text-center"><Sparkles className="h-6 w-6 text-[#d4a853]" /><p className="mt-3 text-sm text-[var(--museum-fg)]">点击地图点位查看详情</p></div>}
             {activeProvince && <div role="region" aria-label={`${activeProvince.province}省份速览`} className="mt-4 border-t border-[var(--museum-line)] pt-3"><p className="text-[11px] text-[#7f8ca4]">省份速览</p><p className="mt-1 text-base text-[var(--museum-fg)]">{activeProvince.province} <span className="font-mono text-xs text-[#d4a853]">{activeProvince.total} 条</span></p><p className="mt-1 text-[11px] text-[var(--museum-muted)]">落点 {activeProvince.mappable} · 保护 {activeProvince.nationalProtected}</p></div>}
           </aside>
         </div>
 
-        {lens === 'category' && <div className="mt-2 flex flex-wrap gap-1.5" aria-label="类别镜头筛选">{categories.map((item) => <button key={item} type="button" aria-pressed={category === item} onClick={() => setCategory(category === item ? null : item)} className={`inline-flex min-h-8 items-center gap-2 rounded-md border px-2.5 text-[11px] transition-colors ${category === item ? 'border-[#d4a853] bg-[#d4a853]/15 text-[#e7c67d]' : 'border-[var(--museum-line)] museum-ghost-hover text-[var(--museum-muted)]'}`}><span className="h-2 w-2 rounded-full" style={{ backgroundColor: categoryColors[item] }} />{item}</button>)}</div>}
-
-        <footer className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] pt-2 text-[11px] text-[var(--museum-muted)]"><div className="flex flex-wrap items-center gap-2"><VerificationLegend /><span>{COLLECTION_SUMMARY.unverifiedProvince} 条产区待核验，暂不落点</span></div><Link to="/about" className="museum-link text-xs">数据来源 <ArrowRight className="h-3.5 w-3.5" /></Link></footer>
+        <footer className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] pt-2 text-[11px] text-[var(--museum-muted)]"><div className="flex flex-wrap items-center gap-2"><VerificationLegend /><span>{COLLECTION_SUMMARY.unverifiedProvince} 条产区待核验，暂不落点</span></div><Link to="/dashboard" className="museum-link text-xs">数据口径 <ArrowRight className="h-3.5 w-3.5" /></Link></footer>
       </div>
     </div>
   );

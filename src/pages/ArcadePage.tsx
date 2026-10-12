@@ -18,7 +18,7 @@ export default function ArcadePage() {
           <p className="max-w-3xl text-sm leading-relaxed text-stage-muted">
             找家挑战练地理、识图挑战练类别、知识问答练名录常识。三台装置分开进场，
             一次只玩一台——所有题目都由馆藏数据自动生成，只使用已核验字段，
-            每局结束都能点进档案页核对官方来源。
+            每局结束都能回到百科详情卡核对馆藏字段。
           </p>
         </header>
 
@@ -49,8 +49,8 @@ export default function ArcadePage() {
           <Link className="underline underline-offset-4 hover:text-stage-gold" to="/">
             回到光图
           </Link>
-          <Link className="underline underline-offset-4 hover:text-stage-gold" to="/about">
-            数据来源与披露
+          <Link className="underline underline-offset-4 hover:text-stage-gold" to="/dashboard">
+            数据口径与看板
           </Link>
         </nav>
       </div>

@@ -90,7 +90,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   const endColor = endangeredColors[breed.endangered] ?? 'hsl(var(--muted-foreground))';
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#/breed/${breed.id}`;
+    const url = `${window.location.origin}${window.location.pathname}#/encyclopedia?breed=${encodeURIComponent(breed.id)}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t('common.copied'));

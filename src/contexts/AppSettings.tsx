@@ -240,8 +240,8 @@ const dictionary: Record<string, { zh: string; en: string }> = {
   'map.legendSelected': { zh: '当前查看品种', en: 'Currently viewed breed' },
   'map.legendCluster': { zh: '含国家级保护名录的产区', en: 'Site with nationally protected breeds' },
   'map.coordNote': {
-    zh: '一个标记 = 一个产区；相邻产区坐标已聚为一处，标记大小对应该产区品种数',
-    en: 'One marker = one production site; nearby coordinates are merged, and marker size reflects the breed count.',
+    zh: '一个圆点 = 一个产区；相邻产区坐标已聚为一处，点位大小保持统一',
+    en: 'One dot = one production site; nearby coordinates are merged and dot size stays uniform.',
   },
   'map.provinceAria': { zh: '{name}', en: '{name} province' },
   'map.pointAria': { zh: '地图点位：{name}', en: 'Map point: {name}' },

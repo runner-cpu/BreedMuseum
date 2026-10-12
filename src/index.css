@@ -332,76 +332,12 @@
     padding: 0.75rem;
   }
 
-  .museum-rail {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding: 0.75rem;
-    border: 1px solid var(--museum-line);
-    border-radius: 0.75rem;
-    background: rgb(17 24 44 / 0.9);
-    scrollbar-width: thin;
-  }
-
-  .museum-rail-item {
-    display: inline-flex;
-    min-height: 2.75rem;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 0.6rem;
-    padding: 0.55rem 0.75rem;
-    color: #aab5c9;
-    font-size: 0.78rem;
-    cursor: pointer;
-    transition: 180ms ease;
-  }
-
-  .museum-rail-item:hover {
-    border-color: rgb(212 168 83 / 0.38);
-    background: rgb(255 255 255 / 0.06);
-    color: #fff;
-  }
-
-  .museum-rail-item.is-active {
-    background: #d4a853;
-    color: #192033;
-    font-weight: 700;
-  }
-
-  .museum-rail-dot {
-    width: 0.55rem;
-    height: 0.55rem;
-    flex: 0 0 auto;
-    border-radius: 999px;
-    background: #d4a853;
-    box-shadow: 0 0 12px rgb(212 168 83 / 0.45);
-  }
-
-  .museum-rail-icon {
-    display: inline-flex;
-    width: 1.65rem;
-    height: 1.65rem;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    border: 1px solid rgb(83 97 126 / 0.72);
-    border-radius: 0.45rem;
-    background: rgb(32 43 70 / 0.8);
-  }
-
-  .museum-rail-item.is-active .museum-rail-icon {
-    border-color: rgb(25 32 51 / 0.26);
-    background: rgb(255 255 255 / 0.3);
-  }
-
   .museum-map-card,
   .museum-detail {
     min-width: 0;
     border: 1px solid var(--museum-line);
     border-radius: 0.85rem;
-    background: rgb(17 24 44 / 0.94);
+    background: color-mix(in srgb, var(--museum-panel) 96%, transparent);
   }
 
   .museum-map-card {
@@ -424,31 +360,20 @@
   }
 
   @media (min-width: 768px) {
-    .museum-rail {
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      overflow-x: hidden;
-      max-height: 42rem;
-    }
-
-    .museum-rail-item {
-      min-height: 3rem;
-      justify-content: flex-start;
+    .museum-map-card--focus {
+      position: sticky;
+      top: 1rem;
     }
 
     .museum-map-workbench {
-      grid-template-columns: 9.5rem minmax(0, 1fr);
-    }
-
-    .museum-detail {
-      grid-column: 2;
+      grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
+      align-items: stretch;
     }
   }
 
   @media (min-width: 1280px) {
     .museum-map-workbench {
-      grid-template-columns: 10rem minmax(0, 1fr) 22rem;
+      grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
       align-items: stretch;
     }
 
@@ -466,9 +391,81 @@
     }
   }
 
+  .museum-detail-close {
+    display: none;
+  }
+
+  /* 桌面端探索页保持一屏展厅构图，地图不会因页面滚动被推离视线。 */
+  @media (min-width: 768px) {
+    .museum-explore-page,
+    .museum-explore-page .museum-home-inner {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .museum-explore-page .museum-home-inner {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .museum-explore-page .museum-map-workbench {
+      min-height: 0;
+      flex: 1;
+    }
+
+    .museum-explore-page .museum-map-card--focus,
+    .museum-explore-page .museum-detail {
+      min-height: 0;
+      height: 100%;
+    }
+
+    .museum-explore-page .museum-map-card--focus {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .museum-explore-page .museum-map-canvas {
+      min-height: 0;
+      flex: 1;
+    }
+
+    .museum-explore-page > .museum-home-inner > footer {
+      flex: 0 0 auto;
+    }
+  }
+
   @media (max-width: 767px) {
     .museum-section {
       padding-block: 3.5rem;
+    }
+
+    /* On touch screens the detail card behaves like a bottom sheet. It stays
+       out of the way until a point is selected and can be dismissed quickly. */
+    .museum-detail:not(.is-open) {
+      display: none;
+    }
+
+    .museum-detail.is-open {
+      position: sticky;
+      bottom: 0.75rem;
+      z-index: 20;
+      max-height: min(58vh, 30rem);
+      overflow-y: auto;
+      box-shadow: 0 16px 42px rgb(0 0 0 / 0.38);
+    }
+
+    .museum-detail-close {
+      display: inline-flex;
+      float: right;
+      min-height: 1.75rem;
+      align-items: center;
+      border: 1px solid var(--museum-line);
+      border-radius: 999px;
+      padding: 0 0.65rem;
+      color: var(--museum-muted);
+      font-size: 0.7rem;
     }
   }
 

@@ -79,7 +79,7 @@ function FindHomeGame() {
             <li key={item.breed.id}>
               <Link
                 className="inline-flex min-h-9 items-center gap-1.5 underline underline-offset-4 hover:text-stage-gold"
-                to={'/breed/' + item.breed.id}
+                to={'/encyclopedia?breed=' + encodeURIComponent(item.breed.name)}
               >
                 {item.breed.name} · {item.answerProvince}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -148,7 +148,7 @@ function FindHomeGame() {
         <button type="button" onClick={next} disabled={!feedback} className={cn(GHOST_BUTTON, feedback ? '' : 'opacity-40')}>
           下一题
         </button>
-        <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/breed/' + round.breed.id}>
+        <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/encyclopedia?breed=' + encodeURIComponent(round.breed.name)}>
           先看这卷档案
         </Link>
       </div>
@@ -251,7 +251,7 @@ function IdentifyGame() {
               .map((breed) => (
                 <Link
                   key={breed.id}
-                  to={'/breed/' + breed.id}
+                  to={'/encyclopedia?breed=' + encodeURIComponent(breed.name)}
                   className="inline-flex min-h-9 items-center rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
                 >
                   {breed.name}
@@ -344,7 +344,7 @@ function QuizGame() {
           <p role="status" className="text-sm text-stage-fg/90">{question.explanation}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              to={'/breed/' + question.subject.id}
+              to={'/encyclopedia?breed=' + encodeURIComponent(question.subject.name)}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
             >
               查看「{question.subject.name}」档案
