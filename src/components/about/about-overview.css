@@ -54,7 +54,7 @@
 .about-overview-quality-values strong { margin-right: .25rem; color: var(--stage-gold); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 1.25rem; }
 .about-overview-quality p, .about-overview-ai p { margin-top: .85rem; color: var(--stage-muted); font-size: .72rem; line-height: 1.65; }
 .about-overview-text-link { display: inline-flex; gap: .35rem; margin-top: .9rem; color: var(--stage-gold); font-size: .72rem; font-weight: 700; }
-.museum-home .about-overview { --stage: #0a0b1b; --stage-panel: #11182c; --stage-soft: #151e37; --stage-border: #34425f; --stage-fg: #edf2fb; --stage-muted: #aab5c9; --stage-gold: #d4a853; --stage-rgb: 10 11 27; --stage-border-rgb: 52 66 95; --stage-fg-rgb: 237 242 251; --stage-gold-rgb: 212 168 83; }
+.museum-home .about-overview { --stage: var(--museum-bg); --stage-panel: var(--museum-panel); --stage-soft: var(--museum-panel-raised); --stage-border: var(--museum-line); --stage-fg: var(--museum-fg); --stage-muted: var(--museum-muted); --stage-gold: #d4a853; }
 @media (max-width: 700px) {
   .about-overview-hero { grid-template-columns: 1fr; }
   .about-overview-stamp { width: 5.5rem; height: 5.5rem; justify-self: end; }

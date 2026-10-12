@@ -183,19 +183,19 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         <title id="china-map-title">{t('map.title')}</title>
         <defs>
           <pattern id="ricePaper" width="20" height="20" patternUnits="userSpaceOnUse">
-          <rect width="20" height="20" fill={darkSurface ? '#11182c' : 'hsl(var(--card))'} />
+          <rect width="20" height="20" fill={darkSurface ? 'var(--museum-panel)' : 'hsl(var(--card))'} />
             <circle cx="2" cy="2" r="0.5" fill="hsl(var(--border))" opacity="0.3" />
             <circle cx="12" cy="12" r="0.5" fill="hsl(var(--border))" opacity="0.2" />
           </pattern>
         </defs>
-        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill={darkSurface ? '#11182c' : 'url(#ricePaper)'} opacity={darkSurface ? 1 : 0.48} />
+        <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill={darkSurface ? 'var(--museum-panel)' : 'url(#ricePaper)'} opacity={darkSurface ? 1 : 0.48} />
         {darkSurface && (
           <>
             <defs>
               <radialGradient id="mapHalo" cx="50%" cy="46%" r="65%">
-                <stop offset="0%" stopColor="#25365d" stopOpacity="0.72" />
-                <stop offset="65%" stopColor="#11182c" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#0a0d1c" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="var(--museum-panel-raised)" stopOpacity="0.72" />
+                <stop offset="65%" stopColor="var(--museum-panel)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--museum-bg)" stopOpacity="0.8" />
               </radialGradient>
               <filter id="mapGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="5" />
@@ -216,11 +216,11 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           const isRevealed = prefersReducedMotion || !hasData || revealedProvinces.has(name);
           const fill = hasData
             ? darkSurface
-              ? '#1f2c49'
+              ? 'var(--museum-panel-raised)'
               : mapIsDark
                 ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
                 : choropleth.colorFor(count)
-            : darkSurface ? '#141b30' : 'hsl(var(--muted))';
+            : darkSurface ? 'var(--museum-panel)' : 'hsl(var(--muted))';
           return (
             <g key={fullName} data-province={name}>
               <path
@@ -230,7 +230,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 aria-label={t('map.provinceAria').replace('{name}', name)}
                 aria-pressed={isSelected}
                 fill={fill}
-                stroke={isHovered || isSelected ? '#d4a853' : darkSurface ? '#53617e' : 'hsl(var(--border))'}
+                stroke={isHovered || isSelected ? '#d4a853' : darkSurface ? 'var(--museum-line)' : 'hsl(var(--border))'}
                 strokeWidth={isHovered || isSelected ? 2.5 : darkSurface ? 1.2 : 1}
                 className="cursor-pointer transition-[opacity,stroke,filter] duration-200"
                 opacity={(hasData && !isRevealed ? 0.34 : hasData ? 1 : 0.6) * (isDimmed ? 0.35 : 1)}
@@ -275,9 +275,9 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 aria-hidden="true"
                 fontSize={label.width < 24 || label.height < 20 ? 7 : 9}
                 fontWeight={isSelected || isHovered ? 700 : 500}
-                fill={darkSurface ? '#cbd5e1' : 'hsl(var(--foreground))'}
+                fill={darkSurface ? 'var(--museum-fg)' : 'hsl(var(--foreground))'}
                 opacity={(isDimmed ? 0.35 : 0.82) * (isRevealed ? 1 : 0.55)}
-                stroke={darkSurface ? '#11182c' : 'hsl(var(--card))'}
+                stroke={darkSurface ? 'var(--museum-panel)' : 'hsl(var(--card))'}
                 strokeWidth={1.7}
                 paintOrder="stroke"
               >
@@ -353,13 +353,13 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
       </svg>
 
       <div
-        className={`absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border px-3 py-2 text-xs shadow-lg backdrop-blur ${darkSurface ? 'border-[#53617e] bg-[#11182c]/90 text-[#e6edf8]' : 'border-border bg-card/90'}`}
+        className={`absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border px-3 py-2 text-xs shadow-lg backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-fg)]' : 'border-border bg-card/90'}`}
         role="group"
         aria-label="省份品种数量图例"
       >
-        <div className={`mb-1 flex items-center justify-between gap-3 text-[11px] font-medium ${darkSurface ? 'text-[#e6edf8]' : 'text-foreground'}`}>
+        <div className={`mb-1 flex items-center justify-between gap-3 text-[11px] font-medium ${darkSurface ? 'text-[var(--museum-fg)]' : 'text-foreground'}`}>
           <span>省份品种数</span>
-          <span className={darkSurface ? 'text-[#aab5c9]' : 'text-muted-foreground'}>{lens === 'all' ? '全部落点记录' : '当前镜头'}</span>
+          <span className={darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}>{lens === 'all' ? '全部落点记录' : '当前镜头'}</span>
         </div>
         <div className="flex items-center gap-1.5" aria-label="省份品种数分级">
           {choropleth.legend.map((item) => (
@@ -369,27 +369,27 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
             </span>
           ))}
         </div>
-        <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[#aab5c9]' : 'text-muted-foreground'}`}>
+        <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}`}>
           <span className="inline-block h-3 w-3 rounded-full bg-[#8cc7b2]" aria-hidden="true" />
           <span>圆点 = 产区簇 · 金色 = 当前选择</span>
         </div>
       </div>
 
-      <div className={`absolute right-3 top-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[#53617e] bg-[#11182c]/90 text-[#aab5c9]' : 'border-border bg-card/90 text-muted-foreground'}`}>
+      <div className={`absolute right-3 top-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-muted)]' : 'border-border bg-card/90 text-muted-foreground'}`}>
         {t('map.coordNote')}
       </div>
 
       {tooltip && (
         <div
-          className={`pointer-events-none absolute z-10 rounded-md border px-3 py-2 text-xs shadow-lg ${darkSurface ? 'border-[#53617e] bg-[#11182c] text-[#e6edf8]' : 'border-border bg-card'}`}
+          className={`pointer-events-none absolute z-10 rounded-md border px-3 py-2 text-xs shadow-lg ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-fg)]' : 'border-border bg-card'}`}
           style={{
             left: `${(tooltip.x / mapViewBox.width) * 100}%`,
             top: `${(tooltip.y / mapViewBox.height) * 100}%`,
             transform: 'translate(-50%, -130%)',
           }}
         >
-          <p className={darkSurface ? 'font-semibold text-[#f3f6fb]' : 'font-semibold text-foreground'}>{tooltip.title}</p>
-          <p className={darkSurface ? 'max-w-[220px] text-[#aab5c9]' : 'max-w-[220px] text-muted-foreground'}>{tooltip.detail}</p>
+          <p className={darkSurface ? 'font-semibold text-[var(--museum-fg)]' : 'font-semibold text-foreground'}>{tooltip.title}</p>
+          <p className={darkSurface ? 'max-w-[220px] text-[var(--museum-muted)]' : 'max-w-[220px] text-muted-foreground'}>{tooltip.detail}</p>
         </div>
       )}
     </div>

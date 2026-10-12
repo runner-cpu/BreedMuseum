@@ -51,7 +51,9 @@ export default function ExploreMapPage() {
     setProvince(params.get('province'));
     setQuery(params.get('search') ?? '');
   }, [params, queryString]);
-  const [selectedBreed, setSelectedBreed] = useState<Breed | null>(() => getBreedById(params.get('breed_id')));
+  // 参考原站，桌面右侧详情卡首屏就有一条代表性记录；用户仍可点击任意点位切换。
+  // 带查询参数时优先展示参数指定的记录，避免刷新后丢失上下文。
+  const [selectedBreed, setSelectedBreed] = useState<Breed | null>(() => getBreedById(params.get('breed_id')) ?? breeds[0] ?? null);
   const digest = useMemo(() => buildDigest(), []);
   const clusters = useMemo(() => buildSiteClusters(breeds), []);
   const visibleClusters = useMemo(() => clustersForLens(clusters, lens, category), [clusters, lens, category]);
@@ -103,16 +105,16 @@ export default function ExploreMapPage() {
             <label htmlFor="explore-search" className="sr-only">检索品种档案</label>
             <div className="relative flex items-center gap-2 rounded-lg border border-[var(--museum-line)] bg-[var(--museum-panel)] px-3 focus-within:border-[#d4a853] focus-within:ring-2 focus-within:ring-[#d4a853]/20">
               <Search className="h-4 w-4 shrink-0 text-[var(--museum-muted)]" aria-hidden="true" />
-              <input id="explore-search" type="search" aria-label="检索品种档案" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索品种、产区……" className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-[var(--museum-fg)] outline-none placeholder:text-[#7f8ca4]" />
-              {query && <button type="button" aria-label="清空检索" onClick={() => setQuery('')} className="rounded-md px-2 py-1 text-xs text-[var(--museum-muted)] hover:bg-[#25304a]">清除</button>}
-              {searchHits.length > 0 && <ul className="absolute inset-x-0 top-full z-30 mt-2 max-h-64 overflow-auto rounded-xl border border-[var(--museum-line)] bg-[var(--museum-panel)] p-1 shadow-2xl">{searchHits.map((breed) => <li key={breed.id}><button type="button" onClick={() => openBreed(breed)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-left text-sm text-[var(--museum-fg)] hover:bg-[#25304a]"><span>{breed.name}</span><span className="text-xs text-[var(--museum-muted)]">{breed.province} · {breed.category}</span></button></li>)}</ul>}
+              <input id="explore-search" type="search" aria-label="检索品种档案" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索品种、产区……" className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-[var(--museum-fg)] outline-none placeholder:text-[var(--museum-muted)]" />
+              {query && <button type="button" aria-label="清空检索" onClick={() => setQuery('')} className="rounded-md px-2 py-1 text-xs text-[var(--museum-muted)] hover:bg-[var(--museum-panel-raised)]">清除</button>}
+              {searchHits.length > 0 && <ul className="absolute inset-x-0 top-full z-30 mt-2 max-h-64 overflow-auto rounded-xl border border-[var(--museum-line)] bg-[var(--museum-panel)] p-1 shadow-2xl">{searchHits.map((breed) => <li key={breed.id}><button type="button" onClick={() => openBreed(breed)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-left text-sm text-[var(--museum-fg)] hover:bg-[var(--museum-panel-raised)]"><span>{breed.name}</span><span className="text-xs text-[var(--museum-muted)]">{breed.province} · {breed.category}</span></button></li>)}</ul>}
             </div>
           </div>
         </header>
 
         <div className="museum-map-workbench museum-map-workbench--focus">
           <section className="museum-map-card museum-map-card--focus" aria-labelledby="explore-map-title">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--museum-line)] bg-[var(--museum-panel)]/80 px-3 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--museum-line)] bg-[var(--museum-panel)] px-3 py-2">
               <div className="flex items-center gap-3"><h2 id="explore-map-title" className="font-serif text-base text-[var(--museum-fg)] sm:text-lg">全国品种分布</h2><span className="font-mono text-xs text-[var(--museum-muted)]">{summary.mappable.toLocaleString()} 条 · {summary.provinces} 省</span></div>
               <div className="flex flex-wrap items-center justify-end gap-1.5" role="tablist" aria-label="地图镜头">
                 {LENSES.filter((item) => item.id !== 'category').map((item) => <button key={item.id} type="button" role="tab" title={item.hint} aria-selected={lens === item.id} onClick={() => { setLens(item.id); setCategory(null); }} className={`min-h-8 rounded-md px-2.5 text-xs transition-colors sm:px-3 ${lens === item.id ? 'bg-[#d4a853] font-semibold text-[#1a2032]' : 'museum-ghost-hover text-[var(--museum-muted)]'}`}>{item.label}</button>)}
@@ -139,7 +141,7 @@ export default function ExploreMapPage() {
                 <button type="button" onClick={() => toggleCompare(previewBreed.id)} className={`inline-flex min-h-8 items-center gap-1 rounded-md border px-2.5 text-[11px] transition-colors ${isInCompare(previewBreed.id) ? 'border-[#d4a853] bg-[#d4a853]/15 text-[#e7c67d]' : 'border-[var(--museum-line)] text-[var(--museum-muted)] hover:border-[#d4a853] hover:text-[var(--museum-fg)]'}`} aria-pressed={isInCompare(previewBreed.id)}>{isInCompare(previewBreed.id) && <Check className="h-3.5 w-3.5" aria-hidden="true" />} {isInCompare(previewBreed.id) ? '已加入对比' : '加入对比'}</button>
               </div>
             </> : <div className="flex min-h-[220px] flex-col items-center justify-center text-center"><Sparkles className="h-6 w-6 text-[#d4a853]" /><p className="mt-3 text-sm text-[var(--museum-fg)]">点击地图点位查看详情</p></div>}
-            {activeProvince && <div role="region" aria-label={`${activeProvince.province}省份速览`} className="mt-4 border-t border-[var(--museum-line)] pt-3"><p className="text-[11px] text-[#7f8ca4]">省份速览</p><p className="mt-1 text-base text-[var(--museum-fg)]">{activeProvince.province} <span className="font-mono text-xs text-[#d4a853]">{activeProvince.total} 条</span></p><p className="mt-1 text-[11px] text-[var(--museum-muted)]">落点 {activeProvince.mappable} · 保护 {activeProvince.nationalProtected}</p></div>}
+            {activeProvince && <div role="region" aria-label={`${activeProvince.province}省份速览`} className="mt-4 border-t border-[var(--museum-line)] pt-3"><p className="text-[11px] text-[var(--museum-muted)]">省份速览</p><p className="mt-1 text-base text-[var(--museum-fg)]">{activeProvince.province} <span className="font-mono text-xs text-[#d4a853]">{activeProvince.total} 条</span></p><p className="mt-1 text-[11px] text-[var(--museum-muted)]">落点 {activeProvince.mappable} · 保护 {activeProvince.nationalProtected}</p></div>}
           </aside>
         </div>
 

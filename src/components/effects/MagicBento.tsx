@@ -118,7 +118,7 @@ const MagicBento = ({
           whileHover={{ y: -4 }}
           onMouseMove={onCardMove}
           onClick={(e) => onCardClick(e, card, i)}
-          className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[#34425f] bg-[#151d33] p-5 text-left transition-colors duration-300 hover:border-[rgba(212,168,83,0.65)] hover:bg-[#1c2945] md:p-6"
+          className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--museum-line)] bg-[var(--museum-panel)] p-5 text-left transition-colors duration-300 hover:border-[rgba(212,168,83,0.65)] hover:bg-[var(--museum-panel-raised)] md:p-6"
         >
           {/* 边框/内部发光（跟随鼠标） */}
           {enableBorderGlow && (
@@ -135,7 +135,7 @@ const MagicBento = ({
             stars[i]?.map((s, j) => (
               <motion.span
                 key={j}
-                className="pointer-events-none absolute rounded-full bg-white"
+                className="pointer-events-none absolute rounded-full bg-[var(--museum-fg)]"
                 style={{ left: s.left, top: s.top, width: s.size, height: s.size }}
                 animate={{ opacity: [0.12, 0.85, 0.12] }}
                 transition={{ duration: s.duration, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
@@ -155,14 +155,14 @@ const MagicBento = ({
           ))}
 
           <div className="relative z-10 flex flex-col h-full">
-            <div className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#425270] bg-[#202b46] text-[#d4a853]">
+            <div className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--museum-line)] bg-[var(--museum-panel-raised)] text-[#d4a853]">
               {card.icon}
             </div>
             {card.label && (
-              <span className="mb-1 text-[10px] uppercase tracking-wider text-[#9aa8bf]">{card.label}</span>
+              <span className="mb-1 text-[10px] uppercase tracking-wider text-[var(--museum-muted)]">{card.label}</span>
             )}
-            <h3 className="text-base font-semibold text-white mb-1 text-balance">{card.title}</h3>
-            <p className="flex-1 text-sm leading-relaxed text-[#b8c2d4] text-pretty">{card.description}</p>
+            <h3 className="mb-1 text-base font-semibold text-[var(--museum-fg)] text-balance">{card.title}</h3>
+            <p className="flex-1 text-sm leading-relaxed text-[var(--museum-muted)] text-pretty">{card.description}</p>
           </div>
         </motion.button>
       ))}

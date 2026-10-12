@@ -28,9 +28,10 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     { to: '/', label: t('nav.home') },
     { to: '/explore', label: t('nav.map') },
     { to: '/encyclopedia', label: t('nav.encyclopedia') },
-    { to: '/compare', label: '品种对比' },
     { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
+    // 对比是浏览流程的收束动作，放在主导航末尾，避免抢占探索入口。
+    { to: '/compare', label: '品种对比' },
   ];
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   useEffect(() => { setMenuOpen(false); setFilterOpen(false); }, [pathname]);

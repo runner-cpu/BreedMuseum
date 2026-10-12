@@ -218,7 +218,7 @@ test('mobile menu exposes the three primary destinations and closes by keyboard'
   await page.goto('/#/');
   await page.getByRole('button', { name: '打开导航菜单' }).click();
   const menu = page.getByRole('dialog');
-  // 导航为 6 项：首页 / 地图探索 / 品种百科 / 品种对比 / 数据看板 / 互动厅
+  // 导航为 6 项：首页 / 地图探索 / 品种百科 / 数据看板 / 互动厅 / 品种对比
   await expect(menu.getByRole('navigation').getByRole('link')).toHaveCount(6);
   await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
 });

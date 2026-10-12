@@ -87,7 +87,7 @@
   }
 
   .dark {
-    /* 深色模式沿用墨绿与暖纸色，保持品牌一致。 */
+    /* 深色模式：深墨绿舞台 + 暖金强调，避免旧版偏蓝的海军蓝观感。 */
     --background: 155 25% 10%;
     --foreground: 0 0% 92%;
     --card: 155 22% 14%;
@@ -130,27 +130,27 @@
     --shadow-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
 
     /* 展厅令牌（深色）——与 stagePalette.ts 的 DARK_STAGE 逐字段对应 */
-    --stage: #0a100e;
-    --stage-panel: #121a16;
-    --stage-soft: #0e1512;
-    --stage-border: #2a3831;
-    --stage-fg: #eef2ec;
-    --stage-muted: #a8b6ac;
+    --stage: #0b1712;
+    --stage-panel: #12251c;
+    --stage-soft: #0f1f18;
+    --stage-border: #345244;
+    --stage-fg: #eff4ec;
+    --stage-muted: #afc1b3;
     --stage-gold: #d4a853;
-    --stage-rgb: 10 16 14;
-    --stage-panel-rgb: 18 26 22;
-    --stage-soft-rgb: 14 21 18;
-    --stage-border-rgb: 42 56 49;
-    --stage-fg-rgb: 238 242 236;
-    --stage-muted-rgb: 168 182 172;
+    --stage-rgb: 11 23 18;
+    --stage-panel-rgb: 18 37 28;
+    --stage-soft-rgb: 15 31 24;
+    --stage-border-rgb: 52 82 68;
+    --stage-fg-rgb: 239 244 236;
+    --stage-muted-rgb: 175 193 179;
     --stage-gold-rgb: 212 168 83;
 
-    --museum-bg: #0a0b1b;
-    --museum-panel: #11182c;
-    --museum-panel-raised: #171f38;
-    --museum-line: #34425f;
-    --museum-fg: #edf2fb;
-    --museum-muted: #aab5c9;
+    --museum-bg: #0b1712;
+    --museum-panel: #12251c;
+    --museum-panel-raised: #1a3428;
+    --museum-line: #345244;
+    --museum-fg: #eff4ec;
+    --museum-muted: #afc1b3;
 
     color-scheme: dark;
   }
@@ -212,7 +212,7 @@
 }
 
 @layer components {
-  /* 参考展厅的暗海军蓝信息架构：首页独立于档案页的宣纸舞台，
+  /* 参考展厅的深墨绿信息架构：首页独立于档案页的宣纸舞台，
      让地图、统计和互动模块形成一条连续的沉浸式叙事。 */
   .museum-home {
     --museum-night: var(--museum-bg);
@@ -236,7 +236,7 @@
     z-index: -1;
     pointer-events: none;
     opacity: 0.32;
-    background-image: radial-gradient(circle, rgb(193 208 236 / 0.45) 0 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, rgb(var(--stage-fg-rgb) / 0.28) 0 1px, transparent 1.5px);
     background-size: 76px 76px;
     mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
   }
@@ -366,14 +366,15 @@
     }
 
     .museum-map-workbench {
-      grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
+      /* 地图是探索页的主角；详情卡保留稳定阅读宽度即可。 */
+      grid-template-columns: minmax(0, 3.5fr) minmax(19rem, 1fr);
       align-items: stretch;
     }
   }
 
   @media (min-width: 1280px) {
     .museum-map-workbench {
-      grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
+      grid-template-columns: minmax(0, 3.5fr) minmax(19rem, 1fr);
       align-items: stretch;
     }
 
@@ -397,14 +398,17 @@
 
   /* 桌面端探索页保持一屏展厅构图，地图不会因页面滚动被推离视线。 */
   @media (min-width: 768px) {
-    .museum-explore-page,
-    .museum-explore-page .museum-home-inner {
-      height: 100%;
+    /* Layout 的 header/footer 约占 7rem；给探索页一个明确舞台高度，
+       让地图在宽屏上获得足够的纵向空间，避免 SVG 被压成小缩略图。 */
+    .museum-explore-page {
+      height: calc(100dvh - 7rem);
       min-height: 0;
       overflow: hidden;
     }
 
     .museum-explore-page .museum-home-inner {
+      height: 100%;
+      min-height: 0;
       display: flex;
       flex-direction: column;
     }

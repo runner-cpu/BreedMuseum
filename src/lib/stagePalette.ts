@@ -50,19 +50,21 @@ export interface StagePalette {
 }
 
 export const DARK_STAGE: StagePalette = {
-  bg: '#0a100e',
-  panel: '#121a16',
-  soft: '#0e1512',
-  border: '#2a3831',
-  fg: '#eef2ec',
-  muted: '#a8b6ac',
+  // 深墨绿舞台：把旧版偏蓝的夜色统一到馆藏的墨绿品牌色，
+  // 同时保留足够的明度层级，让地图与卡片在暗处依然分开。
+  bg: '#0b1712',
+  panel: '#12251c',
+  soft: '#0f1f18',
+  border: '#345244',
+  fg: '#eff4ec',
+  muted: '#afc1b3',
   gold: '#d4a853',
   goldOnLight: '#d4a853',
   province: '#2c4636',
   provinceEmissive: '#40705a',
   provinceEdge: '#86b79a',
   endangeredRing: '#d98a4a',
-  floor: '#131c18',
+  floor: '#1a3024',
   fogDensity: 0.032,
   shadow: '#050807',
   beamBlending: 'additive',
