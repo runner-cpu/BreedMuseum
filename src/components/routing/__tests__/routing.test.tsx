@@ -26,8 +26,8 @@ test('legacy routes redirect to the museum foyer instead of 404', async () => {
 test('explore route and map alias render the standalone map page', async () => {
   for (const path of ['/explore', '/map']) {
     const view = renderAppAt(path);
-    expect(await screen.findByRole('heading', { name: '地图探索' })).toBeVisible();
-    expect(screen.getByRole('tablist', { name: '地图镜头' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: '地图探索' })).toBeInTheDocument();
+    expect(screen.getByRole('tablist', { name: '按畜种筛选' })).toBeVisible();
     view.unmount();
   }
 });

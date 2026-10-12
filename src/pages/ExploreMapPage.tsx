@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChinaMap, type LensId } from '@/components/ChinaMap';
@@ -79,23 +79,20 @@ export default function ExploreMapPage() {
 
   return (
     <div className="museum-home museum-explore-page min-h-full text-[var(--museum-fg)]">
-      <div className="museum-home-inner px-3 py-3 sm:px-5 sm:py-4 lg:px-6">
-        <header className="mb-3 flex flex-wrap items-center gap-3 border-b border-[var(--museum-line)] pb-3">
-          <Link to="/" className="museum-link inline-flex" aria-label="返回首页"><ArrowLeft className="h-4 w-4" />返回首页</Link>
-          <div className="min-w-0 flex-1">
-            <p className="museum-eyebrow">EXPLORE · 光图观测站</p>
-            <h1 className="mt-1 truncate font-serif text-xl tracking-[-0.02em] text-[var(--museum-fg)] sm:text-2xl">地图探索</h1>
-          </div>
-        </header>
+      <div className="museum-home-inner museum-map-stage px-2 py-2 sm:px-3 sm:py-3 lg:px-4">
+        <h1 className="sr-only">地图探索</h1>
 
         <div className="museum-map-workbench museum-map-workbench--focus">
           <section className="museum-map-card museum-map-card--focus" aria-labelledby="explore-map-title">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--museum-line)] bg-[var(--museum-panel)] px-3 py-2">
-              <div className="flex min-w-0 items-center gap-3"><h2 id="explore-map-title" className="shrink-0 font-serif text-base text-[var(--museum-fg)] sm:text-lg">全国品种分布</h2><span className="hidden font-mono text-xs text-[var(--museum-muted)] sm:inline">{summary.mappable.toLocaleString()} 条 · {summary.provinces} 省</span></div>
-              <div className="museum-map-category-tabs" role="tablist" aria-label="地图镜头"><button type="button" role="tab" aria-selected={lens === 'all'} onClick={() => { setLens('all'); setCategory(null); }} className={`min-h-8 rounded-md px-2.5 text-xs ${lens === 'all' ? 'bg-[#d4a853] font-semibold text-[#1a2032]' : 'museum-ghost-hover text-[var(--museum-muted)]'}`}>全部</button>{categories.map((item) => <button key={item} type="button" role="tab" aria-selected={lens === 'category' && category === item} onClick={() => { setCategory(item); setLens('category'); }} className={`min-h-8 rounded-md px-2.5 text-xs ${lens === 'category' && category === item ? 'bg-[#d4a853] font-semibold text-[#1a2032]' : 'museum-ghost-hover text-[var(--museum-muted)]'}`}>{item}</button>)}</div>
+            <h2 id="explore-map-title" className="sr-only">全国品种分布地图</h2>
+            <div className="museum-map-filterbar" role="toolbar" aria-label="地图筛选">
+              <div className="museum-map-category-tabs" role="tablist" aria-label="按畜种筛选">
+                <button type="button" role="tab" aria-selected={lens === 'all'} onClick={() => { setLens('all'); setCategory(null); }} className={`museum-map-filter ${lens === 'all' ? 'is-active' : ''}`}>全部</button>
+                {categories.map((item) => <button key={item} type="button" role="tab" aria-selected={lens === 'category' && category === item} onClick={() => { setCategory(item); setLens('category'); }} className={`museum-map-filter ${lens === 'category' && category === item ? 'is-active' : ''}`}>{item}</button>)}
+              </div>
+              <span className="museum-map-filter-count" aria-live="polite">{summary.mappable.toLocaleString()} 条落点</span>
             </div>
             <div className="museum-map-canvas"><ChinaMap breeds={breeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] px-3 py-2 text-[11px] text-[var(--museum-muted)]"><span>{summary.clusters} 个产区簇 · {summary.mappable} 条落点记录</span><span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#d4a853]" />点击圆点查看品种</span></div>
           </section>
 
           <aside className={`museum-detail museum-detail--compact ${mobileDetailOpen ? 'is-open' : ''}`} aria-label="当前品种详情">
@@ -114,7 +111,7 @@ export default function ExploreMapPage() {
           </aside>
         </div>
 
-        <footer className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--museum-line)] pt-2 text-[11px] text-[var(--museum-muted)]"><div className="flex flex-wrap items-center gap-2"><VerificationLegend /><span>{COLLECTION_SUMMARY.unverifiedProvince} 条产区待核验，暂不落点</span></div><Link to="/dashboard" className="museum-link text-xs">数据口径 <ArrowRight className="h-3.5 w-3.5" /></Link></footer>
+        <footer className="sr-only"><VerificationLegend /><span>{COLLECTION_SUMMARY.unverifiedProvince} 条产区待核验，暂不落点</span><Link to="/dashboard">数据口径</Link></footer>
       </div>
     </div>
   );

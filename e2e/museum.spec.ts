@@ -100,13 +100,13 @@ test('home introduces the museum and guides visitors into exploration', async ({
 
 test('explore route exposes category tabs and a focused map', async ({ page }) => {
   await page.goto('/#/explore');
-  await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '全国品种分布' })).toBeVisible();
-  await expect(page.getByRole('tablist', { name: '地图镜头' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '地图探索' })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: '全国品种分布地图' })).toHaveCount(1);
+  await expect(page.getByRole('tablist', { name: '按畜种筛选' })).toBeVisible();
   await expect(page.getByRole('tab')).toHaveCount(16);
   await page.getByRole('tab', { name: '鸡' }).click();
   await expect(page.getByRole('tab', { name: '鸡' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByText(/个产区簇 ·/)).toBeVisible();
+  await expect(page.getByText(/条落点/)).toBeVisible();
 });
 
 test('explore category tabs keep the map focused', async ({ page }) => {

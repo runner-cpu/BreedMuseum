@@ -329,6 +329,58 @@
     padding-bottom: 0.15rem;
   }
 
+  /* 原站式浮动筛选：控件叠在地图上方，地图本身保持连续完整。 */
+  .museum-map-filterbar {
+    position: absolute;
+    top: 0.85rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    pointer-events: none;
+  }
+
+  .museum-map-filterbar > * { pointer-events: auto; }
+
+  .museum-map-filterbar .museum-map-category-tabs {
+    max-width: min(78vw, 56rem);
+    padding: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--museum-line) 88%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--museum-panel) 88%, transparent);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.18);
+    backdrop-filter: blur(12px);
+  }
+
+  .museum-map-filter {
+    min-height: 2rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    color: var(--museum-muted);
+    font-size: 0.72rem;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+
+  .museum-map-filter:hover { color: var(--museum-fg); background: rgb(255 255 255 / 0.08); }
+  .museum-map-filter.is-active { background: #d4a853; color: #1a2032; font-weight: 700; box-shadow: 0 3px 12px rgb(212 168 83 / 0.25); }
+
+  .museum-map-filter-count {
+    flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--museum-line) 88%, transparent);
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+    background: color-mix(in srgb, var(--museum-panel) 88%, transparent);
+    color: var(--museum-muted);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.65rem;
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
+    backdrop-filter: blur(12px);
+  }
+
   .museum-breed-drawer {
     animation: museum-drawer-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -357,6 +409,9 @@
     min-height: min(68vh, 46rem);
     padding: 0.2rem;
   }
+
+  .museum-map-card--focus { position: relative; }
+  .museum-map-card--focus .museum-map-canvas svg { max-height: calc(100dvh - 8rem); }
 
   .museum-detail--compact {
     padding: 0.75rem;
@@ -491,6 +546,11 @@
     .museum-category-rail > * { min-width: 8.5rem; scroll-snap-align: start; }
 
     .museum-map-category-tabs { max-width: 100%; }
+
+    .museum-map-filterbar { top: 0.65rem; left: 0.65rem; right: 0.65rem; align-items: flex-start; }
+    .museum-map-filterbar .museum-map-category-tabs { max-width: calc(100% - 5.6rem); }
+    .museum-map-filter { padding-inline: 0.6rem; }
+    .museum-map-filter-count { margin-top: 0.3rem; padding-inline: 0.55rem; }
 
     .museum-breed-drawer {
       height: min(88dvh, 46rem);
