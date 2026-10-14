@@ -79,7 +79,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     </Sheet>
     <div className="flex flex-1 min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
-        <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 min-h-0 overflow-y-auto outline-none"><div className="page-fade h-full">{children}</div></main>
+        <main id="main-content" tabIndex={-1} className={'flex-1 min-w-0 min-h-0 overflow-y-auto outline-none ' + (pathname === '/' ? 'relative' : '')}><div className="page-fade h-full">{children}</div></main>
       </div>
     </div>
     <LocalAssistant />

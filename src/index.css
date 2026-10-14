@@ -530,21 +530,6 @@
       padding-block: 3.5rem;
     }
 
-    .museum-featured-rail,
-    .museum-category-rail {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      padding-bottom: 0.35rem;
-    }
-
-    .museum-featured-rail::-webkit-scrollbar,
-    .museum-category-rail::-webkit-scrollbar { display: none; }
-
-    .museum-featured-card { min-width: min(72vw, 18rem); scroll-snap-align: start; }
-    .museum-category-rail > * { min-width: 8.5rem; scroll-snap-align: start; }
-
     .museum-map-category-tabs { max-width: 100%; }
 
     .museum-map-filterbar { top: 0.65rem; left: 0.65rem; right: 0.65rem; align-items: flex-start; }
@@ -659,19 +644,4 @@
     }
   }
 
-  /* 光标聚光地图：聚光遮罩，跟随光标揭示彩色地图 */
-  .spotlight-reveal {
-    -webkit-mask-image: radial-gradient(
-      circle 240px at var(--mx, 50%) var(--my, 50%),
-      #000 0%,
-      rgba(0, 0, 0, 0.4) 55%,
-      transparent 80%
-    );
-    mask-image: radial-gradient(
-      circle 240px at var(--mx, 50%) var(--my, 50%),
-      #000 0%,
-      rgba(0, 0, 0, 0.4) 55%,
-      transparent 80%
-    );
-  }
 }

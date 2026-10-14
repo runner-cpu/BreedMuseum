@@ -1,6 +1,13 @@
 import { ArrowRight, Search } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
-import { useCallback, useRef, useState } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from 'motion/react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/contexts/AppSettings';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
@@ -44,22 +51,45 @@ const SpotlightHero = ({
 }: SpotlightHeroProps) => {
   const { t, isDark } = useSettings();
   const reduceMotion = useReducedMotion();
-  const [pos, setPos] = useState({ x: '50%', y: '50%' });
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const springX = useSpring(pointerX, { stiffness: 130, damping: 24, mass: 0.35 });
+  const springY = useSpring(pointerY, { stiffness: 130, damping: 24, mass: 0.35 });
   const [q, setQ] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    scrollContainerRef.current = ref.current?.closest('main') ?? null;
+  }, []);
+  const { scrollYProgress } = useScroll({ target: ref, container: scrollContainerRef, offset: ['start start', 'end start'] });
+  const mapScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const mapY = useTransform(scrollYProgress, [0, 1], [0, -46]);
+  const mapOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.68]);
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -34]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.18]);
+  const spotlightX = useTransform(springX, (value) => value === 0 ? '50%' : `${value}px`);
+  const spotlightY = useTransform(springY, (value) => value === 0 ? '50%' : `${value}px`);
 
-  const onMove = useCallback((e: React.MouseEvent) => {
+  const onMove = useCallback((e: React.PointerEvent) => {
     const el = ref.current;
-    if (!el || reduceMotion) return;
+    if (!el || reduceMotion || e.pointerType !== 'mouse') return;
     const r = el.getBoundingClientRect();
-    setPos({ x: `${e.clientX - r.left}px`, y: `${e.clientY - r.top}px` });
+    pointerX.set(e.clientX - r.left);
+    pointerY.set(e.clientY - r.top);
+  }, [reduceMotion]);
+
+  const onLeave = useCallback(() => {
+    if (reduceMotion || !ref.current) return;
+    pointerX.set(ref.current.clientWidth * 0.5);
+    pointerY.set(ref.current.clientHeight * 0.5);
   }, [reduceMotion]);
 
   return (
     <section
       ref={ref}
-      onMouseMove={onMove}
-      className="relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      className="spotlight-hero relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
       style={{ background: isDark ? 'var(--museum-bg)' : '#f1ece0' }}
     >
       {/* 深墨绿地图舞台：让中国轮廓成为首屏主角。 */}
@@ -67,7 +97,11 @@ const SpotlightHero = ({
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent 1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
-      <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ scale: reduceMotion ? 1 : mapScale, y: reduceMotion ? 0 : mapY, opacity: reduceMotion ? 1 : mapOpacity }}
+      >
         <svg
           viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
           className="w-full h-full opacity-70"
@@ -77,13 +111,13 @@ const SpotlightHero = ({
             <path key={i} d={d} fill={isDark ? 'rgb(var(--stage-fg-rgb) / .07)' : 'rgba(84,115,94,0.08)'} stroke={isDark ? 'rgb(var(--stage-fg-rgb) / .5)' : 'rgba(84,115,94,0.34)'} strokeWidth="0.7" />
           ))}
         </svg>
-      </div>
+      </motion.div>
 
       {/* 聚光图：彩色填充地图，随光标揭示 */}
-      <div
+      <motion.div
         aria-hidden="true"
         className="spotlight-reveal absolute inset-0 flex items-center justify-center"
-        style={{ '--mx': pos.x, '--my': pos.y } as React.CSSProperties}
+        style={{ '--mx': spotlightX, '--my': spotlightY, scale: reduceMotion ? 1 : mapScale, y: reduceMotion ? 0 : mapY } as React.CSSProperties}
       >
         <svg
           viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
@@ -94,10 +128,13 @@ const SpotlightHero = ({
             <path key={i} d={d} fill={colorFor(i)} stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" opacity="0.92" />
           ))}
         </svg>
-      </div>
+      </motion.div>
 
       {/* 中央标题与入口 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+      <motion.div
+        className="spotlight-hero-copy absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
+        style={{ y: reduceMotion ? 0 : titleY, opacity: reduceMotion ? 1 : titleOpacity }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,8 +152,8 @@ const SpotlightHero = ({
           className="font-serif font-bold text-balance leading-tight"
           style={{ color: isDark ? 'var(--museum-fg)' : '#173b2c', textShadow: isDark ? '0 2px 24px rgba(0,0,0,.65)' : '0 2px 18px rgba(255,255,255,.75)' }}
         >
-          <span className="block text-3xl md:text-6xl">{titleTop}</span>
-          <span className="block text-3xl md:text-6xl bg-gradient-to-r from-[#d4a853] via-[#e8c98a] to-[#d4a853] bg-clip-text text-transparent">
+          <span className="block whitespace-nowrap text-3xl md:text-6xl">{titleTop}</span>
+          <span className="block whitespace-nowrap text-3xl md:text-6xl bg-gradient-to-r from-[#a66c12] via-[#d5a94e] to-[#a66c12] bg-clip-text text-transparent">
             {titleBottom}
           </span>
         </motion.h1>
@@ -166,7 +203,7 @@ const SpotlightHero = ({
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* 底部左侧描述 */}
       <div className="absolute bottom-6 left-6 z-20 max-w-xs md:bottom-10 md:left-10">
