@@ -49,7 +49,8 @@ const SpotlightHero = ({
   onExplore,
   onSearch,
 }: SpotlightHeroProps) => {
-  const { t, isDark } = useSettings();
+  const { t } = useSettings();
+  const heroIsDark = true;
   const reduceMotion = useReducedMotion();
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -90,10 +91,10 @@ const SpotlightHero = ({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className="spotlight-hero relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
-      style={{ background: isDark ? 'var(--museum-bg)' : '#f1ece0' }}
+      style={{ background: '#080a1b' }}
     >
       {/* 深墨绿地图舞台：让中国轮廓成为首屏主角。 */}
-      <div aria-hidden="true" className="absolute inset-0" style={{ background: isDark ? 'radial-gradient(circle at 52% 45%,rgba(75,135,103,.26),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.16),transparent 24%),linear-gradient(180deg,var(--museum-panel),var(--museum-bg) 60%,var(--museum-bg))' : 'radial-gradient(circle at 52% 45%,rgba(116,145,120,.24),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.18),transparent 24%),linear-gradient(180deg,#f7f2e8,#e9e2d2 60%,#f1ece0)' }} />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: heroIsDark ? 'radial-gradient(circle at 52% 45%,rgba(75,135,103,.26),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.16),transparent 24%),linear-gradient(180deg,#111329,#080a1b 60%,#080a1b)' : undefined }} />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent 1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
@@ -108,7 +109,7 @@ const SpotlightHero = ({
           preserveAspectRatio="xMidYMid meet"
         >
           {Object.values(provincePaths).map((d, i) => (
-            <path key={i} d={d} fill={isDark ? 'rgb(var(--stage-fg-rgb) / .07)' : 'rgba(84,115,94,0.08)'} stroke={isDark ? 'rgb(var(--stage-fg-rgb) / .5)' : 'rgba(84,115,94,0.34)'} strokeWidth="0.7" />
+            <path key={i} d={d} fill="rgba(116,128,180,0.07)" stroke="rgba(116,128,180,0.42)" strokeWidth="0.7" />
           ))}
         </svg>
       </motion.div>
@@ -150,7 +151,7 @@ const SpotlightHero = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="font-serif font-bold text-balance leading-tight"
-          style={{ color: isDark ? 'var(--museum-fg)' : '#173b2c', textShadow: isDark ? '0 2px 24px rgba(0,0,0,.65)' : '0 2px 18px rgba(255,255,255,.75)' }}
+          style={{ color: '#f5f4ee', textShadow: '0 2px 24px rgba(0,0,0,.65)' }}
         >
           <span className="block whitespace-nowrap text-3xl md:text-6xl">{titleTop}</span>
           <span className="block whitespace-nowrap text-3xl md:text-6xl bg-gradient-to-r from-[#a66c12] via-[#d5a94e] to-[#a66c12] bg-clip-text text-transparent">
@@ -167,9 +168,9 @@ const SpotlightHero = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
           className="mt-8 w-full max-w-md flex items-center gap-2 rounded-full px-3 py-1.5 backdrop-blur"
-          style={{ background: isDark ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.68)', border: `1px solid ${isDark ? 'rgba(255,255,255,.2)' : 'rgba(23,59,44,.2)'}` }}
+          style={{ background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)' }}
         >
-          <Search className="w-4 h-4 shrink-0" style={{ color: isDark ? 'rgb(var(--stage-muted-rgb) / .8)' : 'rgba(23,59,44,.55)' }} />
+          <Search className="w-4 h-4 shrink-0 text-white/60" />
           <input
             type="search"
             aria-label={t('hero.searchAria')}
@@ -177,7 +178,7 @@ const SpotlightHero = ({
             onChange={(e) => setQ(e.target.value)}
             placeholder={searchPh}
             className="h-11 flex-1 min-w-0 bg-transparent text-sm outline-none px-1"
-            style={{ color: isDark ? 'var(--museum-fg)' : '#173b2c' }}
+            style={{ color: '#f5f4ee' }}
           />
           <Button
             type="submit"
@@ -212,7 +213,7 @@ const SpotlightHero = ({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
           className="text-xs leading-relaxed text-pretty md:text-sm"
-          style={{ color: isDark ? 'var(--museum-muted)' : '#365544' }}
+          style={{ color: 'rgba(245,244,238,.72)' }}
         >
           {descLeft}
         </motion.p>
@@ -225,7 +226,7 @@ const SpotlightHero = ({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
           className="text-xs leading-relaxed text-pretty md:text-sm"
-          style={{ color: isDark ? 'var(--museum-muted)' : '#365544' }}
+          style={{ color: 'rgba(245,244,238,.72)' }}
         >
           {descRight}
         </motion.p>

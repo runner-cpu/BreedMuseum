@@ -3,8 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChinaMap, type LensId } from '@/components/ChinaMap';
 import { BreedImage, hasBreedImage } from '@/components/common/BreedImage';
+import { CategorySidebar } from '@/components/common/CategorySidebar';
 import { VerificationLegend } from '@/components/common/VerificationBadge';
-import { useSettings } from '@/contexts/AppSettings';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { getBreedById } from '@/data/breedLookup';
 import { type Breed } from '@/data/breeds';
@@ -30,7 +30,6 @@ const cardBreedFor = (breed: Breed | null | undefined): Breed | null => {
  * 所有点位均链接到馆藏卷宗，镜头只改变筛选口径，不改变原始记录。
  */
 export default function ExploreMapPage() {
-  const { isDark } = useSettings();
   const { isInCompare, toggleCompare } = useMuseum();
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -105,22 +104,23 @@ export default function ExploreMapPage() {
         <h1 className="sr-only">地图探索</h1>
 
         <div className="museum-map-workbench museum-map-workbench--focus">
+          <CategorySidebar
+            selected={category}
+            onSelect={(nextCategory) => {
+              setCategory(nextCategory);
+              setLens(nextCategory ? 'category' : 'all');
+              setProvince(null);
+              setMobileDetailOpen(false);
+            }}
+          />
           <section className="museum-map-card museum-map-card--focus" aria-labelledby="explore-map-title">
             <div className="museum-map-heading">
               <div>
-                <p className="museum-eyebrow">COLLECTION MAP</p>
-                <h2 id="explore-map-title" className="font-serif text-xl text-[var(--museum-fg)] sm:text-2xl">全国品种分布地图</h2>
+                <h2 id="explore-map-title" className="font-serif text-xl text-[var(--museum-fg)] sm:text-2xl">品种分布地图</h2>
               </div>
-              <span className="museum-map-total">{summary.mappable.toLocaleString()} 个品种</span>
+              <span className="museum-map-total">{summary.mappable.toLocaleString()} 个品种 · {summary.mappable.toLocaleString()} 条落点</span>
             </div>
-            <div className="museum-map-filterbar" role="toolbar" aria-label="地图筛选">
-              <div className="museum-map-category-tabs" role="tablist" aria-label="按畜种筛选">
-                <button type="button" role="tab" aria-selected={lens === 'all'} onClick={() => { setLens('all'); setCategory(null); }} className={`museum-map-filter ${lens === 'all' ? 'is-active' : ''}`}>全部</button>
-                {categories.map((item) => <button key={item} type="button" role="tab" aria-selected={lens === 'category' && category === item} onClick={() => { setCategory(item); setLens('category'); }} className={`museum-map-filter ${lens === 'category' && category === item ? 'is-active' : ''}`}>{item}</button>)}
-              </div>
-              <span className="museum-map-filter-count" aria-live="polite">{summary.mappable.toLocaleString()} 条落点</span>
-            </div>
-            <div className="museum-map-canvas"><ChinaMap breeds={visibleBreeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
+            <div className="museum-map-canvas"><ChinaMap breeds={visibleBreeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} showProvinceLabels={false} showCoordinateNote={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
           </section>
 
           <aside className={`museum-detail museum-detail--compact ${mobileDetailOpen ? 'is-open' : ''}`} aria-label="当前品种详情">

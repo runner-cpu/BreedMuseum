@@ -83,25 +83,24 @@ test('dashboard route exposes interactive collection charts', async ({ page }) =
 test('home introduces the museum and guides visitors into exploration', async ({ page }) => {
   await page.goto('/#/');
   await expect(page.getByRole('heading', { name: /中国地方畜禽.*品种数字博物馆/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '四个数字，认识这座馆' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '选择一种进入方式' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '从一张品种卡开始' })).toBeVisible();
-  // The foyer's primary CTA is labelled "开始探索".  It should take visitors
-  // to the dedicated map instead of relying on the removed home overview block.
+  await expect(page.getByRole('heading', { name: '四个数字，认识这座馆' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '选择一种进入方式' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '从一张品种卡开始' })).toHaveCount(0);
+  await expect(page.getByRole('searchbox', { name: '搜索馆藏品种' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '搜索', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '开始探索' }).click();
   await expect(page).toHaveURL(/#\/explore$/);
   await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(/#\/$/);
-  // The old long-form about/collection panel was removed from the foyer.
   await expect(page.getByRole('heading', { name: '把名录里的名字，重新放回土地', exact: true })).toHaveCount(0);
-  await expect(page.getByText(/条含图记录已在本地待命/)).toBeVisible();
+  await expect(page.getByText('收录全国1000+畜禽品种')).toBeVisible();
 });
 
 test('explore route exposes category tabs and a focused map', async ({ page }) => {
   await page.goto('/#/explore');
   await expect(page.getByRole('heading', { name: '地图探索' })).toHaveCount(1);
-  await expect(page.getByRole('heading', { name: '全国品种分布地图' })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: '品种分布地图' })).toHaveCount(1);
   await expect(page.getByRole('tablist', { name: '按畜种筛选' })).toBeVisible();
   await expect(page.getByRole('tab')).toHaveCount(16);
   await page.getByRole('tab', { name: '鸡' }).click();

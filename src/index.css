@@ -396,6 +396,42 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .museum-encyclopedia-layout {
+    display: flex;
+    min-height: calc(100dvh - 7rem);
+  }
+
+  .museum-category-sidebar {
+    display: flex;
+    flex: 0 0 11.25rem;
+    flex-direction: column;
+    gap: 0.2rem;
+    overflow-y: auto;
+    border-right: 1px solid var(--stage-border);
+    background: color-mix(in srgb, var(--stage-panel) 88%, transparent);
+    padding: 0.75rem 0.55rem;
+  }
+
+  .museum-category-sidebar-item {
+    display: grid;
+    min-height: 4.1rem;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 0.18rem;
+    border-radius: 0.25rem;
+    padding: 0.48rem 0.25rem;
+    color: var(--stage-muted);
+    font-family: 'Source Han Serif CN', 'Noto Serif SC', SimSun, serif;
+    font-size: 0.75rem;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+
+  .museum-category-sidebar-item:hover { color: var(--stage-fg); background: var(--stage-soft); }
+  .museum-category-sidebar-item.is-active { color: var(--stage-fg); background: var(--stage-gold); box-shadow: 0 0.35rem 0.9rem rgb(var(--stage-gold-rgb) / 0.16); }
+  .museum-category-sidebar-icon { display: inline-flex; color: currentColor; opacity: 0.8; }
+  .museum-category-sidebar-item.is-active .museum-category-sidebar-icon { opacity: 1; }
+  .museum-category-sidebar-item small { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.56rem; opacity: 0.72; }
+
   /* 探索页以地图为主角：控制条与详情均围绕主画布压缩占位。 */
   .museum-map-workbench--focus {
     gap: 0.5rem;
@@ -452,14 +488,16 @@
 
     .museum-map-workbench {
       /* 地图是探索页的主角；详情卡保留稳定阅读宽度即可。 */
-      grid-template-columns: minmax(0, 3.5fr) minmax(19rem, 1fr);
+      grid-template-columns: 11.25rem minmax(0, 3.5fr) minmax(19rem, 1fr);
       align-items: stretch;
     }
+
+    .museum-category-sidebar { min-height: 0; }
   }
 
   @media (min-width: 1280px) {
     .museum-map-workbench {
-      grid-template-columns: minmax(0, 3.5fr) minmax(19rem, 1fr);
+      grid-template-columns: 11.25rem minmax(0, 3.5fr) minmax(20rem, 1fr);
       align-items: stretch;
     }
 
@@ -532,6 +570,22 @@
 
     .museum-map-category-tabs { max-width: 100%; }
 
+    .museum-encyclopedia-layout { display: block; }
+    .museum-category-sidebar {
+      flex-direction: row;
+      gap: 0.35rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-right: 0;
+      border-bottom: 1px solid var(--stage-border);
+      padding: 0.55rem;
+    }
+    .museum-category-sidebar-item {
+      min-width: 4.25rem;
+      min-height: 3.75rem;
+      flex: 0 0 auto;
+    }
+
     .museum-map-filterbar { top: 0.65rem; left: 0.65rem; right: 0.65rem; align-items: flex-start; }
     .museum-map-filterbar .museum-map-category-tabs { max-width: calc(100% - 5.6rem); }
     .museum-map-filter { padding-inline: 0.6rem; }
@@ -576,6 +630,21 @@
       padding: 0 0.65rem;
       color: var(--museum-muted);
       font-size: 0.7rem;
+    }
+  }
+
+  /* The reference encyclopedia keeps a readable four-column measure beside
+     the category rail instead of stretching cards across the whole viewport. */
+  .museum-encyclopedia-main {
+    width: min(100%, 1100px);
+    flex: 0 1 1100px;
+    margin-inline: auto;
+  }
+
+  @media (max-width: 767px) {
+    .museum-encyclopedia-main {
+      width: auto;
+      flex-basis: auto;
     }
   }
 

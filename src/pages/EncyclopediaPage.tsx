@@ -1,10 +1,11 @@
-import { ArrowUpRight, Check, ChevronDown, ExternalLink, GitCompare, ImageOff, MapPin, Search, Shuffle, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronDown, ExternalLink, GitCompare, ImageOff, Map as MapIcon, MapPin, Search, Shuffle, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BreedImage } from '@/components/common/BreedImage';
+import { CategorySidebar } from '@/components/common/CategorySidebar';
 import { getBreedMetadata, getBreedSource } from '@/data/breedMetadata';
 import { matchesBreedQuery, sortBreedsByRelevance } from '@/data/breedSearch';
-import { categories, endangeredLevels, provinces } from '@/data/breeds';
+import { endangeredLevels, provinces } from '@/data/breeds';
 import { visibleBreeds } from '@/data/visibleBreeds';
 import { categoryColors } from '@/lib/categoryIcons';
 import { useMuseum } from '@/contexts/MuseumContext';
@@ -34,16 +35,14 @@ export default function EncyclopediaPage() {
       if (level !== '全部' && breed.endangered !== level) return false;
       return matchesBreedQuery(breed, query);
     });
-    return sortBreedsByRelevance(result, query).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+    return sortBreedsByRelevance(result, query);
   }, [category, level, province, query]);
 
   const visibleCards = filteredBreeds.slice(0, visibleCount);
-  const withImages = visibleBreeds.length;
   const hasFilters = Boolean(query.trim()) || category !== '全部' || province !== '全部' || level !== '全部';
   const selectedBreed = useMemo(() => selectedBreedId ? visibleBreeds.find((breed) => breed.id === selectedBreedId) ?? null : null, [selectedBreedId]);
   const selectedMetadata = selectedBreed ? getBreedMetadata(selectedBreed) : null;
   const selectedSources = selectedMetadata?.sourceIds.map((sourceId) => getBreedSource(sourceId)).filter(Boolean) ?? [];
-
   useEffect(() => {
     const next = params.get('breed');
     setSelectedBreedId(next);
@@ -94,17 +93,40 @@ export default function EncyclopediaPage() {
 
   return (
     <div className="min-h-full bg-stage text-stage-fg">
-      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
+      <div className="museum-encyclopedia-layout">
+        <CategorySidebar
+          selected={category === '全部' ? null : category}
+          onSelect={(nextCategory) => updateCategory(nextCategory ?? '全部')}
+        />
+        <div className="museum-encyclopedia-main min-w-0 px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
         <header className="mb-5 flex flex-col gap-4 border-b border-stage-border pb-5 lg:flex-row lg:items-end lg:justify-between">
-          <div><p className="font-mono text-[0.65rem] uppercase tracking-[0.28em] text-stage-gold">ENCYCLOPEDIA · 品种百科</p><h1 className="mt-2 font-serif text-3xl tracking-tight sm:text-4xl">从名字找到一条地方记忆</h1><p className="mt-2 max-w-[58ch] text-sm leading-6 text-stage-muted">{visibleBreeds.length.toLocaleString()} 条含图馆藏记录，按名称、产区与类别快速筛选。</p></div>
-          <div className="flex flex-wrap gap-2"><button type="button" onClick={randomBreed} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-stage-border px-3 text-sm text-stage-fg transition-colors hover:border-stage-gold"><Shuffle className="h-4 w-4" aria-hidden="true" />随机一条</button><Link to="/explore" className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-stage-gold px-3 text-sm font-semibold text-stage"><MapPin className="h-4 w-4" aria-hidden="true" />在地图探索</Link></div>
+          <h1 className="font-serif text-2xl tracking-tight">品种百科</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={randomBreed} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-stage-border px-3 text-sm text-stage-fg transition-colors hover:border-stage-gold hover:bg-stage-soft"><Shuffle className="h-4 w-4" aria-hidden="true" />随机一条</button>
+            <Link to="/explore" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-stage-gold px-3 text-sm text-stage font-medium transition-colors hover:brightness-105"><MapIcon className="h-4 w-4" aria-hidden="true" />在地图探索</Link>
+          </div>
         </header>
 
-        <div className="mb-5 rounded-xl border border-stage-gold/35 bg-stage-panel/80 px-4 py-3 text-xs leading-5 text-stage-muted"><strong className="font-medium text-stage-fg">图片说明</strong><span className="mx-2 text-stage-gold">·</span>百科只展示已登记图片的馆藏记录，缺图记录不会进入视觉浏览。</div>
-
         <section aria-label="百科筛选" className="mb-5 rounded-2xl border border-stage-border bg-stage-panel p-3 sm:p-4">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center"><label className="relative min-w-0 flex-1"><span className="sr-only">搜索品种名称、别名或描述</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stage-muted" aria-hidden="true" /><input value={query} onChange={(event) => updateQuery(event.target.value)} type="search" placeholder="搜索品种名称、别名或特征……" className="min-h-11 w-full rounded-lg border border-stage-border bg-stage-soft pl-10 pr-3 text-sm text-stage-fg outline-none transition-colors placeholder:text-stage-muted focus:border-stage-gold focus:ring-2 focus:ring-stage-gold/20" /></label><div className="flex flex-wrap items-center gap-2"><SlidersHorizontal className="h-4 w-4 text-stage-muted" aria-hidden="true" /><select aria-label="按类别筛选" value={category} onChange={(event) => updateCategory(event.target.value)} className="min-h-11 rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold"><option>全部</option>{categories.map((item) => <option key={item}>{item}</option>)}</select><select aria-label="按省份筛选" value={province} onChange={(event) => updateProvince(event.target.value)} className="min-h-11 max-w-[9rem] rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold"><option>全部</option>{provinces.map((item) => <option key={item}>{item}</option>)}</select><select aria-label="按濒危等级筛选" value={level} onChange={(event) => updateLevel(event.target.value)} className="min-h-11 rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold"><option>全部</option>{levels.map((item) => <option key={item}>{item}</option>)}</select>{hasFilters && <button type="button" onClick={clearFilters} aria-label="清空筛选" className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm text-stage-muted hover:text-stage-fg"><X className="h-4 w-4" />清空</button>}</div></div>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-stage-muted"><span>当前显示 <strong className="font-mono text-stage-fg">{filteredBreeds.length.toLocaleString()}</strong> 条</span><span>已有 {withImages.toLocaleString()} 条记录登记图片 · 已选 {compareIds.length} 条对比</span></div>
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">搜索品种名称、别名或描述</span>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stage-muted" aria-hidden="true" />
+              <input value={query} onChange={(event) => updateQuery(event.target.value)} type="search" placeholder="搜索品种名称、别名或特征……" className="min-h-11 w-full rounded-lg border border-stage-border bg-stage-soft pl-10 pr-3 text-sm text-stage-fg outline-none transition-colors placeholder:text-stage-muted focus:border-stage-gold focus:ring-2 focus:ring-stage-gold/20" />
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <select aria-label="按省份筛选" value={province} onChange={(event) => updateProvince(event.target.value)} className="min-h-11 max-w-[9rem] rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold">
+                <option value="全部">全部省份</option>
+                {provinces.map((item) => <option key={item}>{item}</option>)}
+              </select>
+              <select aria-label="按濒危等级筛选" value={level} onChange={(event) => updateLevel(event.target.value)} className="min-h-11 rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold">
+                <option value="全部">全部等级</option>
+                {levels.map((item) => <option key={item}>{item}</option>)}
+              </select>
+              {hasFilters && <button type="button" onClick={clearFilters} aria-label="清空筛选" className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm text-stage-muted hover:text-stage-fg"><X className="h-4 w-4" />清空</button>}
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-stage-muted"><span>当前显示 <strong className="font-mono text-stage-fg">{filteredBreeds.length.toLocaleString()}</strong> 条</span><span>已选 {compareIds.length} 条对比</span></div>
         </section>
 
         {visibleCards.length ? <>
@@ -125,6 +147,7 @@ export default function EncyclopediaPage() {
         </> : <div className="rounded-2xl border border-dashed border-stage-border bg-stage-panel px-6 py-20 text-center"><ImageOff className="mx-auto h-8 w-8 text-stage-muted" aria-hidden="true" /><h2 className="mt-3 font-serif text-xl">没有匹配的品种</h2><p className="mt-2 text-sm text-stage-muted">调整关键词或筛选条件，再试一次。</p><button type="button" onClick={clearFilters} className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-stage-gold px-4 text-sm font-semibold text-stage">查看全部品种</button></div>}
 
         <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-stage-border pt-4 text-xs text-stage-muted"><span>可浏览数据 {visibleBreeds.length.toLocaleString()} 条 · 名称与类别依据国家名录核对</span><Link to="/dashboard" className="underline underline-offset-4 hover:text-stage-fg">查看数据口径</Link></footer>
+        </div>
       </div>
 
       {selectedBreed && selectedMetadata && <div className="museum-drawer-backdrop fixed inset-0 z-50 flex items-end justify-end bg-black/60" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDetail(); }}><aside role="dialog" aria-modal="true" aria-label={`${selectedBreed.name}详情`} className="museum-breed-drawer ml-auto flex h-full w-full max-w-xl flex-col overflow-y-auto border-l border-stage-border bg-stage-panel shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-stage-border bg-stage-panel/95 px-5 py-3 backdrop-blur"><div><p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-stage-gold">BREED RECORD · 品种记录</p><p className="mt-1 text-xs text-stage-muted">{selectedBreed.province} · {selectedBreed.category}</p></div><button type="button" aria-label="关闭详情" onClick={closeDetail} className="rounded-full p-2 text-stage-muted hover:bg-stage-soft hover:text-stage-fg"><X className="h-5 w-5" /></button></div><div className="p-5 sm:p-7"><div className="relative overflow-hidden rounded-2xl bg-stage-soft"><BreedImage src={selectedBreed.image} alt={`${selectedBreed.name}图片`} category={selectedBreed.category} breedName={selectedBreed.name} fallbackMode="empty" className="aspect-[1.55] w-full" eager imgClassName="object-cover" /><div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/75 to-transparent p-4 pt-12"><div><h2 className="font-serif text-3xl text-white">{selectedBreed.name}</h2><p className="mt-1 text-xs text-white/70">{selectedBreed.englishName}</p></div><span className="rounded-md border border-white/30 bg-black/35 px-2 py-1 text-xs text-white">{selectedBreed.endangered}</span></div></div><div className="mt-4 flex flex-wrap items-center gap-2"><span className="rounded-md border border-stage-gold/50 bg-stage-gold/10 px-2.5 py-1 text-xs text-stage-gold">{selectedBreed.category}</span><span className="inline-flex items-center gap-1 text-xs text-stage-muted"><MapPin className="h-3.5 w-3.5" />{selectedBreed.province}</span><button type="button" onClick={() => toggleCompare(selectedBreed.id)} className={`ml-auto inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-3 text-xs transition-colors ${isInCompare(selectedBreed.id) ? 'border-stage-gold bg-stage-gold/15 text-stage-gold' : 'border-stage-border text-stage-muted hover:border-stage-gold hover:text-stage-fg'}`}><GitCompare className="h-4 w-4" />{isInCompare(selectedBreed.id) ? '已加入对比' : '加入对比'}</button></div><p className="mt-5 text-sm leading-7 text-stage-fg/90">{selectedBreed.story || '故事资料待补充。'}</p><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-stage-soft p-4"><p className="text-xs text-stage-muted">体貌特征</p><p className="mt-2 text-sm leading-6 text-stage-fg">{selectedBreed.appearance || '资料待补充'}</p></div><div className="rounded-xl bg-stage-soft p-4"><p className="text-xs text-stage-muted">生产性能</p><p className="mt-2 text-sm leading-6 text-stage-fg">{selectedBreed.performance || '资料待补充'}</p></div></div><details className="group mt-6 rounded-xl border border-stage-border bg-stage-soft"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-stage-fg"><span>更多资料</span><ChevronDown className="h-4 w-4 text-stage-muted transition-transform group-open:rotate-180" /></summary><div className="space-y-4 border-t border-stage-border px-4 py-4 text-xs leading-6 text-stage-muted"><div><p className="text-stage-fg">来源与核验</p><dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5"><dt>名录状态</dt><dd className="text-stage-fg">{selectedMetadata.officialName}</dd><dt>保护状态</dt><dd className="text-stage-fg">{selectedMetadata.protectionStatus === 'national-list' ? '国家级保护名录匹配' : selectedMetadata.protectionStatus === 'not-on-national-list' ? '未匹配国家级保护名录' : '待核验'}</dd><dt>核验时间</dt><dd className="text-stage-fg">{selectedMetadata.verifiedAt}</dd></dl></div><div><p className="text-stage-fg">雷达指标</p><div className="mt-2 grid grid-cols-2 gap-2">{Object.entries(selectedBreed.radar).map(([key, value]) => <span key={key} className="flex items-center justify-between rounded-md border border-stage-border px-2 py-1"><span>{key}</span><strong className="font-mono text-stage-fg">{value ?? '待核验'}</strong></span>)}</div></div>{selectedSources.length > 0 && <div><p className="text-stage-fg">资料来源</p><ul className="mt-2 space-y-1">{selectedSources.map((source) => source && <li key={source.id}>{source.url ? <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-stage-gold underline-offset-2 hover:underline">{source.title}<ExternalLink className="h-3 w-3" /></a> : source.title}</li>)}</ul></div>}<p className="border-t border-stage-border pt-3">图片与编辑濒危标签均遵循馆内核验口径，不能替代统一试验或官方鉴定。</p></div></details><div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-stage-border pt-4 text-xs"><Link to={`/explore?breed_id=${encodeURIComponent(selectedBreed.id)}`} onClick={closeDetail} className="inline-flex items-center gap-1 text-stage-gold hover:underline">在地图中查看 <ArrowUpRight className="h-3.5 w-3.5" /></Link><Link to="/compare" className="text-stage-muted hover:text-stage-fg">对比栏已选择 {compareIds.length} / 4</Link></div></div></aside></div>}
