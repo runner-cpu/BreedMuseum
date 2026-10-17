@@ -395,7 +395,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         </div>
       </div>
 
-      <div className={`absolute right-3 top-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-muted)]' : 'border-border bg-card/90 text-muted-foreground'}`}>
+      <div className={`museum-map-coordinate-note absolute right-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-muted)]' : 'border-border bg-card/90 text-muted-foreground'}`}>
         {t('map.coordNote')}
       </div>
 

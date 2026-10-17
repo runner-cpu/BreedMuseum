@@ -2,7 +2,7 @@ import { ArrowRight, BarChart3, BookOpen, Map, Sparkles } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BreedImage } from '@/components/common/BreedImage';
+import { BreedImage, hasBreedImage } from '@/components/common/BreedImage';
 import SpotlightHero from '@/components/effects/SpotlightHero';
 import { breeds } from '@/data/breeds';
 import { categories } from '@/data/catalog';
@@ -41,7 +41,10 @@ export default function LightMapPage() {
       .sort((a, b) => b.count - a.count),
     [digest],
   );
-  const featured = useMemo(() => breeds.filter((breed) => breed.name).slice(0, 6), []);
+  const featured = useMemo(
+    () => breeds.filter((breed) => breed.name && hasBreedImage(breed.image)).slice(0, 6),
+    [],
+  );
   const kpis = [
     { value: COLLECTION_SUMMARY.total, label: '收录品种', note: '名录归一化记录', to: '/encyclopedia' },
     { value: COLLECTION_SUMMARY.provinces, label: '覆盖省份', note: '已核验省级行政区', to: '/explore' },

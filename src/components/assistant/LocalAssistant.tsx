@@ -1,4 +1,4 @@
-import { Bot, GripVertical, Send, Sparkles, X } from 'lucide-react';
+import { Bot, MoveVertical, Send, Sparkles, X } from 'lucide-react';
 import { useMemo, useRef, useState, type PointerEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 import { breeds } from '@/data/breeds';
@@ -39,8 +39,8 @@ export default function LocalAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', text: '你好，我是馆藏助手。可以查询品种、类别、产区和统计数字。' },
   ]);
-  const [position, setPosition] = useState({ x: 24, y: 88 });
-  const dragRef = useRef<{ startX: number; startY: number; x: number; y: number } | null>(null);
+  const [positionY, setPositionY] = useState(88);
+  const dragRef = useRef<{ startY: number; y: number } | null>(null);
   const didDragRef = useRef(false);
   const contextLabel = useMemo(() => pathname === '/' ? '首页' : pathname.includes('explore') ? '地图探索' : pathname.includes('encyclopedia') ? '品种百科' : pathname.includes('compare') ? '品种对比' : pathname.includes('dashboard') ? '数据看板' : '互动厅', [pathname]);
   const send = () => {
@@ -51,13 +51,13 @@ export default function LocalAssistant() {
   };
   const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { startX: event.clientX, startY: event.clientY, x: position.x, y: position.y };
+    dragRef.current = { startY: event.clientY, y: positionY };
   };
   const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
-    if (Math.abs(event.clientX - drag.startX) > 3 || Math.abs(event.clientY - drag.startY) > 3) didDragRef.current = true;
-    setPosition({ x: Math.max(12, Math.min(window.innerWidth - 68, drag.x + event.clientX - drag.startX)), y: Math.max(70, Math.min(window.innerHeight - 68, drag.y + event.clientY - drag.startY)) });
+    if (Math.abs(event.clientY - drag.startY) > 3) didDragRef.current = true;
+    setPositionY(Math.max(70, Math.min(window.innerHeight - 68, drag.y + event.clientY - drag.startY)));
   };
   const onPointerUp = () => { dragRef.current = null; };
   const toggleOpen = () => {
@@ -70,6 +70,6 @@ export default function LocalAssistant() {
       <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={message.role === 'user' ? 'ml-8 rounded-xl rounded-br-sm bg-stage-gold/15 px-3 py-2 text-sm text-stage-fg' : 'mr-5 rounded-xl rounded-bl-sm bg-stage-soft px-3 py-2 text-sm leading-6 text-stage-fg'}>{message.text}</div>)}</div>
       <div className="border-t border-stage-border p-3"><p className="mb-2 flex items-center gap-1 text-[11px] text-stage-muted"><Sparkles className="h-3 w-3 text-stage-gold" />回答只来自本地 1,186 条馆藏和来源字段</p><div className="flex gap-2"><input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') send(); }} placeholder="例如：东北民猪有什么特点？" className="min-h-11 min-w-0 flex-1 rounded-lg border border-stage-border bg-stage-soft px-3 text-sm text-stage-fg outline-none focus:border-stage-gold" /><button type="button" onClick={send} aria-label="发送问题" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-stage-gold text-stage"><Send className="h-4 w-4" /></button></div></div>
     </aside>}
-    <button type="button" aria-label={open ? '关闭馆藏助手' : '打开馆藏助手'} onClick={toggleOpen} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} className="fixed z-[81] flex h-14 w-14 touch-none items-center justify-center rounded-full border border-stage-gold/70 bg-stage-panel text-stage-gold shadow-[0_10px_30px_rgba(0,0,0,.32)] transition hover:scale-105" style={{ right: position.x, bottom: window.innerHeight - position.y - 56 }}><GripVertical className="absolute -left-1 h-3 w-3 text-stage-muted/70" /><Bot className="h-6 w-6" /></button>
+    <button type="button" aria-label={open ? '关闭馆藏助手' : '打开馆藏助手'} onClick={toggleOpen} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} className="fixed right-6 z-[81] flex h-14 w-14 touch-none items-center justify-center rounded-full border border-stage-gold/70 bg-stage-panel text-stage-gold shadow-[0_10px_30px_rgba(0,0,0,.32)] transition hover:scale-105" style={{ bottom: window.innerHeight - positionY - 56 }}><MoveVertical className="absolute -left-1 h-3 w-3 text-stage-muted/70" aria-hidden="true" /><Bot className="h-6 w-6" /></button>
   </>;
 }
