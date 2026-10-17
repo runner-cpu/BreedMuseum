@@ -1,6 +1,7 @@
-import { breeds, type Breed } from '@/data/breeds';
+import { type Breed } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { categories } from '@/data/catalog';
+import { visibleBreeds } from '@/data/visibleBreeds';
 import { hasMappableLocation } from '@/lib/geo/lightMapData';
 
 /**
@@ -57,14 +58,14 @@ const sample = <T,>(items: readonly T[], count: number, random: () => number): T
 const isVerifiedForQuiz = (breed: Breed): boolean => hasMappableLocation(breed);
 
 const protectedBreeds = (): Breed[] =>
-  breeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'national-list');
+  visibleBreeds.filter((breed) => getBreedMetadata(breed).protectionStatus === 'national-list');
 
 /* ------------------------------------------------------------------ */
 /* 题型 1：类别（“「XX」属于哪个类别？”）                                */
 /* ------------------------------------------------------------------ */
 
 function categoryQuestion(random: () => number): QuizQuestion {
-  const pool = breeds.filter(isVerifiedForQuiz);
+  const pool = visibleBreeds.filter(isVerifiedForQuiz);
   const subject = pick(pool, random);
   const others = categories.filter((item) => item !== subject.category);
   const distractors = sample(others, 3, random);
@@ -88,7 +89,7 @@ function categoryQuestion(random: () => number): QuizQuestion {
 /* ------------------------------------------------------------------ */
 
 function provinceQuestion(random: () => number): QuizQuestion {
-  const pool = breeds.filter(isVerifiedForQuiz);
+  const pool = visibleBreeds.filter(isVerifiedForQuiz);
   const subject = pick(pool, random);
   const sameCategory = pool.filter(
     (breed) => breed.category === subject.category && breed.province !== subject.province,
@@ -119,13 +120,13 @@ function provinceQuestion(random: () => number): QuizQuestion {
 function protectionQuestion(random: () => number): QuizQuestion {
   const protectedPool = protectedBreeds();
   const answer = pick(protectedPool, random);
-  const sameCategory = breeds.filter(
+  const sameCategory = visibleBreeds.filter(
     (breed) =>
       isVerifiedForQuiz(breed) &&
       breed.category === answer.category &&
       getBreedMetadata(breed).protectionStatus !== 'national-list',
   );
-  const pool = sameCategory.length >= 3 ? sameCategory : breeds.filter(
+  const pool = sameCategory.length >= 3 ? sameCategory : visibleBreeds.filter(
     (breed) => isVerifiedForQuiz(breed) && getBreedMetadata(breed).protectionStatus !== 'national-list',
   );
   const distractors = sample(pool, 3, random);
@@ -149,7 +150,7 @@ function protectionQuestion(random: () => number): QuizQuestion {
 /* ------------------------------------------------------------------ */
 
 function silhouetteQuestion(random: () => number): QuizQuestion {
-  const pool = breeds.filter(isVerifiedForQuiz);
+  const pool = visibleBreeds.filter(isVerifiedForQuiz);
   const subject = pick(pool, random);
   const others = categories.filter((item) => item !== subject.category);
   const options = sample(
@@ -213,7 +214,7 @@ export interface FindHomeRound {
 /** 找家挑战只出“省份与坐标都已核验”的题，保证距离提示可计算。 */
 export function generateFindHomeRounds(seed: number, count = 3): FindHomeRound[] {
   const random = createRandom(seed * 7919 + 13);
-  const pool = breeds.filter(isVerifiedForQuiz);
+  const pool = visibleBreeds.filter(isVerifiedForQuiz);
   return sample(pool, count, random).map((breed) => ({
     breed: { id: breed.id, name: breed.name, category: breed.category },
     answerProvince: breed.province,

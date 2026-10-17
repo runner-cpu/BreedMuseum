@@ -6,7 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useSettings } from '@/contexts/AppSettings';
-import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
+import { COLLECTION_VERSION } from '@/data/collectionSummary';
+import { visibleBreeds } from '@/data/visibleBreeds';
 import { publicAsset } from '@/lib/publicAsset';
 import LocalAssistant from '@/components/assistant/LocalAssistant';
 
@@ -85,7 +86,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     <LocalAssistant />
     <footer className="shrink-0 bg-museum-ink text-museum-paper/85 px-4 py-2 text-center text-xs leading-relaxed">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span>{t('layout.footerTagline')} {COLLECTION_SUMMARY.total} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>
+        <span>{t('layout.footerTagline')} {visibleBreeds.length} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>
         <span aria-hidden="true">·</span>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html')}>{t('layout.privacyLink')}</a>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html#images')}>{t('layout.imageSources')}</a>

@@ -2,11 +2,11 @@ import { ArrowRight, BarChart3, BookOpen, Map, Sparkles } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BreedImage, hasBreedImage } from '@/components/common/BreedImage';
+import { BreedImage } from '@/components/common/BreedImage';
 import SpotlightHero from '@/components/effects/SpotlightHero';
-import { breeds } from '@/data/breeds';
+import { visibleBreeds } from '@/data/visibleBreeds';
 import { categories } from '@/data/catalog';
-import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
+import { COLLECTION_VERSION } from '@/data/collectionSummary';
 import { buildDigest } from '@/lib/geo/lightMapData';
 import '@/styles/light-map-page.css';
 
@@ -33,7 +33,7 @@ function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; 
 
 export default function LightMapPage() {
   const navigate = useNavigate();
-  const digest = useMemo(() => buildDigest(), []);
+  const digest = useMemo(() => buildDigest(visibleBreeds), []);
   const categoryTally = useMemo(
     () => categories
       .map((category) => ({ category, count: digest.byCategory.get(category) ?? 0 }))
@@ -42,14 +42,14 @@ export default function LightMapPage() {
     [digest],
   );
   const featured = useMemo(
-    () => breeds.filter((breed) => breed.name && hasBreedImage(breed.image)).slice(0, 6),
+    () => visibleBreeds.filter((breed) => breed.name).slice(0, 6),
     [],
   );
   const kpis = [
-    { value: COLLECTION_SUMMARY.total, label: '收录品种', note: '名录归一化记录', to: '/encyclopedia' },
-    { value: COLLECTION_SUMMARY.provinces, label: '覆盖省份', note: '已核验省级行政区', to: '/explore' },
-    { value: COLLECTION_SUMMARY.categories, label: '畜禽类别', note: '按名录分组', to: '/dashboard' },
-    { value: COLLECTION_SUMMARY.nationalProtectedMatches, label: '保护匹配', note: '940 号公告匹配', to: '/dashboard' },
+    { value: digest.total, label: '可浏览品种', note: '均已登记图片', to: '/encyclopedia' },
+    { value: digest.provinces.filter((item) => item.province !== '待核验').length, label: '覆盖省份', note: '含图记录产区', to: '/explore' },
+    { value: digest.byCategory.size, label: '畜禽类别', note: '按名录分组', to: '/dashboard' },
+    { value: digest.nationalProtected, label: '保护匹配', note: '含图记录匹配', to: '/dashboard' },
   ];
 
   return (
@@ -59,7 +59,7 @@ export default function LightMapPage() {
         titleBottom="品种数字博物馆"
         badge="守护中华农业文明基因"
         cta="开始探索"
-        searchPh="搜索品种名称，如 河田鸡、秦川牛……"
+        searchPh="搜索品种名称，如 东北民猪、南阳牛……"
         searchBtn="搜索百科"
         descLeft="一座以土地为展柜的数字博物馆，收录地方畜禽品种的名称、产区与故事。"
         descRight="从地图、百科或数据开始，找到你关心的那一份记录。"
@@ -76,7 +76,7 @@ export default function LightMapPage() {
             <div className="museum-tour-signal mt-8" aria-label="馆藏实时状态">
               <span className="museum-signal-dot" aria-hidden="true" />
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-[var(--museum-muted)]">LIVE COLLECTION</span>
-              <strong>{COLLECTION_SUMMARY.total.toLocaleString('zh-CN')} 条记录已在本地待命</strong>
+              <strong>{digest.total.toLocaleString('zh-CN')} 条含图记录已在本地待命</strong>
             </div>
           </Reveal>
 
@@ -142,9 +142,9 @@ export default function LightMapPage() {
           <div className="museum-overview-grid">
             <Reveal className="museum-overview-lead museum-panel">
               <Sparkles className="h-5 w-5 text-[#d4a853]" aria-hidden="true" />
-              <span className="mt-8 block font-mono text-6xl tracking-[-0.08em] text-[var(--museum-fg)] sm:text-8xl">{COLLECTION_SUMMARY.total.toLocaleString('zh-CN')}</span>
-              <span className="mt-3 block text-sm font-semibold">条馆藏记录</span>
-              <p className="mt-2 max-w-[24rem] text-xs leading-6 text-[var(--museum-muted)]">名称与类别已完成归一化。地图只呈现坐标通过核验的记录。</p>
+              <span className="mt-8 block font-mono text-6xl tracking-[-0.08em] text-[var(--museum-fg)] sm:text-8xl">{digest.total.toLocaleString('zh-CN')}</span>
+              <span className="mt-3 block text-sm font-semibold">条可浏览馆藏记录</span>
+              <p className="mt-2 max-w-[24rem] text-xs leading-6 text-[var(--museum-muted)]">每条记录均已登记图片；地图进一步只呈现坐标通过核验的记录。</p>
               <button type="button" onClick={() => navigate('/encyclopedia')} className="museum-link mt-7">进入百科 <ArrowRight className="h-4 w-4" /></button>
             </Reveal>
             <div className="museum-kpi-grid">
@@ -160,7 +160,7 @@ export default function LightMapPage() {
               ))}
             </div>
           </div>
-          <p className="mt-4 text-xs text-[var(--museum-muted)]">{COLLECTION_SUMMARY.mappable.toLocaleString('zh-CN')} 条可落点 · {COLLECTION_SUMMARY.unverifiedProvince} 条产区待核验 · 濒危数据为馆内编辑口径</p>
+          <p className="mt-4 text-xs text-[var(--museum-muted)]">{digest.mappable.toLocaleString('zh-CN')} 条可落点 · {digest.unverifiedLocation} 条位置待核验 · 濒危数据为馆内编辑口径</p>
         </section>
 
         <section className="museum-section museum-category-section museum-section--last" aria-labelledby="categories-title">

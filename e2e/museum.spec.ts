@@ -95,7 +95,7 @@ test('home introduces the museum and guides visitors into exploration', async ({
   await expect(page).toHaveURL(/#\/$/);
   // The old long-form about/collection panel was removed from the foyer.
   await expect(page.getByRole('heading', { name: '把名录里的名字，重新放回土地', exact: true })).toHaveCount(0);
-  await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/条含图记录已在本地待命/)).toBeVisible();
 });
 
 test('explore route exposes category tabs and a focused map', async ({ page }) => {
@@ -117,14 +117,38 @@ test('explore category tabs keep the map focused', async ({ page }) => {
   await expect(page.getByRole('tab', { name: '牛' })).toHaveAttribute('aria-selected', 'true');
 });
 
-test('encyclopedia search opens a breed detail panel', async ({ page }) => {
+test('encyclopedia omits records without images', async ({ page }) => {
   await page.goto('/#/encyclopedia');
   const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
   await search.fill('河田鸡');
-  await page.getByRole('button', { name: /河田鸡/ }).first().click();
-  await expect(page).toHaveURL(/#\/encyclopedia\?.*breed=hetian-chicken/);
-  await expect(page.getByRole('dialog', { name: '河田鸡详情' })).toBeVisible();
-  await expect(page.getByRole('dialog').getByRole('heading', { name: '河田鸡', level: 2 })).toBeVisible();
+  await expect(page.getByRole('button', { name: /河田鸡/ })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '没有匹配的品种' })).toBeVisible();
+});
+
+test('encyclopedia search opens a breed detail panel', async ({ page }) => {
+  await page.goto('/#/encyclopedia');
+  const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
+  await search.fill('东北民猪');
+  await page.getByRole('button', { name: /东北民猪/ }).first().click();
+  await expect(page).toHaveURL(/#\/encyclopedia\?.*breed=dongbei-min-pig/);
+  await expect(page.getByRole('dialog', { name: '东北民猪详情' })).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: '东北民猪', level: 2 })).toBeVisible();
+});
+
+test('assistant button supports free two-dimensional movement without opening', async ({ page }) => {
+  await page.goto('/#/');
+  const button = page.getByRole('button', { name: '打开馆藏助手' });
+  const before = await button.boundingBox();
+  expect(before).not.toBeNull();
+  await page.mouse.move(before!.x + before!.width / 2, before!.y + before!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(before!.x + before!.width / 2 - 100, before!.y + before!.height / 2 + 50);
+  await page.mouse.up();
+  const after = await button.boundingBox();
+  expect(after).not.toBeNull();
+  expect(after!.x).toBeLessThan(before!.x - 50);
+  expect(after!.y).toBeGreaterThan(before!.y + 30);
+  await expect(page.getByRole('button', { name: '打开馆藏助手' })).toBeVisible();
 });
 
 test('removed breed archive route remains a true 404', async ({ page }) => {
@@ -217,7 +241,7 @@ test('dashboard page exposes collection coverage and quality summaries', async (
   await expect(page.getByRole('heading', { name: '看见地方品种的分布与缺口' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '数据覆盖度' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '保护与风险' })).toBeVisible();
-  await expect(page.getByText('1,186', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText(/可浏览记录/)).toBeVisible();
 });
 
 test('mobile menu exposes the three primary destinations and closes by keyboard', async ({ page }, testInfo) => {

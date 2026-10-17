@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, RotateCcw, X } from 'lucide-react';
-import { breeds } from '@/data/breeds';
+import { visibleBreeds } from '@/data/visibleBreeds';
 import { CategorySilhouette, SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
 import {
   generateFindHomeRounds,
@@ -245,7 +245,7 @@ function IdentifyGame() {
         <div className="mt-4 space-y-3">
           <p role="status" className="text-sm text-stage-fg/90">{question.explanation}</p>
           <div className="flex flex-wrap gap-2">
-            {breeds
+            {visibleBreeds
               .filter((breed) => breed.category === question.answerId)
               .slice(0, 3)
               .map((breed) => (

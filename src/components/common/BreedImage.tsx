@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { publicAsset } from '@/lib/publicAsset';
 import { CategorySilhouette } from '@/components/arcade/CategorySilhouette';
+import { hasBreedImage } from '@/data/breedImage';
 
 export const BREED_IMAGE_FALLBACK = publicAsset('brand/breed-placeholder.svg');
+export { hasBreedImage } from '@/data/breedImage';
 // 站内根路径（/brand/...、/images/...）统一走 publicAsset 以兼容 Pages 子路径部署；外链 URL 原样使用
 const resolveSrc = (src?: string) => (src?.startsWith('/') ? publicAsset(src) : src || BREED_IMAGE_FALLBACK);
 
@@ -13,11 +15,6 @@ const resolveSrc = (src?: string) => (src?.startsWith('/') ? publicAsset(src) : 
  * its image is pending, so this helper is intentionally limited to card
  * selection.
  */
-export const hasBreedImage = (src?: string): boolean => {
-  if (!src?.trim()) return false;
-  return resolveSrc(src) !== BREED_IMAGE_FALLBACK;
-};
-
 export interface BreedImageProps {
   src?: string;
   alt: string;

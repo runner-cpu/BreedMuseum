@@ -7,7 +7,8 @@ import { VerificationLegend } from '@/components/common/VerificationBadge';
 import { useSettings } from '@/contexts/AppSettings';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { getBreedById } from '@/data/breedLookup';
-import { type Breed, breeds } from '@/data/breeds';
+import { type Breed } from '@/data/breeds';
+import { visibleBreeds } from '@/data/visibleBreeds';
 import { categories } from '@/data/catalog';
 import { COLLECTION_SUMMARY } from '@/data/collectionSummary';
 import { buildSiteClusters, clustersForLens, type SiteCluster } from '@/lib/geo/clusterSites';
@@ -48,9 +49,9 @@ export default function ExploreMapPage() {
   }, [params]);
   // 参考原站，桌面右侧详情卡首屏就有一条代表性记录；用户仍可点击任意点位切换。
   // 带查询参数时优先展示参数指定的记录，避免刷新后丢失上下文。
-  const [selectedBreed, setSelectedBreed] = useState<Breed | null>(() => cardBreedFor(getBreedById(params.get('breed_id'))) ?? breeds.find((breed) => hasBreedImage(breed.image)) ?? null);
-  const digest = useMemo(() => buildDigest(), []);
-  const clusters = useMemo(() => buildSiteClusters(breeds), []);
+  const [selectedBreed, setSelectedBreed] = useState<Breed | null>(() => cardBreedFor(getBreedById(params.get('breed_id'))) ?? visibleBreeds[0] ?? null);
+  const digest = useMemo(() => buildDigest(visibleBreeds), []);
+  const clusters = useMemo(() => buildSiteClusters(visibleBreeds), []);
   const visibleClusters = useMemo(() => clustersForLens(clusters, lens, category), [clusters, lens, category]);
   const summary = useMemo(() => lightMapSummary(visibleClusters), [visibleClusters]);
   const activeProvince = useMemo(
@@ -58,10 +59,10 @@ export default function ExploreMapPage() {
     [digest, province],
   );
   const previewBreed = selectedBreed
-    ?? (province ? breeds.find((breed) => breed.province === province && hasBreedImage(breed.image)) ?? null : null);
+    ?? (province ? visibleBreeds.find((breed) => breed.province === province) ?? null : null);
 
   const openBreed = (breed: Breed) => {
-    const cardBreed = cardBreedFor(breed) ?? breeds.find((item) => item.province === breed.province && hasBreedImage(item.image)) ?? null;
+    const cardBreed = cardBreedFor(breed) ?? visibleBreeds.find((item) => item.province === breed.province) ?? null;
     if (!cardBreed) {
       setSelectedBreed(null);
       setMobileDetailOpen(false);
@@ -74,8 +75,8 @@ export default function ExploreMapPage() {
     setMobileDetailOpen(true);
     setProvince(cluster.province);
     // 产区簇可能包含多个品种；用簇内第一条记录作为详情预览，避免点击地图后右侧仍停留在旧省份。
-    const breed = breeds.find((item) => item.id === cluster.members[0]?.id && hasBreedImage(item.image))
-      ?? breeds.find((item) => item.province === cluster.province && hasBreedImage(item.image));
+    const breed = visibleBreeds.find((item) => item.id === cluster.members[0]?.id)
+      ?? visibleBreeds.find((item) => item.province === cluster.province);
     if (breed) setSelectedBreed(breed);
     else {
       setSelectedBreed(null);
@@ -87,7 +88,7 @@ export default function ExploreMapPage() {
     const nextProvince = name === province ? null : name;
     setProvince(nextProvince);
     if (nextProvince) {
-      const breed = breeds.find((item) => item.province === nextProvince && hasBreedImage(item.image));
+      const breed = visibleBreeds.find((item) => item.province === nextProvince);
       if (breed) setSelectedBreed(breed);
       else {
         setSelectedBreed(null);
@@ -119,7 +120,7 @@ export default function ExploreMapPage() {
               </div>
               <span className="museum-map-filter-count" aria-live="polite">{summary.mappable.toLocaleString()} 条落点</span>
             </div>
-            <div className="museum-map-canvas"><ChinaMap breeds={breeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
+            <div className="museum-map-canvas"><ChinaMap breeds={visibleBreeds} selectedProvince={province} selectedBreed={selectedBreed} pulseId={selectedBreed?.id ?? null} lens={lens} lensCategory={category} focusedProvince={province} darkSurface={isDark} showProvinceLabels={false} onProvinceClick={handleProvinceClick} onBreedClick={openBreed} onClusterClick={handleCluster} onClearSelection={() => { setProvince(null); setSelectedBreed(null); setMobileDetailOpen(false); }} /></div>
           </section>
 
           <aside className={`museum-detail museum-detail--compact ${mobileDetailOpen ? 'is-open' : ''}`} aria-label="当前品种详情">
