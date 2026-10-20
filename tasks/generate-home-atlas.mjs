@@ -36,13 +36,14 @@ async function build() {
     const { buildSiteClusters } = await server.ssrLoadModule('/src/lib/geo/clusterSites.ts');
     const { buildDigest } = await server.ssrLoadModule('/src/lib/geo/lightMapData.ts');
     const { mapViewBox } = await server.ssrLoadModule('/src/data/chinaMap.ts');
+    const { compareText } = await server.ssrLoadModule('/src/lib/compareText.ts');
 
     const digest = buildDigest(visibleBreeds);
     const clusters = buildSiteClusters(visibleBreeds);
 
     const provinces = digest.provinces
       .filter((entry) => entry.province !== '待核验' && entry.mappable > 0)
-      .sort((a, b) => b.mappable - a.mappable || a.province.localeCompare(b.province));
+      .sort((a, b) => b.mappable - a.mappable || compareText(a.province, b.province));
 
     const provinceIndex = new Map(provinces.map((entry, index) => [entry.province, index]));
     const sites = clusters
@@ -102,7 +103,7 @@ async function build() {
     lines.push('export const HOME_ATLAS_PROVINCES: readonly HomeAtlasProvince[] = [');
     for (const entry of provinces) {
       const categories = [...entry.byCategory.entries()]
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .sort((a, b) => b[1] - a[1] || compareText(a[0], b[0]))
         .slice(0, 3)
         .map(([name, count]) => `[${quote(name)}, ${count}]`)
         .join(', ');

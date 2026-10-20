@@ -2,6 +2,7 @@ import { breeds as allBreeds, type Breed } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { hasVerifiedCoordinates } from '@/data/catalog';
 import { mapViewBox, projectCoordinate } from '@/data/chinaMap';
+import { compareText } from '@/lib/compareText';
 
 /** Project longitude/latitude into the same centered plane used by the SVG map. */
 const projectMap = (longitude: number, latitude: number): [number, number] => {
@@ -124,7 +125,7 @@ function seedsFor(source: readonly Breed[]): Map<string, Map<string, Seed>> {
  */
 function clusterProvince(seeds: readonly Seed[], radius: number): Array<{ x: number; y: number; seeds: Seed[] }> {
   const ordered = [...seeds].sort(
-    (a, b) => b.breeds.length - a.breeds.length || a.key.localeCompare(b.key),
+    (a, b) => b.breeds.length - a.breeds.length || compareText(a.key, b.key),
   );
   const groups: Array<{ x: number; y: number; seeds: Seed[] }> = [];
   for (const seed of ordered) {
@@ -155,7 +156,7 @@ const slicesOf = (members: readonly ClusterMember[]): CategorySlice[] => {
   for (const member of members) tally.set(member.category, (tally.get(member.category) ?? 0) + 1);
   return [...tally.entries()]
     .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category));
+    .sort((a, b) => b.count - a.count || compareText(a.category, b.category));
 };
 
 const round6 = (value: number): number => Math.round(value * 1e6) / 1e6;
@@ -170,7 +171,7 @@ export function buildSiteClusters(
       const members = group.seeds
         .flatMap((seed) => seed.breeds)
         .map(memberOf)
-        .sort((a, b) => a.id.localeCompare(b.id));
+        .sort((a, b) => compareText(a.id, b.id));
       const membersRadius = group.seeds.reduce(
         (max, seed) => Math.max(max, Math.hypot(group.x - seed.x, group.y - seed.y)),
         0,
@@ -191,7 +192,7 @@ export function buildSiteClusters(
       });
     }
   }
-  return clusters.sort((a, b) => a.id.localeCompare(b.id));
+  return clusters.sort((a, b) => compareText(a.id, b.id));
 }
 
 /**

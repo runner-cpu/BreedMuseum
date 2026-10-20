@@ -1,6 +1,7 @@
 import { X, MapPin, ArrowUpRight } from 'lucide-react';
 import type { Breed } from '@/data/breeds';
 import type { ProvinceDigest } from '@/lib/geo/lightMapData';
+import { compareText } from '@/lib/compareText';
 import { cn } from '@/lib/utils';
 
 interface ProvinceQuickStripProps {
@@ -27,7 +28,7 @@ export function ProvinceQuickStrip({
   if (!province) return null;
 
   const topCategories = [...province.byCategory.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .sort((a, b) => b[1] - a[1] || compareText(a[0], b[0]))
     .slice(0, 3)
     .map(([name]) => name);
   const categorySummary = topCategories.length > 0 ? topCategories.join('、') : '资料待整理';

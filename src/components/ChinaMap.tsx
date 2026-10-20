@@ -3,6 +3,7 @@ import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
 import { categoryColors } from '@/lib/categoryIcons';
+import { compareText } from '@/lib/compareText';
 import { categoryLabel, fill as interpolate, provinceLabel } from '@/lib/displayLabels';
 import {
   buildSiteClusters,
@@ -185,7 +186,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   );
   const revealOrder = useMemo(
     () => [...provinceCounts.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .sort((a, b) => b[1] - a[1] || compareText(a[0], b[0]))
       .map(([province]) => province),
     [provinceCounts],
   );

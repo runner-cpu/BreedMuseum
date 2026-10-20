@@ -9,6 +9,7 @@ import { visibleBreeds } from '@/data/visibleBreeds';
 import { buildSiteClusters } from '@/lib/geo/clusterSites';
 import { buildDigest } from '@/lib/geo/lightMapData';
 import { mapViewBox } from '@/data/chinaMap';
+import { compareText } from '@/lib/compareText';
 
 /**
  * 首页首屏画的是预计算常量，不是运行时聚合。这份契约把两边钉在一起：
@@ -20,7 +21,7 @@ describe('home atlas matches the runtime collection', () => {
   const clusters = buildSiteClusters(visibleBreeds);
   const provinces = digest.provinces
     .filter((entry) => entry.province !== '待核验' && entry.mappable > 0)
-    .sort((a, b) => b.mappable - a.mappable || a.province.localeCompare(b.province));
+    .sort((a, b) => b.mappable - a.mappable || compareText(a.province, b.province));
 
   it('lists every province with mapped records, in the same order', () => {
     expect(HOME_ATLAS_PROVINCES.map((entry) => entry.name)).toEqual(provinces.map((entry) => entry.province));

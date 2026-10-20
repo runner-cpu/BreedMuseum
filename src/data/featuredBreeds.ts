@@ -1,4 +1,5 @@
 import { breeds, type Breed } from './breeds';
+import { compareText } from '@/lib/compareText';
 
 /**
  * 首页“精选品种”展示名单。
@@ -50,7 +51,7 @@ const autofill = (picked: Breed[]): Breed[] => {
   }
   const pool = [...breeds]
     .filter((breed) => !chosen.has(breed.id))
-    .sort((a, b) => scoreBreed(b) - scoreBreed(a) || a.id.localeCompare(b.id));
+    .sort((a, b) => scoreBreed(b) - scoreBreed(a) || compareText(a.id, b.id));
   const result = [...picked];
   while (result.length < FEATURED_BREED_COUNT && pool.length > 0) {
     // 每个类别至多出现两次，保证首页画像多样
