@@ -95,8 +95,8 @@ Vite、TypeScript、React、HashRouter、SVG/CSS、Recharts、Tailwind CSS。光
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则；三级核验状态（官方 / 编辑 / 待核验）由 `src/data/verification.ts` 单点判定，地图、百科和数据看板共同展示字段边界。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；当前已通过 38 个测试文件、166 项 Vitest 测试，Playwright 结果见审计报告。
-- 当前 Playwright 共 38 个用例 × 桌面/移动双视口，合计 76 项运行（移动端导航用例按项目条件跳过 1 项），其余用例通过。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；当前已通过 37 个测试文件、161 项 Vitest 测试，Playwright 结果见审计报告。
+- 当前 Playwright 共 35 个用例 × 桌面/移动双视口，合计 70 项运行（移动端导航用例按项目条件跳过 1 项），其余用例通过。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ### 在 Windows 上安装 Node.js
