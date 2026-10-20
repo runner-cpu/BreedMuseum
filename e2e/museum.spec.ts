@@ -80,18 +80,60 @@ test('dashboard route exposes interactive collection charts', async ({ page }) =
   await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('国家级保护匹配')).toBeVisible();
 });
 
-test('home introduces the museum and guides visitors into exploration', async ({ page }) => {
+test('home opens with the data hook, a live atlas and the trust statement', async ({ page }) => {
   await page.goto('/#/');
-  await expect(page.getByRole('heading', { name: /中国地方畜禽.*品种数字博物馆/ })).toBeVisible();
-  // 首页恢复为完整叙事：数据看板、类别速览、五种入口、精选品种与关于都在。
-  await expect(page.getByRole('heading', { name: '核心数据看板' })).toBeVisible();
+  // 首屏是钩子句，不再是馆名横幅；可访问名称仍以馆名开头。
+  await expect(
+    page.getByRole('heading', { name: /地方畜禽数字博物馆.*1,186\s*条馆藏记录.*你家的省份亮了几个/ }),
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: '品种类别速览' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '五种进入方式' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '精选品种' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '哪些是官方核验，哪些还在求证' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '关于本项目' })).toBeVisible();
+});
+
+test('home atlas draws every mapped province and site, and switches lenses', async ({ page }) => {
+  await page.goto('/#/');
+  const atlas = page.locator('.museum-atlas');
+  // 30 个有落点的省份 + 154 个已核验产区点位，全部来自预计算图集。
+  await expect(atlas.locator('.museum-atlas-province.is-live')).toHaveCount(30);
+  await expect(atlas.locator('.museum-atlas-dot')).toHaveCount(154);
+  await expect(atlas.getByText('省块色阶 = 记录密度')).toBeVisible();
+  await expect(atlas.getByText('金点 = 已核验产区')).toBeVisible();
+
+  const lenses = atlas.getByRole('group', { name: '地图镜头' });
+  await expect(lenses.getByRole('button')).toHaveCount(3);
+  await expect(lenses.getByRole('button', { name: '全部落点' })).toHaveAttribute('aria-pressed', 'true');
+  await lenses.getByRole('button', { name: '国家级保护' }).click();
+  await expect(lenses.getByRole('button', { name: '国家级保护' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(lenses.getByRole('button', { name: '全部落点' })).toHaveAttribute('aria-pressed', 'false');
+  // 镜头切换同时改变省块与点位：「濒危之窗」只留下有濒危记录的产区。
+  await lenses.getByRole('button', { name: '濒危之窗' }).click();
+  await expect(atlas.locator('.museum-atlas-dot')).not.toHaveCount(154);
+});
+
+test('home atlas opens a one-line province brief on selection', async ({ page }) => {
+  await page.goto('/#/');
+  const atlas = page.locator('.museum-atlas');
+  const firstProvince = atlas.locator('.museum-atlas-province.is-live').first();
+  await firstProvince.focus();
+  await page.keyboard.press('Enter');
+  const brief = atlas.getByRole('region', { name: /速览$/ });
+  await expect(brief).toBeVisible();
+  // 速览条里必须给出三个可以继续进入卷宗的品种。
+  await expect(brief.locator('a[href*="breed="]')).toHaveCount(3);
+  await expect(brief.getByRole('link', { name: '在地图上展开' })).toBeVisible();
+  // 再按一次取消选中，回到常驻的可信口径提示。
+  await page.keyboard.press('Enter');
+  await expect(atlas.getByText(/产区待核验的 124 条保留在百科，但不落点/)).toBeVisible();
+});
+
+test('home search and primary action route into the collection', async ({ page }) => {
+  await page.goto('/#/');
   await expect(page.getByRole('searchbox', { name: '搜索馆藏品种' })).toBeVisible();
   await expect(page.getByRole('button', { name: '搜索', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '开始探索' }).click();
+  await page.getByRole('link', { name: '开始探索', exact: true }).click();
   await expect(page).toHaveURL(/#\/explore$/);
   await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
   await page.goBack();

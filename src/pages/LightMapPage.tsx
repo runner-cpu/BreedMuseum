@@ -1,7 +1,8 @@
-import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, GitCompare, Map as MapIcon, MapPinned, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, GitCompare, Map as MapIcon, MapPinned, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BreedImage } from '@/components/common/BreedImage';
-import SpotlightHero from '@/components/effects/SpotlightHero';
+import { VerificationLegend } from '@/components/common/VerificationBadge';
+import { HomeAtlas } from '@/components/home/HomeAtlas';
 import { useSettings } from '@/contexts/AppSettings';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
 import { HOME_CATEGORY_COUNTS, HOME_FEATURED } from '@/data/homeHighlights';
@@ -12,49 +13,21 @@ const formatNumber = (value: number, language: 'zh' | 'en') =>
   new Intl.NumberFormat(language === 'en' ? 'en-US' : 'zh-CN').format(value);
 
 /**
- * 首页序厅：一张地图开场，之后依次回答四个问题。
+ * 首页序厅：五个板块依次回答观众的问题。
  *
- *   1. 这座馆有多少东西（核心数据）
- *   2. 有哪些畜种（类别速览）
- *   3. 我可以从哪进去（五种入口）
- *   4. 先看几条具体的（精选品种）
+ *   1. 看 · 分布：一张真正承载数据的中国地图（省块色阶 + 154 个已核验产区 + 镜头）
+ *   2. 有哪些畜种：十四类可点击的类别入口
+ *   3. 从哪里进去：地图为主入口，百科 / 看板 / 互动厅 / 对比为次级入口
+ *   4. 先看几条具体的：八条带真实馆藏照片的精选记录
+ *   5. 凭什么可信：三级核验徽章、两个统计口径、可下载的审计报告
  *
- * 所有数字读自 `COLLECTION_SUMMARY` 与 `homeHighlights`：前者是审计过的小常量，
- * 后者是首屏专用的轻量摘要（类别计数 + 8 条精选记录），避免首页为了渲染
- * 几行卡片而把 660 kB 的完整品种库拉进首屏静态图。两份数据都由测试与运行时比对。
+ * 首屏图集读自 `homeAtlas.ts`，类别与精选读自 `homeHighlights.ts`：
+ * 两份轻量常量都由测试与运行时馆藏逐项比对，首页不会为了渲染几张卡片
+ * 把 660 kB 的完整品种库拉进首屏静态图。
  */
 export default function LightMapPage() {
   const navigate = useNavigate();
   const { t, language } = useSettings();
-  const openSearch = (value: string) =>
-    navigate(value.trim() ? `/encyclopedia?search=${encodeURIComponent(value.trim())}` : '/encyclopedia');
-
-  const stats = [
-    {
-      label: t('home.statTotalLabel'),
-      value: COLLECTION_SUMMARY.total,
-      note: t('home.statTotalSub'),
-      tone: 'text-stage-fg',
-    },
-    {
-      label: t('home.statVisibleLabel'),
-      value: COLLECTION_SUMMARY.visibleTotal,
-      note: t('home.statVisibleSub'),
-      tone: 'text-stage-gold',
-    },
-    {
-      label: t('home.statProvincesLabel'),
-      value: COLLECTION_SUMMARY.visibleProvinces,
-      note: t('home.statProvincesSub'),
-      tone: 'text-stage-fg',
-    },
-    {
-      label: t('home.statCategoriesLabel'),
-      value: COLLECTION_SUMMARY.visibleCategories,
-      note: t('home.statCategoriesSub'),
-      tone: 'text-stage-fg',
-    },
-  ];
 
   const entries = [
     { to: '/explore', icon: MapIcon, title: t('home.startMap'), desc: t('home.startMapDesc') },
@@ -68,56 +41,16 @@ export default function LightMapPage() {
 
   return (
     <div className="museum-home min-h-full text-[var(--museum-fg)]">
-      <SpotlightHero
-        titleTop={t('home.heroTitleTop')}
-        titleBottom={t('home.heroTitleBottom')}
-        badge={t('home.heroBadge')}
-        cta={t('home.startExplore')}
-        searchPh={t('home.heroSearchPh')}
-        searchBtn={t('home.searchCta')}
-        descLeft={t('home.heroDescLeft')}
-        descRight={t('home.heroDescRight')}
-        onExplore={() => navigate('/explore')}
-        onSearch={openSearch}
-      />
+      {/* 01 看 · 分布 */}
+      <HomeAtlas />
 
       <div className="museum-home-inner">
-        {/* 01 核心数据：四个数字，先交代馆藏规模与可浏览比例 */}
-        <section className="museum-section" aria-labelledby="home-stats-title">
-          <div className="mb-6 max-w-2xl">
-            <h2 id="home-stats-title" className="font-serif text-2xl tracking-tight sm:text-3xl">
-              {t('home.statsTitle')}
-            </h2>
-            <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[var(--museum-muted)]">
-              {t('home.statsIntro')}
-            </p>
-          </div>
-
-          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {stats.map((item) => (
-              <div key={item.label} className="museum-panel min-h-32 p-4 sm:min-h-36 sm:p-5">
-                <dt className="text-xs text-[var(--museum-muted)]">{item.label}</dt>
-                <dd className={`mt-2 font-mono text-3xl font-semibold tabular-nums sm:text-4xl ${item.tone}`}>
-                  {formatNumber(item.value, language)}
-                </dd>
-                <p className="mt-2 text-[0.68rem] leading-5 text-[var(--museum-muted)]">{item.note}</p>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-4 text-xs leading-6 text-[var(--museum-muted)]">
-            {fill(t('home.statsSummary'), {
-              total: formatNumber(COLLECTION_SUMMARY.total, language),
-              visible: formatNumber(COLLECTION_SUMMARY.visibleTotal, language),
-            })}
-            {t('home.statsFootnote')}
-          </p>
-        </section>
-
-        {/* 02 类别速览：把“有哪些畜种”变成可点击的入口，而不是一排标签 */}
+        {/* 02 品种类别速览 */}
         <section className="museum-section" aria-labelledby="home-category-title">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <h2 id="home-category-title" className="font-serif text-2xl tracking-tight sm:text-3xl">
+              <p className="museum-eyebrow">{t('home.categoryEyebrow')}</p>
+              <h2 id="home-category-title" className="mt-2 font-serif text-2xl tracking-tight sm:text-3xl">
                 {t('home.categoryOverview')}
               </h2>
               <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[var(--museum-muted)]">
@@ -156,10 +89,11 @@ export default function LightMapPage() {
           </ul>
         </section>
 
-        {/* 03 五种入口：不是三张同构卡片，而是一条主入口 + 四条次级入口 */}
+        {/* 03 五种进入方式 */}
         <section className="museum-section" aria-labelledby="home-entries-title">
           <div className="mb-6 max-w-2xl">
-            <h2 id="home-entries-title" className="font-serif text-2xl tracking-tight sm:text-3xl">
+            <p className="museum-eyebrow">{t('home.entriesEyebrow')}</p>
+            <h2 id="home-entries-title" className="mt-2 font-serif text-2xl tracking-tight sm:text-3xl">
               {t('home.entriesTitle')}
             </h2>
             <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[var(--museum-muted)]">
@@ -177,7 +111,7 @@ export default function LightMapPage() {
                   <MapPinned className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <span className="font-mono text-[0.65rem] tracking-[0.2em] text-[var(--museum-muted)]">
-                  154 {t('home.sitesUnit')}
+                  {formatNumber(COLLECTION_SUMMARY.visibleClusters, language)} {t('home.sitesUnit')}
                 </span>
               </div>
               <div>
@@ -214,11 +148,12 @@ export default function LightMapPage() {
           </div>
         </section>
 
-        {/* 04 精选品种：真实带图记录，点开直接进百科详情 */}
+        {/* 04 精选品种 */}
         <section className="museum-section" aria-labelledby="home-featured-title">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <h2 id="home-featured-title" className="font-serif text-2xl tracking-tight sm:text-3xl">
+              <p className="museum-eyebrow">{t('home.featuredTitle')}</p>
+              <h2 id="home-featured-title" className="mt-2 font-serif text-2xl tracking-tight sm:text-3xl">
                 {t('home.featuredTitle')}
               </h2>
               <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[var(--museum-muted)]">
@@ -265,19 +200,45 @@ export default function LightMapPage() {
           </ul>
         </section>
 
-        {/* 05 关于：数据来源、技术口径与纠错入口 */}
-        <section className="museum-section museum-section--last" aria-labelledby="home-about-title">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
+        {/* 05 数据可信：把「诚实」从附录提成首页可见的一段 */}
+        <section className="museum-section" aria-labelledby="home-trust-title">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
             <div>
-              <h2 id="home-about-title" className="font-serif text-2xl tracking-tight sm:text-3xl">
-                {t('home.aboutTitle')}
+              <p className="museum-eyebrow">{t('home.atlasEyebrow')}</p>
+              <h2 id="home-trust-title" className="mt-2 font-serif text-2xl tracking-tight sm:text-3xl">
+                {t('home.trustTitle')}
               </h2>
               <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[var(--museum-muted)]">
-                {t('home.aboutIntroText')}
+                {t('home.trustIntro')}
               </p>
-              <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[var(--museum-muted)]">
-                {t('home.aboutContactText')}
-              </p>
+              <div className="mt-5">
+                <VerificationLegend />
+              </div>
+              <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    term: t('home.trustTotal'),
+                    detail: formatNumber(COLLECTION_SUMMARY.total, language),
+                    note: t('home.trustTotalNote'),
+                  },
+                  {
+                    term: t('home.trustVisible'),
+                    detail: formatNumber(COLLECTION_SUMMARY.visibleTotal, language),
+                    note: t('home.trustVisibleNote'),
+                  },
+                  {
+                    term: t('home.trustPending'),
+                    detail: formatNumber(COLLECTION_SUMMARY.unverifiedProvince, language),
+                    note: t('home.trustPendingNote'),
+                  },
+                ].map((item) => (
+                  <div key={item.term} className="rounded-xl border border-[var(--museum-line)] p-3">
+                    <dt className="text-[0.68rem] text-[var(--museum-muted)]">{item.term}</dt>
+                    <dd className="mt-1 font-mono text-xl text-[var(--stage-gold)]">{item.detail}</dd>
+                    <p className="mt-1 text-[0.66rem] leading-4 text-[var(--museum-muted)]">{item.note}</p>
+                  </div>
+                ))}
+              </dl>
             </div>
 
             <dl className="space-y-3">
@@ -288,33 +249,70 @@ export default function LightMapPage() {
                   term: t('home.statUpdateLabel'),
                   detail: `${COLLECTION_VERSION} · ${formatNumber(COLLECTION_SUMMARY.visibleClusters, language)} ${t('home.sitesUnit')}`,
                 },
+                {
+                  term: t('home.trustAudit'),
+                  detail: t('home.trustAuditText'),
+                },
               ].map((item) => (
                 <div key={item.term} className="border-t border-[var(--museum-line)] pt-3">
                   <dt className="text-xs font-medium text-[var(--stage-gold)]">{item.term}</dt>
                   <dd className="mt-1 text-sm leading-6 text-[var(--museum-muted)]">{item.detail}</dd>
                 </div>
               ))}
+              <div className="flex flex-wrap gap-4 border-t border-[var(--museum-line)] pt-4 text-sm">
+                <Link to="/dashboard" className="museum-link">
+                  {t('home.atlasScopeLink')}
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
+                <Link to="/arcade" className="museum-link">
+                  {t('home.startArcade')}
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
+              </div>
             </dl>
           </div>
+        </section>
 
-          <nav aria-label={t('layout.mainNav')} className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--museum-line)] pt-6 text-sm">
-            <Link to="/explore" className="museum-link">
-              <Search className="h-4 w-4" aria-hidden="true" />
-              {t('home.startMap')}
-            </Link>
-            <Link to="/encyclopedia" className="museum-link">
-              <BookOpen className="h-4 w-4" aria-hidden="true" />
-              {t('home.startEnc')}
-            </Link>
-            <Link to="/dashboard" className="museum-link">
-              <BarChart3 className="h-4 w-4" aria-hidden="true" />
-              {t('home.startDash')}
-            </Link>
-            <Link to="/compare" className="museum-link">
-              <GitCompare className="h-4 w-4" aria-hidden="true" />
-              {t('home.startCompare')}
-            </Link>
-          </nav>
+        {/* 06 关于 */}
+        <section className="museum-section museum-section--last" aria-labelledby="home-about-title">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
+            <div>
+              <p className="museum-eyebrow">{t('home.aboutEyebrow')}</p>
+              <h2 id="home-about-title" className="mt-2 font-serif text-2xl tracking-tight sm:text-3xl">
+                {t('home.aboutTitle')}
+              </h2>
+              <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[var(--museum-muted)]">
+                {t('home.aboutIntroText')}
+              </p>
+              <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[var(--museum-muted)]">
+                {fill(t('home.statsSummary'), {
+                  total: formatNumber(COLLECTION_SUMMARY.total, language),
+                  visible: formatNumber(COLLECTION_SUMMARY.visibleTotal, language),
+                })}
+                {t('home.statsFootnote')}
+              </p>
+            </div>
+
+            <nav aria-label={t('layout.mainNav')} className="flex flex-col gap-2 text-sm">
+              {entries.map(({ to, icon: Icon, title, desc }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="museum-panel group flex items-start gap-3 p-3 transition hover:border-[var(--stage-gold)]"
+                >
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--stage-gold)]" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-[var(--museum-fg)]">{title}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-[var(--museum-muted)]">{desc}</span>
+                  </span>
+                  <ArrowUpRight
+                    className="ml-auto mt-1 h-4 w-4 shrink-0 text-[var(--museum-muted)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+              ))}
+            </nav>
+          </div>
         </section>
       </div>
     </div>

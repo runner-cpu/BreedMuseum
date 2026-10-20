@@ -1,8 +1,355 @@
 /*
- * 首页专用的两段样式：横向卡片轨的窄屏行为，以及序厅聚光英雄区。
+ * 首页专用样式：首屏「看 · 分布」图集、横向卡片轨的窄屏行为，以及序厅聚光英雄区。
  * 其余首页布局（.museum-section / .museum-panel / 类别与精选网格）
  * 已在 index.css 定义，这里不再重复一份带硬编码金色的旧规则。
  */
+
+/* ------------------------------------------------------------------ */
+/* 首屏：一张真正承载数据的中国地图                                      */
+/* ------------------------------------------------------------------ */
+
+.museum-atlas {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: min(100%, 1480px);
+  margin-inline: auto;
+  padding: clamp(2.2rem, 5vw, 4.2rem) clamp(1rem, 4vw, 4rem) clamp(1.6rem, 3vw, 2.6rem);
+  background:
+    radial-gradient(circle at 78% 12%, color-mix(in srgb, var(--stage-gold) 14%, transparent), transparent 30rem),
+    radial-gradient(circle at 8% 78%, color-mix(in srgb, var(--museum-fg) 10%, transparent), transparent 26rem);
+}
+
+.museum-atlas::after {
+  content: '';
+  position: absolute;
+  inset-inline: clamp(1rem, 4vw, 4rem);
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--museum-line), transparent);
+}
+
+.museum-atlas-copy { position: relative; z-index: 2; }
+
+.museum-atlas-title {
+  margin-top: 0.6rem;
+  font-family: 'Source Han Serif CN', 'Noto Serif SC', SimSun, serif;
+  font-size: clamp(2rem, 3.5vw, 3.15rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--museum-fg);
+}
+
+.museum-atlas-dek {
+  margin-top: 1rem;
+  max-width: 46ch;
+  color: var(--museum-muted);
+  font-size: 0.9rem;
+  line-height: 1.85;
+}
+
+.museum-atlas-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  border-block: 1px solid var(--museum-line);
+  padding-block: 0.9rem;
+}
+
+.museum-atlas-stats dt {
+  color: var(--museum-muted);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.museum-atlas-stats dd {
+  margin-top: 0.2rem;
+  color: var(--stage-gold);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.museum-atlas-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.35rem;
+  max-width: 30rem;
+  border: 1px solid var(--museum-line);
+  border-radius: 999px;
+  background: var(--museum-panel);
+  padding: 0.3rem 0.35rem 0.3rem 0.85rem;
+  color: var(--museum-muted);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.museum-atlas-search:focus-within {
+  border-color: var(--stage-gold);
+  box-shadow: 0 0 0 3px rgb(var(--stage-gold-rgb) / 0.18);
+}
+
+.museum-atlas-search input {
+  min-height: 2.5rem;
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--museum-fg);
+  font-size: 0.84rem;
+  outline: none;
+}
+
+.museum-atlas-search input::placeholder { color: var(--museum-muted); }
+
+.museum-atlas-search button {
+  min-height: 2.5rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--stage-gold);
+  padding-inline: 1rem;
+  color: var(--stage-panel);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.museum-atlas-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.1rem;
+}
+
+.museum-atlas-primary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  background: var(--museum-fg);
+  padding-inline: 1.15rem;
+  color: var(--museum-bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.museum-atlas-primary:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--museum-fg) 88%, var(--stage-gold)); }
+
+/* 右侧舞台 */
+.museum-atlas-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.museum-atlas-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.museum-atlas-lenses {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  border: 1px solid var(--museum-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--museum-panel) 90%, transparent);
+  padding: 0.22rem;
+}
+
+.museum-atlas-lens {
+  min-height: 2rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.72rem;
+  color: var(--museum-muted);
+  font-size: 0.72rem;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.museum-atlas-lens:hover { color: var(--museum-fg); background: color-mix(in srgb, var(--museum-fg) 7%, transparent); }
+
+/* 选中态用 panel 作前景：浅色 5.6:1、深色 7.3:1（与侧栏同一处置）。 */
+.museum-atlas-lens.is-active {
+  background: var(--stage-gold);
+  color: var(--stage-panel);
+  font-weight: 700;
+}
+
+.museum-atlas-readout {
+  color: var(--museum-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.museum-atlas-map {
+  position: relative;
+  aspect-ratio: 1000 / 660;
+  max-height: min(64vh, 34rem);
+  overflow: hidden;
+  border: 1px solid var(--museum-line);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 62% 38%, color-mix(in srgb, var(--stage-gold) 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--museum-panel) 92%, transparent);
+}
+
+.museum-atlas-map svg { display: block; }
+
+.museum-atlas-province {
+  transition: opacity 180ms ease, filter 180ms ease, fill 240ms ease;
+  vector-effect: non-scaling-stroke;
+}
+
+.museum-atlas-province.is-live { cursor: pointer; }
+.museum-atlas-province.is-live:hover { filter: brightness(1.12) saturate(1.05); }
+
+.museum-atlas-dot {
+  animation: atlas-dot-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes atlas-dot-in {
+  from { transform: scale(0.1); opacity: 0; }
+  to { transform: scale(1); opacity: 0.94; }
+}
+
+.museum-atlas-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  color: var(--museum-muted);
+  font-size: 0.66rem;
+}
+
+.museum-atlas-legend-scale { display: inline-flex; gap: 2px; }
+
+.museum-atlas-legend-scale i {
+  display: block;
+  width: 1rem;
+  height: 0.45rem;
+  border-radius: 1px;
+}
+
+.museum-atlas-legend-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-left: 0.4rem;
+  border-radius: 50%;
+  background: var(--stage-gold);
+}
+
+.museum-atlas-brief,
+.museum-atlas-empty {
+  border: 1px solid var(--museum-line);
+  border-radius: 0.85rem;
+  background: var(--museum-panel);
+  padding: 0.7rem 0.9rem;
+}
+
+.museum-atlas-brief {
+  border-color: color-mix(in srgb, var(--stage-gold) 45%, var(--museum-line));
+}
+
+.museum-atlas-brief-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 0.8rem;
+}
+
+.museum-atlas-brief-head p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--museum-fg);
+  font-size: 0.84rem;
+}
+
+.museum-atlas-brief-head p span { color: var(--museum-muted); font-size: 0.72rem; font-weight: 400; }
+
+.museum-atlas-brief-cats {
+  margin-top: 0.3rem;
+  color: var(--museum-muted);
+  font-size: 0.7rem;
+}
+
+.museum-atlas-brief-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  color: var(--museum-muted);
+}
+
+.museum-atlas-brief-chips a {
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  border: 1px solid var(--museum-line);
+  border-radius: 999px;
+  padding-inline: 0.65rem;
+  color: var(--museum-fg);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.museum-atlas-brief-chips a:hover {
+  border-color: var(--stage-gold);
+  background: color-mix(in srgb, var(--stage-gold) 10%, transparent);
+}
+
+.museum-atlas-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--museum-muted);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 1023px) {
+  .museum-atlas {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 2.4rem;
+  }
+
+  .museum-atlas-map { max-height: 52vh; }
+}
+
+@media (max-width: 639px) {
+  .museum-atlas-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  .museum-atlas-map { aspect-ratio: 1000 / 780; }
+  .museum-atlas-lens { min-height: 2.25rem; }
+}
+
+@media (pointer: coarse) {
+  .museum-atlas-lens { min-height: 2.75rem; }
+  .museum-atlas-search button { min-height: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .museum-atlas-dot { animation: none; }
+}
 
 @media (max-width: 767px) {
   .museum-featured-rail,
@@ -42,8 +389,6 @@
   isolation: isolate;
 }
 
-/* 标题下方的径向底色：让标题与描述始终压在一个柔和的暗场上，
-   不会因为底图恰好在这里变亮而失去对比。 */
 .spotlight-hero-copy::before {
   content: '';
   position: absolute;

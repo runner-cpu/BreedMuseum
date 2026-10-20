@@ -10,6 +10,8 @@ export function createTasks(includeAll = false) {
     ['node_modules/vitest/vitest.mjs', 'run'],
     ['--test', 'tasks/__tests__/prepare-pages.node-test.mjs'],
     ['tasks/sync-data-docs.mjs', '--check'],
+    // 首页图集是预计算常量：批次一变就必须重新生成，否则首页数字会悄悄落后。
+    ['tasks/generate-home-atlas.mjs', '--check'],
     ['node_modules/vite/bin/vite.js', 'build'],
     ['tasks/check-bundle-size.mjs'],
     // Vite clears dist before building. Prepare Pages only after the complete
