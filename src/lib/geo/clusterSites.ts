@@ -214,8 +214,11 @@ export const matchesLens = (
   lens: LensId,
   category: string | null,
 ): boolean => {
-  if (lens === 'all') return true;
-  if (lens === 'category') return category ? member.category === category : true;
+  // 类别是所有镜头的共同前置条件：先按畜种收窄，再按镜头收窄。
+  // 旧实现只在 lens === 'category' 时读 category，导致「牛 + 国家级保护」
+  // 这类组合无法表达，类别筛选在保护/濒危镜头下被静默忽略。
+  if (category && member.category !== category) return false;
+  if (lens === 'all' || lens === 'category') return true;
   if (lens === 'protect') return member.protectedByNationalList;
   return member.endangeredEditorial;
 };

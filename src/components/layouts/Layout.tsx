@@ -6,8 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useSettings } from '@/contexts/AppSettings';
-import { COLLECTION_VERSION } from '@/data/collectionSummary';
-import { visibleBreeds } from '@/data/visibleBreeds';
+import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
 import { publicAsset } from '@/lib/publicAsset';
 import LocalAssistant from '@/components/assistant/LocalAssistant';
 
@@ -32,15 +31,17 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     { to: '/dashboard', label: t('nav.dashboard') },
     { to: '/arcade', label: t('nav.arcade') },
     // 对比是浏览流程的收束动作，放在主导航末尾，避免抢占探索入口。
-    { to: '/compare', label: '品种对比' },
+    { to: '/compare', label: t('nav.compare') },
   ];
   const ThemeIcon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor;
   useEffect(() => { setMenuOpen(false); setFilterOpen(false); }, [pathname]);
   const handleSearch = (event: FormEvent) => {
     event.preventDefault();
     setMenuOpen(false);
-    // 全局检索统一进入地图探索，结果与空间上下文保持一致。
-    navigate('/explore?search=' + encodeURIComponent(searchValue.trim()));
+    // 站内检索统一落到百科：那里有搜索框、省份/濒危筛选与可翻阅的结果列表。
+    // 旧实现跳去 /explore?search=，但探索页并不读取 search 参数，等于静默丢词。
+    const keyword = searchValue.trim();
+    navigate(keyword ? '/encyclopedia?search=' + encodeURIComponent(keyword) : '/encyclopedia');
   };
   const utilities = <>
     <DropdownMenu><DropdownMenuTrigger asChild><button type="button" aria-label={t('layout.changeTheme')} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><ThemeIcon className="h-5 w-5" /></button></DropdownMenuTrigger>
@@ -70,7 +71,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
       </div>
     </header>
     <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-      <SheetContent className="w-[min(90vw,360px)] overflow-y-auto bg-museum-ink text-museum-paper border-white/20 p-6">
+      <SheetContent closeLabel={t('layout.closePanel')} className="w-[min(90vw,360px)] overflow-y-auto bg-museum-ink text-museum-paper border-white/20 p-6">
         <SheetTitle className="text-museum-paper">{t('layout.navTitle')}</SheetTitle>
         <SheetDescription className="text-museum-paper/70">{t('layout.navDesc')}</SheetDescription>
         <form role="search" onSubmit={handleSearch} className="mt-6 flex gap-2"><Input autoFocus type="search" aria-label={t('layout.searchBreeds')} value={searchValue} onChange={e => onSearchChange(e.target.value)} className="min-h-11 min-w-0 bg-white/10 border-white/25 text-white" /><button type="submit" aria-label={t('layout.startSearch')} className="min-h-11 min-w-11 flex items-center justify-center rounded-lg bg-white/15"><Search className="h-5 w-5" /></button></form>
@@ -86,7 +87,7 @@ export default function Layout({ children, selectedCategory, onSelectCategory, s
     <LocalAssistant />
     <footer className="shrink-0 bg-museum-ink text-museum-paper/85 px-4 py-2 text-center text-xs leading-relaxed">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span>{t('layout.footerTagline')} {visibleBreeds.length} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>
+        <span>{t('layout.footerTagline')} {COLLECTION_SUMMARY.visibleTotal.toLocaleString('zh-CN')} {t('layout.unitRecords')}<span className="hidden sm:inline"> · {t('layout.updated')} {COLLECTION_VERSION}</span></span>
         <span aria-hidden="true">·</span>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html')}>{t('layout.privacyLink')}</a>
         <a className="underline underline-offset-2 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-museum-gold" href={publicAsset('privacy.html#images')}>{t('layout.imageSources')}</a>

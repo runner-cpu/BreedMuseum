@@ -24,20 +24,20 @@ export interface RouteConfig {
  */
 export const routes: RouteConfig[] = [
   { path: '/', Component: lazy(() => import('./pages/LightMapPage')), meta: {
-    zh: { title: '首页序厅 · 中国地方畜禽品种数字博物馆', description: '认识中国地方畜禽品种数字博物馆的馆藏、来源与参观路线，再进入地图探索 1,186 条可追溯记录。' },
-    en: { title: 'Museum Foyer · China Local Livestock Digital Museum', description: 'Meet the collection, sources, and visitor route of the China Local Livestock Digital Museum, then explore 1,186 traceable records on the map.' },
+    zh: { title: '首页序厅 · 中国地方畜禽品种数字博物馆', description: '馆藏 1,186 条地方畜禽品种记录，其中 667 条带图可浏览、1,062 条产区已核验；从序厅进入地图探索、品种百科与数据看板。' },
+    en: { title: 'Museum Foyer · China Local Livestock Digital Museum', description: '1,186 local livestock records, 667 with browsable images and 1,062 with verified production sites; enter the map, encyclopedia and dashboard from the foyer.' },
   } },
   { path: '/explore', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
-    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别，探索 1,186 条地方畜禽品种馆藏记录。' },
-    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Explore 1,186 local livestock records by province, production site, category, and conservation lens.' },
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 154 个产区、覆盖 30 个省级行政区。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 154 sites across 30 provincial regions.' },
   } },
   { path: '/map', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
-    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别，探索 1,186 条地方畜禽品种馆藏记录。' },
-    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Explore 1,186 local livestock records by province, production site, category, and conservation lens.' },
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 154 个产区、覆盖 30 个省级行政区。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 154 sites across 30 provincial regions.' },
   } },
   { path: '/encyclopedia', Component: lazy(() => import('./pages/EncyclopediaPage')), meta: {
-    zh: { title: '品种百科 · 中国地方畜禽品种数字博物馆', description: '按名称、类别、省份与濒危等级检索 1,186 条地方畜禽品种馆藏记录。' },
-    en: { title: 'Breed Encyclopedia · China Local Livestock Digital Museum', description: 'Search 1,186 local livestock records by name, category, province, and conservation level.' },
+    zh: { title: '品种百科 · 中国地方畜禽品种数字博物馆', description: '按名称、类别、省份与濒危等级检索 667 条带图馆藏记录，逐条标注来源与核验状态。' },
+    en: { title: 'Breed Encyclopedia · China Local Livestock Digital Museum', description: 'Search 667 illustrated collection records by name, category, province and conservation level, each with sources and verification status.' },
   } },
   { path: '/arcade', Component: lazy(() => import('./pages/ArcadePage')), meta: {
     zh: { title: '互动厅 · 三台展教装置', description: '找家挑战、识图挑战与知识问答：三台装置各自成页，题目全部由已核验的馆藏数据生成，答题后可打开百科详情。' },
@@ -48,7 +48,7 @@ export const routes: RouteConfig[] = [
     en: { title: 'Exhibit · Interactive Hall', description: 'One interactive exhibit at a time, switchable at any moment; every question comes from verified fields and opens an encyclopedia detail drawer.' },
   } },
   { path: '/dashboard', Component: lazy(() => import('./pages/DashboardPage')), meta: {
-    zh: { title: '馆藏数据中枢 · 中国地方畜禽品种数字博物馆', description: '从类别构成、产区密度与保护状态阅读 1,186 条地方畜禽品种馆藏记录。' },
+    zh: { title: '馆藏数据中枢 · 中国地方畜禽品种数字博物馆', description: '从类别构成、产区密度与保护状态阅读 667 条带图记录，并与 1,186 条全馆藏口径对照。' },
     en: { title: 'Collection Intelligence · China Local Livestock Digital Museum', description: 'Read the collection through category composition, regional density, and conservation status.' },
   } },
   { path: '/compare', Component: lazy(() => import('./pages/ComparisonPage')), meta: {

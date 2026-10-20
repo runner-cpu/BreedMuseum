@@ -12,12 +12,17 @@ import { Button } from '@/components/ui/button';
 import { useSettings } from '@/contexts/AppSettings';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
 
-// 各省份高亮配色（聚光时显示的彩色地图）
-const palette = [
-  '#d4a853', '#e08a4a', '#c97b63', '#a85c7a', '#6b5b95',
-  '#4a7a9a', '#3a8a7a', '#5a9a5a', '#8aa050', '#b09040',
-];
-const colorFor = (i: number) => palette[i % palette.length];
+// 序厅暗场用馆藏品牌墨绿，聚光层只揭示一种含义：金色版图 = 馆藏覆盖省域。
+// 旧实现按省份下标轮换十种颜色，既不编码任何字段，也和站内墨绿/宣纸/金色令牌脱节。
+/*
+ * 底层轮廓不能太淡：指针未进入英雄区时没有任何聚光，若填充只有 7% 不透明度，
+ * 首屏看起来就是一块空黑。现在白描边 + 12% 填充让中国轮廓静态可读，
+ * 聚光仍负责把经过的区域提成金色。
+ */
+const HERO_BASE_FILL = 'rgba(180, 200, 186, 0.12)';
+const HERO_BASE_STROKE = 'rgba(206, 222, 210, 0.46)';
+const HERO_REVEAL_FILL = '#c79a45';
+const HERO_REVEAL_STROKE = 'rgba(247, 235, 205, 0.55)';
 
 interface SpotlightHeroProps {
   titleTop: string;
@@ -34,8 +39,11 @@ interface SpotlightHeroProps {
 
 /**
  * 光标聚光地图英雄区：
- * 底层为中国地图淡色轮廓，上层为彩色填充地图，
- * 通过跟随光标的径向聚光遮罩局部揭示彩色地图。
+ * 底层为中国地图淡色轮廓，上层为金色版图，
+ * 通过跟随光标的径向聚光遮罩局部揭示。
+ *
+ * 触屏 / `prefers-reduced-motion` 下遮罩整体展开（见 light-map-page.css），
+ * 不依赖指针移动也能读到完整版图。
  */
 const SpotlightHero = ({
   titleTop,
@@ -50,7 +58,6 @@ const SpotlightHero = ({
   onSearch,
 }: SpotlightHeroProps) => {
   const { t } = useSettings();
-  const heroIsDark = true;
   const reduceMotion = useReducedMotion();
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -91,11 +98,11 @@ const SpotlightHero = ({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className="spotlight-hero relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
-      style={{ background: '#080a1b' }}
+      style={{ background: '#08130e' }}
     >
       {/* 深墨绿地图舞台：让中国轮廓成为首屏主角。 */}
-      <div aria-hidden="true" className="absolute inset-0" style={{ background: heroIsDark ? 'radial-gradient(circle at 52% 45%,rgba(75,135,103,.26),transparent 34%),radial-gradient(circle at 80% 18%,rgba(212,168,83,.16),transparent 24%),linear-gradient(180deg,#111329,#080a1b 60%,#080a1b)' : undefined }} />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent 1.5px)] [background-size:84px_84px]" />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: 'radial-gradient(circle at 52% 45%,rgba(75,135,103,.30),transparent 34%),radial-gradient(circle at 80% 18%,rgba(199,154,69,.18),transparent 24%),linear-gradient(180deg,#15392b,#0a1a13 60%,#08130e)' }} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <motion.div
@@ -109,12 +116,12 @@ const SpotlightHero = ({
           preserveAspectRatio="xMidYMid meet"
         >
           {Object.values(provincePaths).map((d, i) => (
-            <path key={i} d={d} fill="rgba(116,128,180,0.07)" stroke="rgba(116,128,180,0.42)" strokeWidth="0.7" />
+            <path key={i} d={d} fill={HERO_BASE_FILL} stroke={HERO_BASE_STROKE} strokeWidth="0.7" />
           ))}
         </svg>
       </motion.div>
 
-      {/* 聚光图：彩色填充地图，随光标揭示 */}
+      {/* 聚光图：金色版图，随光标揭示 */}
       <motion.div
         aria-hidden="true"
         className="spotlight-reveal absolute inset-0 flex items-center justify-center"
@@ -126,7 +133,7 @@ const SpotlightHero = ({
           preserveAspectRatio="xMidYMid meet"
         >
           {Object.values(provincePaths).map((d, i) => (
-            <path key={i} d={d} fill={colorFor(i)} stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" opacity="0.92" />
+            <path key={i} d={d} fill={HERO_REVEAL_FILL} stroke={HERO_REVEAL_STROKE} strokeWidth="0.5" opacity="0.92" />
           ))}
         </svg>
       </motion.div>
@@ -153,8 +160,19 @@ const SpotlightHero = ({
           className="font-serif font-bold text-balance leading-tight"
           style={{ color: '#f5f4ee', textShadow: '0 2px 24px rgba(0,0,0,.65)' }}
         >
-          <span className="block whitespace-nowrap text-3xl md:text-6xl">{titleTop}</span>
-          <span className="block whitespace-nowrap text-3xl md:text-6xl bg-gradient-to-r from-[#a66c12] via-[#d5a94e] to-[#a66c12] bg-clip-text text-transparent">
+          <span className="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]">{titleTop}</span>
+          <span
+            className="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]"
+            style={{
+              // 渐变文字在部分浏览器里会连同 text-shadow 一起被裁掉；
+              // 这里改用纯金色 + 深色投影，保证小屏也不发灰。
+              backgroundImage: 'linear-gradient(92deg,#c08a2c,#f0d397 48%,#c08a2c)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+              filter: 'drop-shadow(0 2px 10px rgba(0,0,0,.55))',
+            }}
+          >
             {titleBottom}
           </span>
         </motion.h1>

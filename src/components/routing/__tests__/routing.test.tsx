@@ -27,7 +27,7 @@ test('explore route and map alias render the standalone map page', async () => {
   for (const path of ['/explore', '/map']) {
     const view = renderAppAt(path);
     expect(await screen.findByRole('heading', { name: '地图探索' })).toBeInTheDocument();
-    expect(screen.getByRole('tablist', { name: '按畜种筛选' })).toBeVisible();
+    expect(screen.getByRole('group', { name: '按畜种筛选' })).toBeVisible();
     view.unmount();
   }
 });
@@ -39,12 +39,12 @@ test('arcade overview lists the three exhibits as separate entrances', async () 
   for (const title of ['找家挑战', '识图挑战', '知识问答']) {
     expect(screen.getByRole('link', { name: new RegExp(title) })).toBeVisible();
   }
-  expect(screen.queryByRole('group', { name: '选择省份作答' })).toBeNull();
+  expect(screen.queryByRole('group', { name: '在地图上选择省份作答' })).toBeNull();
 });
 
 test('each arcade exhibit has its own page and can switch to the others', async () => {
   for (const [game, title, group] of [
-    ['find-home', '找家挑战', '选择省份作答'],
+    ['find-home', '找家挑战', '在地图上选择省份作答'],
     ['identify', '识图挑战', '选择类别'],
     ['quiz', '知识问答', '选择答案'],
   ] as const) {

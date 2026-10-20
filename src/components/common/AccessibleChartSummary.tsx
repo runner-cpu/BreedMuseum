@@ -1,6 +1,9 @@
+import { useSettings } from '@/contexts/AppSettings';
+
 export function AccessibleChartSummary({ caption, columns, rows }: { caption: string; columns: (string | number)[]; rows: (string | number)[][] }) {
+  const { t } = useSettings();
   return <details className="mt-4 border-t border-border pt-3">
-    <summary className="cursor-pointer py-2 font-medium text-sm">查看表格数据 · {caption}</summary>
+    <summary className="cursor-pointer py-2 font-medium text-sm">{t('chart.showTable')} · {caption}</summary>
     <div className="overflow-x-auto"><table className="w-full text-left text-sm">
       <caption className="sr-only">{caption}</caption>
       <thead><tr>{columns.map((name, i) => <th key={i} scope="col" className="border-b p-2 font-semibold">{name}</th>)}</tr></thead>

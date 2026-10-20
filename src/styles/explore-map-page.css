@@ -30,6 +30,88 @@
   font-size: 0.68rem;
 }
 
+/*
+ * 镜头切换条：三个按钮放在地图卡片的标题下沿。
+ * 它与左侧类别栏是两条独立筛选轴（镜头 = 证据口径，类别 = 畜种），
+ * 所以放在地图卡内部而不是塞进类别栏。浅/深两套主题都走 stage 令牌。
+ */
+.museum-map-lensbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--museum-line) 72%, transparent);
+  padding: 0.5rem 1rem 0.6rem;
+  background: color-mix(in srgb, var(--museum-panel) 96%, transparent);
+}
+
+.museum-map-lens {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--museum-line) 88%, transparent);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  color: var(--museum-muted);
+  font-size: 0.72rem;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+/* 镜头按钮自带的记录数：点击之前就能看出该组合是不是空的 */
+.museum-map-lens-count {
+  color: inherit;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.62rem;
+  opacity: 0.72;
+}
+
+.museum-map-lens:hover {
+  border-color: var(--stage-gold);
+  color: var(--museum-fg);
+}
+
+.museum-map-lens.is-active {
+  border-color: var(--stage-gold);
+  background: var(--stage-gold);
+  color: var(--stage-panel);
+  font-weight: 600;
+}
+
+.museum-map-lens.is-active .museum-map-lens-count { opacity: 0.85; }
+
+.museum-map-lens-note {
+  margin-inline-start: auto;
+  color: var(--museum-muted);
+  font-size: 0.66rem;
+}
+
+/* 空组合说明：贴在画布下沿，用虚线区分“没有数据”与“地图坏了”。 */
+.museum-map-empty {
+  border-top: 1px dashed color-mix(in srgb, var(--museum-line) 80%, transparent);
+  background: color-mix(in srgb, var(--museum-panel) 98%, transparent);
+}
+
+.museum-map-empty p { line-height: 1.6; }
+
+@media (max-width: 767px) {
+  .museum-map-lensbar { padding-inline: 0.75rem; }
+  /* 小屏上提示换成第二行，而不是隐藏：镜头与类别是否叠加是当前视图的关键信息。 */
+  .museum-map-lens-note { flex-basis: 100%; margin-inline-start: 0; }
+}
+
+/*
+ * 触屏设备的触控目标要 ≥44px。镜头按钮是带类名的 `<button>`，
+ * 类选择器优先级高于全局 `@media (pointer: coarse) button { min-height: 44px }`，
+ * 所以 2rem 的桌面高度会一直生效；这里显式补回触控尺寸。
+ */
+@media (pointer: coarse) {
+  .museum-map-lens { min-height: 2.75rem; }
+}
+
 .museum-detail--compact {
   display: flex;
   flex-direction: column;
@@ -52,11 +134,12 @@
   position: absolute;
   top: 0.65rem;
   right: 0.65rem;
-  border: 1px solid rgb(212 168 83 / 0.72);
+  border: 1px solid color-mix(in srgb, var(--stage-gold) 72%, transparent);
   border-radius: 999px;
   padding: 0.25rem 0.55rem;
-  background: color-mix(in srgb, var(--museum-panel) 85%, transparent);
-  color: #e6c678;
+  background: color-mix(in srgb, var(--museum-panel) 88%, transparent);
+  /* 旧值 #e6c678 在浅色宣纸/浅面板上只有约 1.6:1；跟随主题令牌即可两套底色都读得清。 */
+  color: var(--stage-gold);
   font-size: 0.68rem;
   line-height: 1;
   backdrop-filter: blur(8px);
@@ -107,7 +190,7 @@
 }
 
 .museum-detail-label {
-  border-left: 2px solid #d4a853;
+  border-left: 2px solid var(--stage-gold);
   padding-left: 0.55rem;
   color: var(--museum-fg);
   font-size: 0.74rem;

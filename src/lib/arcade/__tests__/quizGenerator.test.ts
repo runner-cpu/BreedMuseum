@@ -4,6 +4,7 @@ import { getBreedMetadata } from '@/data/breedMetadata';
 import { hasMappableLocation } from '@/lib/geo/lightMapData';
 import {
   generateFindHomeRounds,
+  generateIdentifyRounds,
   generateQuiz,
   haversineKm,
   PROVINCE_CENTROIDS,
@@ -15,7 +16,8 @@ import {
  * - 同一种子完全可复现；
  * - 待核验记录（哨兵坐标 / “待核验”省份）绝不进入题干或选项；
  * - 正确答案必定存在于选项里，且选项互不重复；
- * - 找家挑战的答案坐标可用于距离提示。
+ * - 找家挑战的答案坐标可用于距离提示；
+ * - 识图挑战用真实图片问类别，并带品种与产地的回查信息。
  */
 
 const unverifiedIds = new Set(
@@ -97,12 +99,55 @@ describe('find-home rounds', () => {
       const breed = breeds.find((item) => item.id === round.breed.id)!;
       expect(hasMappableLocation(breed)).toBe(true);
       expect(round.answerCoordinate).toEqual([breed.longitude, breed.latitude]);
+      // 地图作答需要照片与英文名，题干才能两种语言都成立。
+      expect(round.breed.image).toMatch(/^https?:/);
+      expect(round.breed.englishName.length).toBeGreaterThan(0);
     }
   });
 
   test('rounds are reproducible per seed', () => {
     expect(generateFindHomeRounds(5, 3)).toEqual(generateFindHomeRounds(5, 3));
     expect(generateFindHomeRounds(5, 3)).not.toEqual(generateFindHomeRounds(6, 3));
+  });
+});
+
+describe('identify rounds', () => {
+  const rounds = generateIdentifyRounds(2027, 6);
+
+  test('every round shows a real collection photo', () => {
+    expect(rounds).toHaveLength(6);
+    expect(new Set(rounds.map((round) => round.breed.id)).size).toBe(6);
+    for (const round of rounds) {
+      expect(round.breed.image, round.breed.name).toMatch(/^https?:/);
+      expect(round.breed.province).not.toBe('待核验');
+      expect(round.breed.englishName.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('options are four distinct categories containing the answer', () => {
+    for (const round of rounds) {
+      expect(round.options).toHaveLength(4);
+      const ids = round.options.map((option) => option.id);
+      expect(new Set(ids).size).toBe(4);
+      expect(ids).toContain(round.answerId);
+      expect(round.answerId).toBe(round.breed.category);
+    }
+  });
+
+  test('identify rounds are reproducible per seed', () => {
+    expect(generateIdentifyRounds(5, 6)).toEqual(generateIdentifyRounds(5, 6));
+    expect(generateIdentifyRounds(5, 6)).not.toEqual(generateIdentifyRounds(6, 6));
+  });
+
+  test('each question also ships an English prompt and explanation', () => {
+    for (const round of rounds) {
+      expect(round.explanationEn).toMatch(/[A-Za-z]/);
+      expect(round.explanation).toMatch(/[\u4e00-\u9fa5]/);
+    }
+    for (const question of generateQuiz(3, 8)) {
+      expect(question.promptEn).toMatch(/[A-Za-z]/);
+      expect(question.explanationEn).toMatch(/[A-Za-z]/);
+    }
   });
 });
 

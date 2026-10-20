@@ -1,6 +1,7 @@
 import type { Breed } from '@/data/breeds';
 import { cn } from '@/lib/utils';
 import { getVerificationVerdict, type VerificationLevel } from '@/data/verification';
+import { useSettings } from '@/contexts/AppSettings';
 
 /**
  * 三态核验徽章（全站唯一渲染入口）。
@@ -32,7 +33,10 @@ export interface VerificationBadgeProps {
 }
 
 export function VerificationBadge({ breed, className, compact = false }: VerificationBadgeProps) {
+  const { t } = useSettings();
   const verdict = getVerificationVerdict(breed);
+  const label = t(`verify.${verdict.level}`);
+  const detail = t(`verify.${verdict.level}Detail`);
   return (
     <span
       className={cn(
@@ -40,18 +44,19 @@ export function VerificationBadge({ breed, className, compact = false }: Verific
         STYLES[verdict.level],
         className,
       )}
-      title={verdict.detail}
+      title={detail}
       data-verification={verdict.level}
     >
       <span aria-hidden="true">{MARKS[verdict.level]}</span>
-      {verdict.label}
-      {!compact && <span className="sr-only">：{verdict.detail}</span>}
+      {label}
+      {!compact && <span className="sr-only">：{detail}</span>}
     </span>
   );
 }
 
 /** 徽章图例（百科详情与数据说明共用）。 */
 export function VerificationLegend({ className }: { className?: string }) {
+  const { t } = useSettings();
   return (
     <ul className={cn('flex flex-wrap items-center gap-3 text-[11px] text-stage-muted', className)}>
       {(['official', 'editorial', 'pending'] as const).map((level) => (
@@ -60,31 +65,11 @@ export function VerificationLegend({ className }: { className?: string }) {
             className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5', STYLES[level])}
           >
             <span aria-hidden="true">{MARKS[level]}</span>
-            {getVerificationVerdictByLevel(level).label}
+            {t(`verify.${level}`)}
           </span>
-          <span className="hidden sm:inline">{getVerificationVerdictByLevel(level).detail}</span>
+          <span className="hidden sm:inline">{t(`verify.${level}Detail`)}</span>
         </li>
       ))}
     </ul>
   );
-}
-
-/** 按等级取文案（图例用，不需要具体记录）。 */
-function getVerificationVerdictByLevel(level: VerificationLevel) {
-  if (level === 'official') {
-    return {
-      label: '官方已核验',
-      detail: '名称与名录身份可追溯至 940 号公告或 2024 名录官方文件。',
-    };
-  }
-  if (level === 'editorial') {
-    return {
-      label: '编辑整理',
-      detail: '来自项目整理数据集，描述为编辑口径。',
-    };
-  }
-  return {
-    label: '待专项核验',
-    detail: '产区或资料未核验，暂不落点。',
-  };
 }

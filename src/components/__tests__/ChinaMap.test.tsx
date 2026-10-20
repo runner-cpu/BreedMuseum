@@ -49,8 +49,8 @@ const clusterButtons = () =>
   screen.getAllByRole('button').filter((node) => node.tagName.toLowerCase() === 'g');
 
 describe('ChinaMap accessibility', () => {
-  it('exposes provinces as keyboard-operable buttons', () => {
-    render(<ChinaMap {...defaultProps} breeds={[]} />);
+  it('exposes provinces with data as keyboard-operable buttons', () => {
+    render(<ChinaMap {...defaultProps} breeds={[breed]} />);
 
     const province = document.querySelector('path[role="button"]');
     expect(province).not.toBeNull();
@@ -61,6 +61,25 @@ describe('ChinaMap accessibility', () => {
     fireEvent.keyDown(province!, { key: ' ' });
 
     expect(defaultProps.onProvinceClick).toHaveBeenCalledTimes(2);
+    expect(defaultProps.onProvinceClick).toHaveBeenNthCalledWith(1, '云南');
+  });
+
+  /**
+   * 没有落点的省份只是地理轮廓。旧实现给全部 34 个省级单位都挂
+   * role="button" + tabIndex，键盘必须 Tab 三十多次才能走到产区点位，
+   * 而其中大多数回车只会得到空地图。
+   */
+  it('keeps provinces without records out of the tab order', () => {
+    render(<ChinaMap {...defaultProps} breeds={[breed]} />);
+
+    const buttons = [...document.querySelectorAll('path[role="button"]')];
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAttribute('aria-label', '云南');
+    // 其余省份仍是可读的路径元素，但不可聚焦、不可点击
+    const 海南 = document.querySelector('[data-province="海南"] path');
+    expect(海南).not.toBeNull();
+    expect(海南).not.toHaveAttribute('role');
+    expect(海南).not.toHaveAttribute('tabindex');
   });
 
   it('exposes one marker per production site, keyboard-operable', () => {

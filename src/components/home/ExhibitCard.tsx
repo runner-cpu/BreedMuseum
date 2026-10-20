@@ -2,6 +2,9 @@ import { ArrowRight, Gamepad2, MapPinned, ScanEye, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ArcadeGame } from '@/lib/arcade/games';
 import { CategorySilhouette } from '@/components/arcade/CategorySilhouette';
+import { BreedImage } from '@/components/common/BreedImage';
+import { useSettings } from '@/contexts/AppSettings';
+import { HOME_FEATURED } from '@/data/homeHighlights';
 import { cn } from '@/lib/utils';
 
 const GAME_ICON = {
@@ -16,6 +19,9 @@ const GAME_CATEGORIES = {
   quiz: ['猪', '骆驼', '蜂'],
 } as const;
 
+/** 识图挑战的缩略图直接用一条真实馆藏照片，比手绘剪影更能说明“用真实照片出题”。 */
+const IDENTIFY_PREVIEW = HOME_FEATURED.find((breed) => breed.category === '鸡') ?? HOME_FEATURED[0];
+
 interface ExhibitCardProps {
   game: ArcadeGame;
   className?: string;
@@ -24,6 +30,7 @@ interface ExhibitCardProps {
 
 /** 首页与互动厅总览共用的装置卡。 */
 export function ExhibitCard({ game, className, compact = false }: ExhibitCardProps) {
+  const { t, language } = useSettings();
   const Icon = GAME_ICON[game.id] ?? Gamepad2;
   const categories = GAME_CATEGORIES[game.id] ?? ['其他'];
 
@@ -41,36 +48,47 @@ export function ExhibitCard({ game, className, compact = false }: ExhibitCardPro
         <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-stage-gold/15 text-stage-gold ring-1 ring-stage-gold/20">
           <Icon className="h-5 w-5" aria-hidden="true" />
         </span>
-        <span className="rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-stage-muted">{game.rounds}</span>
+        <span className="rounded-full border border-stage-border px-2.5 py-1 text-[11px] text-stage-muted">{t(game.roundsKey)}</span>
       </div>
 
       <div className="relative mt-3 flex h-20 items-center gap-1 overflow-hidden rounded-xl border border-stage-border/70 bg-stage px-3">
-        {categories.map((category, index) => (
-          <CategorySilhouette
-            key={category}
-            category={category}
-            label={`${game.title}：${category}`}
-            className={cn(
-              'h-[4.4rem] w-[4.4rem] shrink-0 text-stage-gold/80 transition-transform duration-300 group-hover:-translate-y-1',
-              index === 1 && 'text-stage-fg/65',
-              index === 2 && 'text-stage-gold/50',
-            )}
+        {game.id === 'identify' ? (
+          <BreedImage
+            src={IDENTIFY_PREVIEW.image}
+            alt={IDENTIFY_PREVIEW.name}
+            category={IDENTIFY_PREVIEW.category}
+            breedName={IDENTIFY_PREVIEW.name}
+            className="h-[4.4rem] w-[6.2rem] shrink-0 rounded-md"
+            sizes="7rem"
           />
-        ))}
-        <span className="ml-auto self-end pb-2 text-[10px] uppercase tracking-[0.2em] text-stage-muted/80">play</span>
+        ) : (
+          categories.map((category, index) => (
+            <CategorySilhouette
+              key={category}
+              category={category}
+              label={`${t(game.titleKey)}: ${category}`}
+              className={cn(
+                'h-[4.4rem] w-[4.4rem] shrink-0 text-stage-gold/80 transition-transform duration-300 group-hover:-translate-y-1',
+                index === 1 && 'text-stage-fg/65',
+                index === 2 && 'text-stage-gold/50',
+              )}
+            />
+          ))
+        )}
+        <span className="ml-auto self-end pb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stage-muted/80">play</span>
       </div>
 
       <div className="relative mt-4 space-y-2">
-        <p className="text-xs font-medium tracking-[0.12em] text-stage-gold">{game.skill}</p>
-        <h3 className="font-serif text-xl text-stage-fg">{game.title}</h3>
-        <p className="text-sm leading-relaxed text-stage-muted">{game.summary}</p>
+        <p className="text-xs font-medium tracking-[0.12em] text-stage-gold">{t(game.skillKey)}</p>
+        <h3 className="font-serif text-xl text-stage-fg">{t(game.titleKey)}</h3>
+        <p className="text-sm leading-relaxed text-stage-muted">{t(game.summaryKey)}</p>
       </div>
 
       <span className="relative mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-stage-gold">
-        进场
+        {t('arcade.enter')}
         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
       </span>
+      <span className="sr-only">{language}</span>
     </Link>
   );
 }
-

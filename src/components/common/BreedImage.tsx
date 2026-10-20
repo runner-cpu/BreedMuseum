@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils';
 import { publicAsset } from '@/lib/publicAsset';
 import { CategorySilhouette } from '@/components/arcade/CategorySilhouette';
 import { hasBreedImage } from '@/data/breedImage';
+import { useSettings } from '@/contexts/AppSettings';
+import { fill } from '@/lib/displayLabels';
 
 export const BREED_IMAGE_FALLBACK = publicAsset('brand/breed-placeholder.svg');
 export { hasBreedImage } from '@/data/breedImage';
@@ -40,6 +42,7 @@ export function BreedImage({
   breedName,
   fallbackMode = 'illustration',
 }: BreedImageProps) {
+  const { t } = useSettings();
   const [currentSrc, setCurrentSrc] = useState(resolveSrc(src));
 
   useEffect(() => {
@@ -56,16 +59,16 @@ export function BreedImage({
     >
       {isFallback && fallbackMode === 'empty' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-stage-muted">
-          <span className="font-serif text-base text-stage-fg">图片待补充</span>
-          <span className="text-[11px]">当前记录保留文字资料，暂不展示示意图。</span>
+          <span className="font-serif text-base text-stage-fg">{t('image.pendingTitle')}</span>
+          <span className="text-[11px]">{t('image.pendingNote')}</span>
         </div>
       )}
       {isFallback && fallbackMode === 'illustration' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_28%,rgb(216_177_92_/_0.26),transparent_42%),linear-gradient(145deg,var(--stage-soft),var(--stage-panel))] px-4 text-center text-stage-fg">
-          <span className="absolute right-3 top-3 rounded border border-stage-gold/45 bg-stage-panel/70 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.16em] text-stage-gold">示意图</span>
-          <CategorySilhouette category={category} label={`${label}示意插画`} className="h-24 w-24 text-stage-gold/80" />
+          <span className="absolute right-3 top-3 rounded border border-stage-gold/45 bg-stage-panel/70 px-1.5 py-0.5 font-mono text-[9px] tracking-[0.16em] text-stage-gold">{t('image.illustration')}</span>
+          <CategorySilhouette category={category} label={fill(t('image.illustrationAlt'), { name: label })} className="h-24 w-24 text-stage-gold/80" />
           <span className="mt-2 max-w-full truncate font-serif text-sm">{label}</span>
-          <span className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stage-muted">breed museum archive</span>
+          <span className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stage-muted">{t('image.archive')}</span>
         </div>
       )}
       {!(isFallback && fallbackMode === 'empty') && <img

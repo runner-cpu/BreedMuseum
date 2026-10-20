@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { breeds, categories } from '@/data/breeds';
+import { visibleBreeds, visibleCategories } from '@/data/visibleBreeds';
+import { buildSiteClusters } from '@/lib/geo/clusterSites';
 import { COLLECTION_SUMMARY, QUALITY_SUMMARY } from '../collectionSummary';
 
 describe('collection summary contract', () => {
@@ -13,6 +15,36 @@ describe('collection summary contract', () => {
     expect(COLLECTION_SUMMARY.editorialEndangered).toBe(
       breeds.filter((breed) => breed.endangered === '濒危' || breed.endangered === '极危').length,
     );
+  });
+
+  /**
+   * 访客口径必须与运行时 `visibleBreeds` 同源：地图、百科、看板与页脚
+   * 都读这组常量，一旦数据增删而常量没跟上，会在第一屏就把数量说错。
+   */
+  it('visitor-facing totals match visibleBreeds', () => {
+    expect(COLLECTION_SUMMARY.visibleTotal).toBe(visibleBreeds.length);
+    expect(COLLECTION_SUMMARY.visibleProvinces).toBe(
+      new Set(visibleBreeds.map((breed) => breed.province).filter((province) => province !== '待核验')).size,
+    );
+    expect(COLLECTION_SUMMARY.visibleCategories).toBe(
+      new Set(visibleBreeds.map((breed) => breed.category)).size,
+    );
+    expect(COLLECTION_SUMMARY.visibleTotal).toBeLessThan(COLLECTION_SUMMARY.total);
+    expect(COLLECTION_SUMMARY.visibleTotal + 519).toBe(COLLECTION_SUMMARY.total);
+    // 筛选栏只列有可浏览记录的类别：常量与实际选项必须同时收缩，不能一个改一个不改。
+    expect(COLLECTION_SUMMARY.visibleCategories).toBe(visibleCategories.length);
+    expect(visibleCategories.length).toBeLessThan(categories.length);
+  });
+
+  /**
+   * 地图页标题写的是“N 条落点 · N 个产区 · N 个省级行政区”，
+   * 这三个数字必须等于地图真正画出来的东西，否则就是又一次“文案比图更乐观”。
+   */
+  it('map headline constants match what the map actually renders', () => {
+    const clusters = buildSiteClusters(visibleBreeds);
+    expect(COLLECTION_SUMMARY.visibleMappable).toBe(visibleBreeds.length);
+    expect(COLLECTION_SUMMARY.visibleClusters).toBe(clusters.length);
+    expect(new Set(clusters.map((cluster) => cluster.province)).size).toBe(COLLECTION_SUMMARY.visibleProvinces);
   });
 
   /**

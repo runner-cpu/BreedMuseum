@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Info } from 'lucide-react';
 import { ARCADE_GAMES, arcadeGameById } from '@/lib/arcade/games';
 import { ARCADE_GAME_COMPONENTS } from '@/components/arcade/ArcadeGames';
+import { useSettings } from '@/contexts/AppSettings';
 import { cn } from '@/lib/utils';
 
 /**
@@ -11,10 +12,10 @@ import { cn } from '@/lib/utils';
  * 三台装置各自成页、互不挤占：顶部是「装置切换器」，随时换台而不必退回总览；
  * 未知装置名重定向回总览，避免出现空页面。
  */
-
 export default function ArcadeGamePage() {
   const { game } = useParams<{ game: string }>();
   const navigate = useNavigate();
+  const { t } = useSettings();
   const active = arcadeGameById(game);
 
   useEffect(() => {
@@ -31,17 +32,17 @@ export default function ArcadeGamePage() {
         <header className="space-y-3">
           <Link className="inline-flex items-center gap-1.5 text-xs text-stage-muted hover:text-stage-gold" to="/arcade">
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            互动厅总览
+            {t('arcade.backToHall')}
           </Link>
-          <h1 className="font-serif text-3xl">{active.title}</h1>
+          <h1 className="font-serif text-3xl">{t(active.titleKey)}</h1>
           <p className="max-w-2xl text-sm leading-relaxed text-stage-muted">
-            {active.summary}（{active.rounds}）
+            {t(active.summaryKey)}（{t(active.roundsKey)}）
           </p>
         </header>
 
         {/* 装置切换器：三台装置随时互换，不必回到总览 */}
         <nav
-          aria-label="切换展教装置"
+          aria-label={t('arcade.switcher')}
           className="flex flex-wrap gap-2 rounded-2xl border border-stage-border bg-stage-panel p-2"
         >
           {ARCADE_GAMES.map((item) => (
@@ -56,7 +57,7 @@ export default function ArcadeGamePage() {
                   : 'text-stage-fg/80 hover:bg-stage-soft',
               )}
             >
-              {item.title}
+              {t(item.titleKey)}
             </Link>
           ))}
         </nav>
@@ -65,10 +66,7 @@ export default function ArcadeGamePage() {
 
         <p className="flex items-start gap-2 rounded-2xl border border-stage-border bg-stage-panel p-4 text-xs text-stage-muted">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stage-gold" aria-hidden="true" />
-          <span className="leading-relaxed">
-            出题红线：题干与选项只取自已核验字段（类别 / 产区 / 940 号公告保护状态）；产区待核验的记录不出题，
-            也不作干扰项。答题后可打开百科详情抽屉，查看当前记录的资料边界与来源。
-          </span>
+          <span className="leading-relaxed">{t('arcade.gameRules')}</span>
         </p>
       </div>
     </div>

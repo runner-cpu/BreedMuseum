@@ -3,7 +3,7 @@
 [![Quality gate](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/quality.yml)
 [![Deploy Pages](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/runner-cpu/BreedMuseum/actions/workflows/deploy-pages.yml)
 
-中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录）。首页是序厅，主展项 **「畜种光图」** 位于 `/explore`：一张把真实产区、类别构成和保护身份放在同一视野里的 2D 数据地图，1062 条可落点记录先聚成 **161 个产区点位**，点位对应真实坐标，省块色阶兑现“你家的省份亮了几个”，3 个镜头配合类别下拉切换看法；百科详情以可关闭的详情面板呈现，数据看板提供类别、区域与质量摘要，互动厅提供三台数据驱动装置。品种描述和城市级坐标均标注了资料边界，便于继续核验和扩展。
+中国地方畜禽品种数字博物馆，收录站内整理的 1186 条畜禽品种记录（含名录条目式收录），其中 **667 条带可用图片、面向访客浏览**（历史 CDN 外链，授权状态逐图待核验；本地已核验镜像目前为 0 张）。首页是序厅，主展项 **「地图探索」** 位于 `/explore`：一张把真实产区、类别构成和保护身份放在同一视野里的 2D 数据地图，667 条带图记录聚成 **154 个产区点位**、覆盖 **30 个省级行政区**，点位对应真实坐标，省块色阶兑现“你家的省份亮了几个”，类别筛选可叠加国家级保护/濒危镜头；百科详情以可关闭的详情面板呈现，数据看板提供类别、区域与质量摘要，互动厅提供三台数据驱动装置。品种描述和城市级坐标均标注了资料边界，便于继续核验和扩展。
 
 在线地址：<https://runner-cpu.github.io/BreedMuseum/>
 
@@ -95,8 +95,8 @@ Vite、TypeScript、React、HashRouter、SVG/CSS、Recharts、Tailwind CSS。光
 - 新增数据来源、规范名称、别名、保护状态、核验日期和自动审计规则；三级核验状态（官方 / 编辑 / 待核验）由 `src/data/verification.ts` 单点判定，地图、百科和数据看板共同展示字段边界。
 - 使用原创 SVG 馆藏印章、横版字标、favicon 与品种图片占位图替换临时和模板图标。
 - 支持无后端配置运行、移动端导航与筛选、图片回退、错误边界、离线提示和真实 404。
-- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；当前已通过 34 个测试文件、140 项 Vitest 测试，Playwright 结果见审计报告。
-- 当前 Playwright 共 30 个用例 × 桌面/移动双视口，合计 60 项运行（移动端导航用例按项目条件跳过 1 项），其余用例通过。
+- 建立 Vitest/Testing Library 单元与组件测试、桌面与 390px 移动端 Playwright E2E、文档同步和包体预算检查；当前已通过 37 个测试文件、161 项 Vitest 测试，Playwright 结果见审计报告。
+- 当前 Playwright 共 35 个用例 × 桌面/移动双视口，合计 70 项运行（移动端导航用例按项目条件跳过 1 项），其余用例通过。
 - 完整的不足、改进证据与剩余风险见[在线审计报告](https://runner-cpu.github.io/BreedMuseum/audit/)。
 
 ### 在 Windows 上安装 Node.js

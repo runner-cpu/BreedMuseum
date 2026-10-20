@@ -10,6 +10,24 @@ export const COLLECTION_VERSION = '2026-09-27';
 
 export const COLLECTION_SUMMARY = {
   total: 1186,
+  /**
+   * 访客可浏览的馆藏：指向真实图片、且未被占位图过滤掉的记录。
+   * 地图、百科、看板与页脚都只统计这一口径，避免把“未经图片核验的条目”
+   * 包装成已可浏览的展品（与 `visibleBreeds.ts` 同一判定）。
+   * 由 `collectionSummary.test.ts` 与运行时 `visibleBreeds` 逐项比对，防止漂移。
+   */
+  visibleTotal: 667,
+  /** 可浏览记录覆盖的省级行政区数（全馆藏为 31，含仅有名录条目的省份） */
+  visibleProvinces: 30,
+  /** 可浏览记录覆盖的类别数（全馆藏为 15，蜂暂无可用图片） */
+  visibleCategories: 14,
+  /**
+   * 地图实际渲染的落点：可浏览记录全部都有已核验坐标，
+   * 按 0.22 半径聚合后得到的产区簇数量。
+   * 全馆藏口径是 1062 条 / 161 簇，但地图只画带图记录，文案不能再用那个数。
+   */
+  visibleMappable: 667,
+  visibleClusters: 154,
   provinces: 31,
   categories: 15,
   /** 青藏高原口径：青海 + 西藏 */
@@ -37,8 +55,10 @@ export const COLLECTION_SUMMARY = {
  * 「这个项目有自动化测试体系」，不是每次提交的实时计数。
  */
 export const QUALITY_SUMMARY = {
-  unitTests: 140,
-  e2eTests: 54,
+  /** Vitest 用例数（`npx vitest run` 的实际总数） */
+  unitTests: 155,
+  /** Playwright 用例数；每个用例在桌面/移动两个 project 各跑一次，合计 70 项运行 */
+  e2eTests: 35,
   auditChecks: 11,
   workflows: 2,
   dataVersion: COLLECTION_VERSION,

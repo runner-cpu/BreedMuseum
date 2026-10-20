@@ -248,7 +248,8 @@
   }
 
   .museum-eyebrow {
-    color: #d4a853;
+    /* 跟随主题令牌：浅色下用深金、深色下用亮金，两套底色都能读清。 */
+    color: var(--stage-gold);
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.22em;
@@ -292,20 +293,29 @@
     background: color-mix(in srgb, var(--museum-muted) 24%, transparent);
   }
 
+  /*
+   * 金色链接：浅色舞台上 #e2bd6d 对宣纸底只有约 1.7:1，几乎读不出来。
+   * 改用 --stage-gold（浅色 #845c10 / 深色 #d4a853），两套主题都过 AA。
+   * hover 时再提亮一档，深色下用更亮的 #f4d790，浅色下继续加深。
+   */
   .museum-link {
     display: inline-flex;
     min-height: 2.5rem;
     align-items: center;
     gap: 0.45rem;
-    color: #e2bd6d;
+    color: var(--stage-gold);
     font-size: 0.82rem;
     font-weight: 600;
     transition: color 180ms ease, transform 180ms ease;
   }
 
   .museum-link:hover {
-    color: #f4d790;
+    color: color-mix(in srgb, var(--stage-gold) 78%, var(--stage-fg));
     transform: translateX(2px);
+  }
+
+  .dark .museum-link:hover {
+    color: #f4d790;
   }
 
   .museum-featured-rail,
@@ -365,8 +375,12 @@
     transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
   }
 
-  .museum-map-filter:hover { color: var(--museum-fg); background: rgb(255 255 255 / 0.08); }
-  .museum-map-filter.is-active { background: #d4a853; color: #1a2032; font-weight: 700; box-shadow: 0 3px 12px rgb(212 168 83 / 0.25); }
+  .museum-map-filter:hover { color: var(--museum-fg); background: color-mix(in srgb, var(--museum-fg) 8%, transparent); }
+  /*
+   * 激活态跟主题走：旧值 `#d4a853` 底 + `#1a2032` 字在两套主题里都只有约 1.9:1，
+   * 与类别侧栏同一处问题。改用 stage 令牌后浅色约 7.8、深色约 7.0。
+   */
+  .museum-map-filter.is-active { background: var(--stage-gold); color: var(--stage-panel); font-weight: 700; box-shadow: 0 3px 12px rgb(var(--stage-gold-rgb) / 0.25); }
 
   .museum-map-filter-count {
     flex: 0 0 auto;
@@ -427,7 +441,13 @@
   }
 
   .museum-category-sidebar-item:hover { color: var(--stage-fg); background: var(--stage-soft); }
-  .museum-category-sidebar-item.is-active { color: var(--stage-fg); background: var(--stage-gold); box-shadow: 0 0.35rem 0.9rem rgb(var(--stage-gold-rgb) / 0.16); }
+  /*
+   * 选中项是「金色底 + 深色字」。旧实现用 `color: var(--stage-fg)`：
+   * 浅色模式下 #173b2c 压在 #845c10 上只有 1.8:1，深色模式下 #eff4ec
+   * 压在 #d4a853 上也只有 1.9:1——两套主题都读不清。改用 panel 令牌
+   * （浅色 #fbf8f0 / 深色 #12251c），对比分别约 7.8 与 7.0。
+   */
+  .museum-category-sidebar-item.is-active { color: var(--stage-panel); background: var(--stage-gold); box-shadow: 0 0.35rem 0.9rem rgb(var(--stage-gold-rgb) / 0.16); }
   .museum-category-sidebar-icon { display: inline-flex; color: currentColor; opacity: 0.8; }
   .museum-category-sidebar-item.is-active .museum-category-sidebar-icon { opacity: 1; }
   .museum-category-sidebar-item small { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.56rem; opacity: 0.72; }

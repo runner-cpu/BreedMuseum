@@ -3,13 +3,14 @@ import { AccessibleChartSummary } from '@/components/common/AccessibleChartSumma
 import { MapPin, Tag, AlertTriangle, ScrollText, GitCompare, Share2, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import type { Breed } from '@/data/breeds';
-import { categoryColors, endangeredColors } from '@/lib/categoryIcons';
+import { categoryColors, endangeredColors, readableOn } from '@/lib/categoryIcons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useSettings } from '@/contexts/AppSettings';
 import { getBreedMetadata, getBreedSource } from '@/data/breedMetadata';
 import { breedImageOverrides } from '@/data/breedImageOverrides';
 import { BreedImage, BREED_IMAGE_FALLBACK } from '@/components/common/BreedImage';
+import { categoryLabel, levelLabel, provinceLabel } from '@/lib/displayLabels';
 
 interface BreedDetailProps {
   breed: Breed | null;
@@ -24,7 +25,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
   onToggleCompare,
   isInCompare = false,
 }) => {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
   const provenanceId = useId();
 
   if (loading) {
@@ -112,17 +113,17 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
         />
         <div className="absolute top-2 right-2 flex gap-1.5">
           <span
-            className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
-            style={{ backgroundColor: catColor }}
+            className="px-2 py-0.5 rounded-full text-xs font-medium"
+            style={{ backgroundColor: catColor, color: readableOn(catColor) }}
           >
-            {breed.category}
+            {categoryLabel(breed.category, language)}
           </span>
           <span
-            className="px-2 py-0.5 rounded-full text-xs font-medium text-white flex items-center gap-0.5"
-            style={{ backgroundColor: endColor }}
+            className="px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-0.5"
+            style={{ backgroundColor: endColor, color: readableOn(endColor) }}
           >
             <AlertTriangle className="w-3 h-3" />
-            {breed.endangered}
+            {levelLabel(breed.endangered, language)}
           </span>
         </div>
         {/* 收藏按钮已移除（站点为公开科普站，无需登录） */}
@@ -135,11 +136,11 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" />
-              {breed.province}
+              {provinceLabel(breed.province, language)}
             </span>
             <span className="flex items-center gap-1">
               <Tag className="w-3.5 h-3.5" />
-              {breed.category}{t('detail.categorySuffix')}
+              {categoryLabel(breed.category, language)}{t('detail.categorySuffix')}
             </span>
           </div>
         </div>
@@ -247,7 +248,7 @@ const BreedDetail: React.FC<BreedDetailProps> = ({
                   : t('detail.imageUnverified')}
               {metadata.imageRights === 'unverified' && (
                 <span className="mt-1 block text-muted-foreground">
-                  原始外链已隐藏，待核验图片与授权后再展示。
+                  {t('detail.imageHidden')}
                 </span>
               )}
               {metadata.imageRights === 'verified' && imageCredit && (

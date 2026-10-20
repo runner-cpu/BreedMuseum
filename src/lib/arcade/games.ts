@@ -1,38 +1,41 @@
 /**
  * 互动厅装置清单（总览页与子页面共用同一份定义，避免标题/描述两处漂移）。
+ *
+ * 这里只存**翻译键**而不是中文常量：总览、子页标题与切换器都要随语言切换，
+ * 写死中文会让英文界面残留三张中文卡片。
  */
 export interface ArcadeGame {
   /** 子路由片段：`/arcade/<id>` */
   id: 'find-home' | 'identify' | 'quiz';
-  title: string;
+  titleKey: string;
   /** 一局题量说明 */
-  rounds: string;
+  roundsKey: string;
   /** 练什么 */
-  skill: string;
-  summary: string;
+  skillKey: string;
+  summaryKey: string;
 }
 
 export const ARCADE_GAMES: readonly ArcadeGame[] = [
   {
     id: 'find-home',
-    title: '找家挑战',
-    rounds: '三题一局',
-    skill: '练地理分布',
-    summary: '给出品种卡，在光图上点出它的家乡省份；点错会告诉你差多少公里。',
+    titleKey: 'arcade.findHome',
+    roundsKey: 'arcade.findHomeRounds',
+    skillKey: 'arcade.findHomeSkill',
+    summaryKey: 'arcade.findHomeSummary',
   },
   {
     id: 'identify',
-    title: '识图挑战',
-    rounds: '六题一局',
-    skill: '练类别识别',
-    summary: '看类别剪影选出它属于哪一类，答完给出该类别的三个真实品种。',
+    titleKey: 'arcade.identify',
+    roundsKey: 'arcade.identifyRounds',
+    skillKey: 'arcade.identifySkill',
+    summaryKey: 'arcade.identifySummary',
   },
   {
     id: 'quiz',
-    title: '知识问答',
-    rounds: '五题一局',
-    skill: '练名录常识',
-    summary: '随机考省份、类别、国家级保护身份与濒危口径，每题都能进档案核对。',
+    titleKey: 'arcade.quiz',
+    roundsKey: 'arcade.quizRounds',
+    skillKey: 'arcade.quizSkill',
+    summaryKey: 'arcade.quizSummary',
   },
 ] as const;
 

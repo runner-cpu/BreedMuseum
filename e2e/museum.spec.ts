@@ -83,9 +83,12 @@ test('dashboard route exposes interactive collection charts', async ({ page }) =
 test('home introduces the museum and guides visitors into exploration', async ({ page }) => {
   await page.goto('/#/');
   await expect(page.getByRole('heading', { name: /中国地方畜禽.*品种数字博物馆/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '四个数字，认识这座馆' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '选择一种进入方式' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '从一张品种卡开始' })).toHaveCount(0);
+  // 首页恢复为完整叙事：数据看板、类别速览、五种入口、精选品种与关于都在。
+  await expect(page.getByRole('heading', { name: '核心数据看板' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '品种类别速览' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '五种进入方式' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '精选品种' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '关于本项目' })).toBeVisible();
   await expect(page.getByRole('searchbox', { name: '搜索馆藏品种' })).toBeVisible();
   await expect(page.getByRole('button', { name: '搜索', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '开始探索' }).click();
@@ -93,32 +96,80 @@ test('home introduces the museum and guides visitors into exploration', async ({
   await expect(page.getByRole('heading', { name: '地图探索' })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(/#\/$/);
-  await expect(page.getByRole('heading', { name: '把名录里的名字，重新放回土地', exact: true })).toHaveCount(0);
-  await expect(page.getByText('收录全国1000+畜禽品种')).toBeVisible();
+  await expect(page.getByText(/已收录\s*1,?186\s*条地方畜禽品种记录/)).toBeVisible();
 });
 
-test('explore route exposes category tabs and a focused map', async ({ page }) => {
+test('explore route exposes category filters and a focused map', async ({ page }) => {
   await page.goto('/#/explore');
   await expect(page.getByRole('heading', { name: '地图探索' })).toHaveCount(1);
   await expect(page.getByRole('heading', { name: '品种分布地图' })).toHaveCount(1);
-  await expect(page.getByRole('tablist', { name: '按畜种筛选' })).toBeVisible();
-  await expect(page.getByRole('tab')).toHaveCount(16);
-  await page.getByRole('tab', { name: '鸡' }).click();
-  await expect(page.getByRole('tab', { name: '鸡' })).toHaveAttribute('aria-selected', 'true');
+  const filters = page.getByRole('group', { name: '按畜种筛选' });
+  await expect(filters).toBeVisible();
+  // 14 个有带图记录的类别 + “全部”；“蜂”目前没有可浏览记录，不再作为空入口出现。
+  await expect(filters.getByRole('button')).toHaveCount(15);
+  await expect(filters.getByRole('button', { name: '蜂' })).toHaveCount(0);
+  await filters.getByRole('button', { name: '鸡' }).click();
+  await expect(filters.getByRole('button', { name: '鸡' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByText(/条落点/)).toBeVisible();
+  // 筛选写回地址栏：刷新/分享仍能回到同一视图
+  await expect(page).toHaveURL(/category=/);
 });
 
-test('explore category tabs keep the map focused', async ({ page }) => {
+test('explore lenses stack with the category filter instead of replacing it', async ({ page }) => {
   await page.goto('/#/explore');
-  await page.getByRole('tab', { name: '全部' }).click();
-  await expect(page.getByRole('tab', { name: '全部' })).toHaveAttribute('aria-selected', 'true');
-  await page.getByRole('tab', { name: '牛' }).click();
-  await expect(page.getByRole('tab', { name: '牛' })).toHaveAttribute('aria-selected', 'true');
+  const filters = page.getByRole('group', { name: '按畜种筛选' });
+  const lenses = page.getByRole('group', { name: '地图镜头' });
+  await expect(lenses.getByRole('button')).toHaveCount(3);
+  await filters.getByRole('button', { name: '牛' }).click();
+  await lenses.getByRole('button', { name: '国家级保护' }).click();
+  // 两条筛选轴都要保留：类别按钮仍按下，镜头按钮也按下，地址栏同时带参数。
+  await expect(filters.getByRole('button', { name: '牛' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(lenses.getByRole('button', { name: '国家级保护' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveURL(/category=/);
+  await expect(page).toHaveURL(/lens=protect/);
+  await expect(page.getByText(/已叠加「牛」类别筛选/)).toBeVisible();
+  // 地图画布必须真的只保留「牛 + 保护」的点位，而不是所有保护点位。
+  const markers = await page.locator('.museum-map-canvas g[role="button"]').count();
+  const headline = await page.locator('.museum-map-total').innerText();
+  expect(headline).toMatch(/条落点/);
+  expect(markers).toBeGreaterThan(0);
+  expect(markers).toBeLessThan(108);
+});
+
+test('explore explains an empty lens and category combination', async ({ page }) => {
+  await page.goto('/#/explore');
+  const filters = page.getByRole('group', { name: '按畜种筛选' });
+  const lenses = page.getByRole('group', { name: '地图镜头' });
+  // 鸭 + 濒危之窗：馆藏里没有同时满足两条的记录。
+  await filters.getByRole('button', { name: '鸭' }).click();
+  await lenses.getByRole('button', { name: '濒危之窗' }).click();
+  await expect(page.getByRole('status').filter({ hasText: '没有可落点记录' })).toBeVisible();
+  // 详情卡不能同时展示一条与筛选无关的品种
+  await expect(page.locator('.museum-detail h2')).toHaveCount(0);
+  // 提供退出空态的两个方向
+  await page.getByRole('button', { name: '清除类别筛选' }).click();
+  await expect(page.locator('.museum-map-empty')).toHaveCount(0);
+});
+
+test('explore drops province params that contain no browsable records', async ({ page }) => {
+  await page.goto('/#/explore?province=' + encodeURIComponent('待核验'));
+  // 无效省份不能把页面留在“已选省份但没有任何落点”的状态
+  await expect(page.locator('[aria-label*="省份速览"]')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '品种分布地图' })).toBeVisible();
+});
+
+test('explore category filters keep the map focused', async ({ page }) => {
+  await page.goto('/#/explore');
+  const filters = page.getByRole('group', { name: '按畜种筛选' });
+  await filters.getByRole('button', { name: '全部' }).click();
+  await expect(filters.getByRole('button', { name: '全部' })).toHaveAttribute('aria-pressed', 'true');
+  await filters.getByRole('button', { name: '牛' }).click();
+  await expect(filters.getByRole('button', { name: '牛' })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('encyclopedia omits records without images', async ({ page }) => {
   await page.goto('/#/encyclopedia');
-  const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
+  const search = page.getByRole('searchbox', { name: /搜索百科品种/ });
   await search.fill('河田鸡');
   await expect(page.getByRole('button', { name: /河田鸡/ })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '没有匹配的品种' })).toBeVisible();
@@ -126,7 +177,7 @@ test('encyclopedia omits records without images', async ({ page }) => {
 
 test('encyclopedia search opens a breed detail panel', async ({ page }) => {
   await page.goto('/#/encyclopedia');
-  const search = page.getByRole('searchbox', { name: /搜索品种名称/ });
+  const search = page.getByRole('searchbox', { name: /搜索百科品种/ });
   await search.fill('东北民猪');
   await page.getByRole('button', { name: /东北民猪/ }).first().click();
   await expect(page).toHaveURL(/#\/encyclopedia\?.*breed=dongbei-min-pig/);
@@ -162,14 +213,15 @@ test('arcade overview hands out one entrance per exhibit', async ({ page }) => {
   const entrances = page.getByRole('link', { name: /进场/ });
   await expect(entrances).toHaveCount(3);
   // 总览页不渲染任何装置本体：一台都不许挤在这里
-  await expect(page.getByRole('group', { name: '选择省份作答' })).toHaveCount(0);
+  await expect(page.getByRole('group', { name: '在地图上选择省份作答' })).toHaveCount(0);
   await expect(page.getByRole('group', { name: '选择答案' })).toHaveCount(0);
 });
 
 test('each arcade exhibit is its own page and switches without going back', async ({ page }) => {
   await page.goto('/#/arcade/find-home');
   await expect(page.getByRole('heading', { name: '找家挑战' })).toBeVisible();
-  await page.getByRole('group', { name: '选择省份作答' }).getByRole('button').first().click();
+  // 作答方式已改为在真实地图上点省份，而不是一排固定按钮。
+  await page.getByRole('group', { name: '在地图上选择省份作答' }).getByRole('button').first().click();
   await expect(page.getByText(/答对了|方向不对/)).toBeVisible();
   // 从找家直接换到问答，不必回总览
   await page.getByRole('navigation', { name: '切换展教装置' }).getByRole('link', { name: '知识问答' }).click();
@@ -177,10 +229,11 @@ test('each arcade exhibit is its own page and switches without going back', asyn
   await expect(page.getByRole('heading', { name: '知识问答' })).toBeVisible();
   await page.getByRole('group', { name: '选择答案' }).getByRole('button').first().click();
   await expect(page.getByRole('link', { name: /查看「.+」详情/ })).toBeVisible();
-  // 第三台：识图
+  // 第三台：识图改用馆藏真实照片出题，解释文字也来自照片记录
   await page.getByRole('navigation', { name: '切换展教装置' }).getByRole('link', { name: '识图挑战' }).click();
+  await expect(page.getByRole('img', { name: '待猜类别的馆藏照片' })).toBeVisible();
   await page.getByRole('group', { name: '选择类别' }).getByRole('button').first().click();
-  await expect(page.getByText(/剪影取自馆藏类别的/)).toBeVisible();
+  await expect(page.getByText(/这张馆藏照片记录的是/)).toBeVisible();
 });
 
 test('an unknown exhibit falls back to the arcade overview', async ({ page }) => {
@@ -240,7 +293,7 @@ test('dashboard page exposes collection coverage and quality summaries', async (
   await expect(page.getByRole('heading', { name: '看见地方品种的分布与缺口' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '数据覆盖度' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '保护与风险' })).toBeVisible();
-  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText(/可浏览记录/)).toBeVisible();
+  await expect(page.getByRole('region', { name: '馆藏核心指标' }).getByText('可浏览记录', { exact: true })).toBeVisible();
 });
 
 test('mobile menu exposes the three primary destinations and closes by keyboard', async ({ page }, testInfo) => {

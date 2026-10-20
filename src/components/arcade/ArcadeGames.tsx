@@ -1,15 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, RotateCcw, X } from 'lucide-react';
+import { ChinaMap } from '@/components/ChinaMap';
+import { BreedImage } from '@/components/common/BreedImage';
+import { useSettings } from '@/contexts/AppSettings';
 import { visibleBreeds } from '@/data/visibleBreeds';
-import { CategorySilhouette, SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
 import {
   generateFindHomeRounds,
+  generateIdentifyRounds,
   generateQuiz,
   haversineKm,
   PROVINCE_CENTROIDS,
   type QuizQuestion,
 } from '@/lib/arcade/quizGenerator';
+import { categoryLabel, fill, optionLabel, provinceLabel } from '@/lib/displayLabels';
 import { cn } from '@/lib/utils';
 
 /**
@@ -18,11 +22,12 @@ import { cn } from '@/lib/utils';
  * 每台装置是**独立子页面**（`/arcade/:game`）的内容出口，由 `ArcadeGamePage` 挂载；
  * 一次只渲染一台，题面不再挤在一起。
  *
- * 设计口径（与首页、总览页的说明一致）：
- * - 每台装置只玩**已核验字段**（类别 / 产区 / 保护状态），待核验记录不出题；
- * - 每局结束都回到百科详情抽屉，把「答题」变成「查看品种资料」的入口；
- * - 全部操作可键盘完成；`prefers-reduced-motion` 下只有状态文字变化，无动画；
- * - 配色走 stage 语义令牌，浅色/深色两套主题下都保证题面与选项对比度充足。
+ * 三台装置都贴着「当前网站」的出题口径：
+ * - 找家挑战在真实中国地图上点省份作答（不再是 8 个固定按钮），
+ *   只有已核验产区的省份可点击，答错按 haversine 算距离；
+ * - 识图挑战用馆藏真实照片问“属于哪一类”，因为照片的品种级身份仍待核验，
+ *   但类别是可靠的；
+ * - 知识问答轮转类别 / 产区 / 保护身份 / 濒危口径四类题。
  */
 
 const PANEL = 'rounded-2xl border border-stage-border bg-stage-panel p-5 text-stage-fg';
@@ -31,14 +36,12 @@ const GHOST_BUTTON =
 const OPTION_BUTTON =
   'min-h-11 rounded-lg border px-3 text-sm transition-colors border-stage-border text-stage-fg hover:bg-stage-soft disabled:cursor-default';
 
-/** 找家挑战的候选省份：8 个代表性产区，保证键盘可操作且选项长度可控。 */
-const PROVINCE_CHOICES = ['内蒙古', '新疆', '西藏', '青海', '云南', '四川', '广东', '黑龙江'];
-
 /* ------------------------------------------------------------------ */
 /* 装置一：找家挑战                                                     */
 /* ------------------------------------------------------------------ */
 
 function FindHomeGame() {
+  const { t, language } = useSettings();
   const [seed, setSeed] = useState(() => 20261009);
   const [roundIndex, setRoundIndex] = useState(0);
   const [feedback, setFeedback] = useState<{ correct: boolean; text: string } | null>(null);
@@ -55,7 +58,12 @@ function FindHomeGame() {
       : haversineKm(PROVINCE_CENTROIDS[province] ?? [0, 0], round.answerCoordinate);
     setFeedback({
       correct,
-      text: correct ? '答对了——这个产区就在你点的省份' : `方向不对：距真实产区约 ${distance.toLocaleString()} 公里`,
+      text: correct
+        ? fill(t('arcade.findHomeCorrect'), { province: provinceLabel(round.answerProvince, language) })
+        : fill(t('arcade.findHomeWrong'), {
+            clicked: provinceLabel(province, language),
+            km: distance.toLocaleString(language === 'en' ? 'en-US' : 'zh-CN'),
+          }),
     });
   };
 
@@ -73,7 +81,7 @@ function FindHomeGame() {
   if (finished) {
     return (
       <div className={PANEL}>
-        <p className="text-sm">本局结束——你找到的每一个产区都能点开查看品种资料。</p>
+        <p className="text-sm">{t('arcade.findHomeResult')}</p>
         <ul className="mt-3 space-y-1 text-sm">
           {rounds.map((item) => (
             <li key={item.breed.id}>
@@ -81,7 +89,7 @@ function FindHomeGame() {
                 className="inline-flex min-h-9 items-center gap-1.5 underline underline-offset-4 hover:text-stage-gold"
                 to={'/encyclopedia?breed=' + encodeURIComponent(item.breed.id)}
               >
-                {item.breed.name} · {item.answerProvince}
+                {language === 'en' ? item.breed.englishName : item.breed.name} · {provinceLabel(item.answerProvince, language)}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </li>
@@ -89,7 +97,7 @@ function FindHomeGame() {
         </ul>
         <button type="button" onClick={restart} className={cn(GHOST_BUTTON, 'mt-4')}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          再来一局
+          {t('arcade.restart')}
         </button>
       </div>
     );
@@ -97,61 +105,67 @@ function FindHomeGame() {
 
   return (
     <div className={PANEL}>
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="text-base">
-          第 {roundIndex + 1} / {rounds.length} 题：
-          <span className="ml-1 font-medium">「{round.breed.name}」的家乡在哪个省份？</span>
-        </p>
-        <span className="text-xs text-stage-muted">{round.breed.category}</span>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <CategorySilhouette
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <BreedImage
+          src={round.breed.image}
+          alt={fill(t('arcade.findHomeBreedImage'), { name: language === 'en' ? round.breed.englishName : round.breed.name })}
           category={round.breed.category}
-          className="h-20 w-20 shrink-0 text-stage-gold"
+          breedName={round.breed.name}
+          className="aspect-[4/3] w-full shrink-0 rounded-xl sm:w-48"
+          sizes="(min-width: 640px) 12rem, 100vw"
         />
-        <div className="flex flex-wrap gap-2" role="group" aria-label="选择省份作答">
-          {PROVINCE_CHOICES.map((province) => (
-            <button
-              key={province}
-              type="button"
-              disabled={Boolean(feedback)}
-              onClick={() => submit(province)}
-              className={cn('min-h-11 rounded-full px-4 text-sm', OPTION_BUTTON, feedback ? 'opacity-60' : '')}
+        <div className="min-w-0 flex-1">
+          <p className="text-base leading-7">
+            {fill(t('arcade.findHomePrompt'), {
+              index: roundIndex + 1,
+              total: rounds.length,
+              name: language === 'en' ? round.breed.englishName : round.breed.name,
+            })}
+          </p>
+          <p className="mt-1 text-xs text-stage-muted">{t('arcade.findHomePickProvince')}</p>
+          {feedback && (
+            <p
+              role="status"
+              className={cn(
+                'mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm',
+                feedback.correct
+                  ? 'border-emerald-600/50 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300'
+                  : 'border-stage-gold/60 bg-stage-gold/12 text-stage-fg',
+              )}
             >
-              {province}
+              {feedback.correct ? <Check className="h-4 w-4 shrink-0" aria-hidden="true" /> : <X className="h-4 w-4 shrink-0" aria-hidden="true" />}
+              {feedback.text}
+            </p>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={next} disabled={!feedback} className={cn(GHOST_BUTTON, feedback ? '' : 'opacity-40')}>
+              {t('arcade.next')}
             </button>
-          ))}
+            <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/encyclopedia?breed=' + encodeURIComponent(round.breed.id)}>
+              {t('arcade.openBreed')}
+            </Link>
+          </div>
         </div>
       </div>
 
-      {feedback && (
-        <p
-          role="status"
-          className={cn(
-            'mt-4 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm',
-            feedback.correct
-              ? 'border-emerald-600/50 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300'
-              : 'border-stage-gold/60 bg-stage-gold/12 text-stage-fg',
-          )}
-        >
-          {feedback.correct ? (
-            <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
-          ) : (
-            <X className="h-4 w-4 shrink-0" aria-hidden="true" />
-          )}
-          {feedback.text}
-        </p>
-      )}
-
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={next} disabled={!feedback} className={cn(GHOST_BUTTON, feedback ? '' : 'opacity-40')}>
-          下一题
-        </button>
-        <Link className="text-xs underline underline-offset-4 hover:text-stage-gold" to={'/encyclopedia?breed=' + encodeURIComponent(round.breed.id)}>
-          查看品种详情
-        </Link>
+      <div
+        className="museum-map-canvas mt-4 overflow-hidden rounded-xl border border-stage-border"
+        role="group"
+        aria-label={t('arcade.answerGroupProvince')}
+      >
+        <ChinaMap
+          breeds={visibleBreeds}
+          selectedProvince={feedback ? (feedback.correct ? round.answerProvince : null) : null}
+          selectedBreed={null}
+          focusedProvince={feedback?.correct ? round.answerProvince : null}
+          onProvinceClick={submit}
+          onBreedClick={() => undefined}
+          onClearSelection={() => undefined}
+          showProvinceLabels={false}
+          showCoordinateNote={false}
+        />
       </div>
+      <p className="mt-2 text-xs text-stage-muted">{t('arcade.findHomeHint')}</p>
     </div>
   );
 }
@@ -161,17 +175,14 @@ function FindHomeGame() {
 /* ------------------------------------------------------------------ */
 
 function IdentifyGame() {
+  const { t, language } = useSettings();
   const [seed, setSeed] = useState(() => 771);
   const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState<string | null>(null);
 
-  const questions = useMemo(
-    () => generateQuiz(seed, 6).filter((question) => question.kind === 'silhouette'),
-    [seed],
-  );
-  const question = questions[index];
-  const finished = index >= questions.length;
-  const coverage = SILHOUETTE_CATEGORIES.length;
+  const rounds = useMemo(() => generateIdentifyRounds(seed, 6), [seed]);
+  const round = rounds[index];
+  const finished = index >= rounds.length;
 
   const submit = (optionId: string) => {
     if (choice) return;
@@ -192,36 +203,42 @@ function IdentifyGame() {
   if (finished) {
     return (
       <div className={PANEL}>
-        <p className="text-sm">本局结束。每一类的代表品种都能在百科里查看资料。</p>
+        <p className="text-sm">{t('arcade.identifyResult')}</p>
         <button type="button" onClick={restart} className={cn(GHOST_BUTTON, 'mt-4')}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          再来一局
+          {t('arcade.restart')}
         </button>
       </div>
     );
   }
 
+  const revealed = Boolean(choice);
+
   return (
     <div className={PANEL}>
-      <p className="text-xs text-stage-muted">
-        剪影覆盖 {coverage} 类；照片模式需要已核验授权图片，暂不启用。
-      </p>
-      <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center">
-        <CategorySilhouette
-          category={question.answerId}
-          label="待猜类别剪影"
-          className="h-32 w-32 shrink-0 text-stage-gold sm:h-40 sm:w-40"
-        />
-        <div className="space-y-2">
-          <p className="text-base">{question.prompt}</p>
-          <p className="text-xs text-stage-muted">第 {index + 1} / {questions.length} 题</p>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="w-full shrink-0 overflow-hidden rounded-xl bg-stage-soft sm:w-64">
+          <BreedImage
+            src={round.breed.image}
+            alt={t('arcade.identifyPhotoAlt')}
+            category={round.breed.category}
+            breedName={round.breed.name}
+            className="aspect-[4/3] w-full"
+            sizes="(min-width: 640px) 16rem, 100vw"
+            eager
+          />
+        </div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="text-base leading-7">{t('arcade.identifyPrompt')}</p>
+          <p className="text-xs text-stage-muted">
+            {fill(t('arcade.identifyProgress'), { index: index + 1, total: rounds.length })}
+          </p>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="选择类别">
-        {question.options.map((option) => {
-          const revealed = Boolean(choice);
-          const isAnswer = option.id === question.answerId;
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('arcade.answerGroupCategory')}>
+        {round.options.map((option) => {
+          const isAnswer = option.id === round.answerId;
           const isChoice = option.id === choice;
           return (
             <button
@@ -235,7 +252,7 @@ function IdentifyGame() {
                 revealed && isChoice && !isAnswer && 'border-stage-gold/70 bg-stage-gold/12',
               )}
             >
-              {option.label}
+              {language === 'en' ? (option.labelEn || optionLabel(option.label, language)) : option.label}
             </button>
           );
         })}
@@ -243,10 +260,13 @@ function IdentifyGame() {
 
       {choice && (
         <div className="mt-4 space-y-3">
-          <p role="status" className="text-sm text-stage-fg/90">{question.explanation}</p>
+          <p role="status" className="text-sm text-stage-fg/90">
+            {language === 'en' ? round.explanationEn : round.explanation}
+          </p>
+          <p className="text-xs text-stage-muted">{t('arcade.identifySameCategory')}</p>
           <div className="flex flex-wrap gap-2">
             {visibleBreeds
-              .filter((breed) => breed.category === question.answerId)
+              .filter((breed) => breed.category === round.answerId)
               .slice(0, 3)
               .map((breed) => (
                 <Link
@@ -254,12 +274,12 @@ function IdentifyGame() {
                   to={'/encyclopedia?breed=' + encodeURIComponent(breed.id)}
                   className="inline-flex min-h-9 items-center rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
                 >
-                  {breed.name}
+                  {language === 'en' ? breed.englishName : breed.name}
                 </Link>
               ))}
           </div>
           <button type="button" onClick={next} className={GHOST_BUTTON}>
-            下一题
+            {t('arcade.next')}
           </button>
         </div>
       )}
@@ -272,6 +292,7 @@ function IdentifyGame() {
 /* ------------------------------------------------------------------ */
 
 function QuizGame() {
+  const { t, language } = useSettings();
   const [seed, setSeed] = useState(() => 2026);
   const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState<string | null>(null);
@@ -303,22 +324,23 @@ function QuizGame() {
     return (
       <div className={PANEL}>
         <p className="text-base">
-          本局得分 {score} / {questions.length}。
+          {fill(t('arcade.quizScore'), { score, total: questions.length })}
         </p>
         <button type="button" onClick={restart} className={cn(GHOST_BUTTON, 'mt-4')}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          再来一局
+          {t('arcade.restart')}
         </button>
       </div>
     );
   }
 
+  const revealed = Boolean(choice);
+
   return (
     <div className={PANEL}>
-      <p className="text-base">{question.prompt}</p>
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="选择答案">
+      <p className="text-base leading-7">{language === 'en' ? question.promptEn : question.prompt}</p>
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('arcade.answerGroupAnswer')}>
         {question.options.map((option) => {
-          const revealed = Boolean(choice);
           const isAnswer = option.id === question.answerId;
           const isChoice = option.id === choice;
           return (
@@ -333,7 +355,7 @@ function QuizGame() {
                 revealed && isChoice && !isAnswer && 'border-stage-gold/70 bg-stage-gold/12',
               )}
             >
-              {option.label}
+              {language === 'en' ? (option.labelEn || optionLabel(option.label, language)) : option.label}
             </button>
           );
         })}
@@ -341,25 +363,28 @@ function QuizGame() {
 
       {choice && (
         <div className="mt-4 space-y-3">
-          <p role="status" className="text-sm text-stage-fg/90">{question.explanation}</p>
+          <p role="status" className="text-sm text-stage-fg/90">
+            {language === 'en' ? question.explanationEn : question.explanation}
+          </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
               to={'/encyclopedia?breed=' + encodeURIComponent(question.subject.id)}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-stage-border px-3 text-xs hover:bg-stage-soft"
             >
-              查看「{question.subject.name}」详情
+              {fill(t('arcade.quizOpenBreed'), { name: question.subject.name })}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
             <button type="button" onClick={next} className={GHOST_BUTTON}>
-              下一题
+              {t('arcade.next')}
             </button>
           </div>
         </div>
       )}
 
       <p className="mt-4 text-xs text-stage-muted">
-        第 {index + 1} / {questions.length} 题 · 已答对 {score}
+        {fill(t('arcade.quizProgress'), { index: index + 1, total: questions.length, score })}
       </p>
+      <span className="sr-only">{language}</span>
     </div>
   );
 }

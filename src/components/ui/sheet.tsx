@@ -51,12 +51,15 @@ const sheetVariants = cva(
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
+    VariantProps<typeof sheetVariants> {
+  /** 关闭按钮的无障碍名称；调用方按当前界面语言传入。 */
+  closeLabel?: string;
+}
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+>(({ side = "right", className, children, closeLabel = "关闭面板", ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
@@ -66,7 +69,7 @@ const SheetContent = React.forwardRef<
     >
       <SheetPrimitive.Close className="absolute right-2 top-2 min-h-11 min-w-11 flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <X className="h-4 w-4" />
-        <span className="sr-only">关闭面板</span>
+        <span className="sr-only">{closeLabel}</span>
       </SheetPrimitive.Close>
       {children}
     </SheetPrimitive.Content>
