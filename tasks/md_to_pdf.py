@@ -18,12 +18,41 @@ from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak,
+    CondPageBreak,
 )
 
-pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
+# STSong-Light 是未嵌入的 CID 字体，依赖阅读器自带 Adobe-GB1 字库，
+# 在 pdftotext / PyMuPDF 等工具里会解析失败（中文显示空白或乱码）。
+# 优先嵌入系统里的中文字体，保证 PDF 在任何阅读器里都能正确显示。
+_BUNDLED_CJK_FONTS = (
+    ('CJK', 'C:/Windows/Fonts/Deng.ttf', 'C:/Windows/Fonts/Dengb.ttf'),
+    ('CJK', 'C:/Windows/Fonts/simhei.ttf', 'C:/Windows/Fonts/simhei.ttf'),
+    ('CJK', '/System/Library/Fonts/PingFang.ttc', '/System/Library/Fonts/PingFang.ttc'),
+    ('CJK', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+     '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'),
+)
+
 FONT = 'STSong-Light'
+FONT_BOLD = 'STSong-Light'
+for _name, _regular, _bold in _BUNDLED_CJK_FONTS:
+    if os.path.isfile(_regular):
+        pdfmetrics.registerFont(TTFont(_name, _regular))
+        if os.path.isfile(_bold):
+            pdfmetrics.registerFont(TTFont(f'{_name}-Bold', _bold))
+            pdfmetrics.registerFontFamily(_name, normal=_name, bold=f'{_name}-Bold',
+                                          italic=_name, boldItalic=f'{_name}-Bold')
+            FONT_BOLD = f'{_name}-Bold'
+        else:
+            pdfmetrics.registerFontFamily(_name, normal=_name, bold=_name,
+                                          italic=_name, boldItalic=_name)
+            FONT_BOLD = _name
+        FONT = _name
+        break
+else:
+    pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
 
 styles = {
     'title': ParagraphStyle('title', fontName=FONT, fontSize=20, leading=28, spaceAfter=18, textColor=colors.HexColor('#1a3a2a'), keepWithNext=True),
@@ -46,6 +75,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOC_TARGETS = {
     '网站说明书': ('docs/网站说明书.md', 'docs/网站说明书.pdf'),
     '品种数据手册': ('docs/品种数据手册.md', 'docs/品种数据手册.pdf'),
+    '项目研究说明': ('docs/项目研究说明.md', 'docs/项目研究说明.pdf'),
 }
 
 
@@ -142,6 +172,9 @@ def convert(md_path: str, pdf_path: str):
         m = re.match(r'^(#{1,4})\s+(.*)$', line)
         if m:
             level, text = len(m.group(1)), m.group(2)
+            if level >= 2:
+                # 避免标题孤零零落在页脚：剩余空间不足时先换页
+                story.append(CondPageBreak(3 * cm))
             if level == 1 and first_title:
                 story.append(Paragraph(inline(text), styles['title']))
                 first_title = False
