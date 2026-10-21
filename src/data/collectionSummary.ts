@@ -56,7 +56,7 @@ export const COLLECTION_SUMMARY = {
  */
 export const QUALITY_SUMMARY = {
   /** Vitest 用例数（`npx vitest run` 的实际总数） */
-  unitTests: 155,
+  unitTests: 162,
   /** Playwright 用例数；每个用例在桌面/移动两个 project 各跑一次，合计 70 项运行 */
   e2eTests: 35,
   auditChecks: 11,
