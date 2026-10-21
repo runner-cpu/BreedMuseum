@@ -28,12 +28,12 @@ export const routes: RouteConfig[] = [
     en: { title: 'Museum Foyer · China Local Livestock Digital Museum', description: '1,186 local livestock records, 667 with browsable images and 1,062 with verified production sites; enter the map, encyclopedia and dashboard from the foyer.' },
   } },
   { path: '/explore', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
-    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 154 个产区、覆盖 30 个省级行政区。' },
-    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 154 sites across 30 provincial regions.' },
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 202 个产区、覆盖 30 个省级行政区。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 202 sites across 30 provincial regions.' },
   } },
   { path: '/map', Component: lazy(() => import('./pages/ExploreMapPage')), meta: {
-    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 154 个产区、覆盖 30 个省级行政区。' },
-    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 154 sites across 30 provincial regions.' },
+    zh: { title: '地图探索 · 中国地方畜禽品种数字博物馆', description: '沿着省份、产区与类别浏览 667 条带图馆藏记录，聚成 202 个产区、覆盖 30 个省级行政区。' },
+    en: { title: 'Explore the Map · China Local Livestock Digital Museum', description: 'Browse 667 illustrated records by province, production site and category, clustered into 202 sites across 30 provincial regions.' },
   } },
   { path: '/encyclopedia', Component: lazy(() => import('./pages/EncyclopediaPage')), meta: {
     zh: { title: '品种百科 · 中国地方畜禽品种数字博物馆', description: '按名称、类别、省份与濒危等级检索 667 条带图馆藏记录，逐条标注来源与核验状态。' },

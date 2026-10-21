@@ -146,7 +146,7 @@ const MagicBento = ({
           {(ripples[i] ?? []).map((r) => (
             <motion.span
               key={r.id}
-              className="pointer-events-none absolute rounded-full bg-[#d4a853]/40"
+              className="pointer-events-none absolute rounded-full bg-[rgb(var(--stage-gold-rgb)/0.4)]"
               style={{ left: r.x - 20, top: r.y - 20, width: 40, height: 40 }}
               initial={{ scale: 0, opacity: 0.5 }}
               animate={{ scale: 4, opacity: 0 }}
@@ -155,7 +155,7 @@ const MagicBento = ({
           ))}
 
           <div className="relative z-10 flex flex-col h-full">
-            <div className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--museum-line)] bg-[var(--museum-panel-raised)] text-[#d4a853]">
+            <div className="mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--museum-line)] bg-[var(--museum-panel-raised)] text-[var(--stage-gold)]">
               {card.icon}
             </div>
             {card.label && (

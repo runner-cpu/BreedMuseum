@@ -5,24 +5,30 @@
  * visible (all records, a category, protected records, or editorial risk).
  * This keeps the colour promise honest when a lens changes: the darkest
  * province is always the province with the most records in that view.
+ *
+ * 2026-10 配色修订：旧色阶最高档是 `#1d3a2d`（近墨黑），深色省份上的
+ * 深色类别点几乎完全看不见；浅色档又偏黄，整块版图像一张旧报纸。
+ * 现在两套色阶都收在「鼠尾草绿」中段：最高档对纸底约 4.6:1，
+ * 足够读出层级，又不会把点位吞掉；深色模式用同一色相反向排列，
+ * 最亮档也只到 #6B956E，亮度不再反超文字。
  */
 
 export const CHOROPLETH_LIGHT_COLORS = [
-  '#e9dfc8',
-  '#cdbd9e',
-  '#9e9a77',
-  '#62765b',
-  '#1d3a2d',
+  '#e7e9da',
+  '#cfd8bf',
+  '#aabf9c',
+  '#7e9e7c',
+  '#4c735c',
 ] as const;
 
 /** Dark mode reverses the ramp so a high value remains visually prominent. */
-export const CHOROPLETH_DARK_COLORS = [...CHOROPLETH_LIGHT_COLORS].reverse() as [
-  string,
-  string,
-  string,
-  string,
-  string,
-];
+export const CHOROPLETH_DARK_COLORS = [
+  '#22322a',
+  '#2c4434',
+  '#3a5a43',
+  '#4e7455',
+  '#6b956e',
+] as const;
 
 export type ProvinceValues =
   | ReadonlyMap<string, number>
@@ -46,13 +52,13 @@ export interface ProvinceChoroplethScale {
   /** The five swatch colours for the selected theme. */
   readonly colors: readonly string[];
   /** Classify a count into the deterministic range 0…4. */
-  binFor: (count: number) => number;
+  readonly binFor: (count: number) => number;
   /** Pick the swatch for a count. Zero values use the lightest swatch. */
-  colorFor: (count: number) => string;
+  readonly colorFor: (count: number) => string;
   /** Ready-to-render legend rows, including their numeric ranges. */
-  legend: readonly ChoroplethLegendItem[];
+  readonly legend: readonly ChoroplethLegendItem[];
   /** Values copied into a plain map for consumers that need province lookup. */
-  values: Readonly<Record<string, number>>;
+  readonly values: Readonly<Record<string, number>>;
 }
 
 const finiteCount = (value: number): number => (Number.isFinite(value) && value > 0 ? value : 0);
@@ -146,4 +152,3 @@ export function colorForProvinceCount(
   const darkColors = CHOROPLETH_DARK_COLORS;
   return darkColors[scale.binFor(count)];
 }
-

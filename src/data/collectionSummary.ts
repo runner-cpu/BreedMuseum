@@ -23,11 +23,11 @@ export const COLLECTION_SUMMARY = {
   visibleCategories: 14,
   /**
    * 地图实际渲染的落点：可浏览记录全部都有已核验坐标，
-   * 按 0.22 半径聚合后得到的产区簇数量。
-   * 全馆藏口径是 1062 条 / 161 簇，但地图只画带图记录，文案不能再用那个数。
+   * 按 0.14 半径聚合后得到的产区簇数量。
+   * 全馆藏口径是 1062 条 / 217 簇，但地图只画带图记录，文案不能再用那个数。
    */
   visibleMappable: 667,
-  visibleClusters: 154,
+  visibleClusters: 202,
   provinces: 31,
   categories: 15,
   /** 青藏高原口径：青海 + 西藏 */

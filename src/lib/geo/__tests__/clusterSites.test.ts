@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Breed } from '@/data/breeds';
 import { visibleBreeds, visibleCategories } from '@/data/visibleBreeds';
-import { buildSiteClusters, clustersForLens, type SiteCluster } from '@/lib/geo/clusterSites';
+import {
+  buildSiteClusters,
+  clustersForLens,
+  SITE_CLUSTER_RADIUS,
+  type SiteCluster,
+} from '@/lib/geo/clusterSites';
 
 const membersOf = (clusters: readonly SiteCluster[]) =>
   clusters.flatMap((cluster) => cluster.members);
@@ -82,7 +87,7 @@ describe('buildSiteClusters invariants', () => {
 
   it('keeps every member within the clustering radius of its centre', () => {
     for (const cluster of buildSiteClusters(visibleBreeds)) {
-      expect(cluster.radius).toBeLessThanOrEqual(0.22 + 1e-9);
+      expect(cluster.radius).toBeLessThanOrEqual(SITE_CLUSTER_RADIUS + 1e-9);
     }
   });
 

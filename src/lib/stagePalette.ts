@@ -5,6 +5,12 @@
  * 旧版场景曾各自硬编码颜色。现在两套令牌集中在这里，并同步注入 CSS 变量
  * （`--stage*`，见 `src/index.css` 的说明注释与 `stagePalette.test.ts` 的漂移断言），
  * 于是 DOM 上的 `bg-stage` 与 SVG 地图里的省块 / 产区环永远同一套颜色。
+ *
+ * 本轮配色修订（2026-10）：
+ * - 旧浅色令牌是「宣纸 + 芥末金 + 橄榄绿」，大面积 #845c10 / #1d3a2d 让地图整块发黄发脏；
+ *   现在改成「暖纸 + 墨绿 + 青铜 + 朱砂」：金色只做细节点缀，交互主色走墨绿 `accent`，
+ *   「当前选择」走朱砂 `signal`，避免同一屏出现两种大面积暖黄。
+ * - 深色令牌从发灰的墨绿提到近黑石墨绿，正文与面板之间拉开明度，地图省块不再糊成一片。
  */
 
 export interface StagePalette {
@@ -19,8 +25,14 @@ export interface StagePalette {
   fg: string;
   /** 次级文字 */
   muted: string;
-  /** 强调金（浅色下加深，保证纸底对比度） */
+  /** 点缀金（眉题、序号、装饰线；不再承担大面积填充） */
   gold: string;
+  /** 交互主色（按钮、链接、激活项） */
+  accent: string;
+  /** 压在 accent 上的前景色 */
+  accentFg: string;
+  /** 信号色（当前选择、错误提示）；只用于小面积状态 */
+  signal: string;
   /** 浅色舞台上「够金但够深」的高亮色（选中/悬停的地图标记用它） */
   goldOnLight: string;
   /** 三维：省块填充 / 自发光 / 描边 */
@@ -50,60 +62,66 @@ export interface StagePalette {
 }
 
 export const DARK_STAGE: StagePalette = {
-  // 深墨绿舞台：把旧版偏蓝的夜色统一到馆藏的墨绿品牌色，
-  // 同时保留足够的明度层级，让地图与卡片在暗处依然分开。
-  bg: '#0b1712',
-  panel: '#12251c',
-  soft: '#0f1f18',
-  border: '#345244',
-  fg: '#eff4ec',
-  muted: '#afc1b3',
-  gold: '#d4a853',
-  goldOnLight: '#d4a853',
-  province: '#2c4636',
-  provinceEmissive: '#40705a',
-  provinceEdge: '#86b79a',
-  endangeredRing: '#d98a4a',
-  floor: '#1a3024',
+  // 近黑石墨绿：比旧版 #0b1712 更中性，屏幕上的暗部不再泛脏绿；
+  // 面板之间靠 4–6 个明度点分层，地图省块与画布能分开。
+  bg: '#0F1512',
+  panel: '#171F1B',
+  soft: '#131A17',
+  border: '#32403A',
+  fg: '#EDF2EC',
+  muted: '#A3AFA7',
+  gold: '#D8B26A',
+  accent: '#8FC7AC',
+  accentFg: '#0E1A14',
+  signal: '#F0A184',
+  goldOnLight: '#D8B26A',
+  province: '#26402F',
+  provinceEmissive: '#3F6B54',
+  provinceEdge: '#8FB79C',
+  endangeredRing: '#E0925F',
+  floor: '#17251D',
   fogDensity: 0.032,
   shadow: '#050807',
   beamBlending: 'additive',
   beamOpacity: 0.95,
-  stardust: '#9fb8a8',
+  stardust: '#9FB8A8',
   stardustOpacity: 0.5,
   stardustCount: 600,
 };
 
 export const LIGHT_STAGE: StagePalette = {
-  bg: '#f1ece0',
-  panel: '#fbf8f0',
-  soft: '#e9e2d2',
-  border: '#d3c8ae',
-  fg: '#173b2c',
-  muted: '#5c6b60',
-  gold: '#845c10',
-  goldOnLight: '#5e4108',
-  province: '#c2ad78',
-  provinceEmissive: '#6f7f68',
-  provinceEdge: '#3f3627',
-  endangeredRing: '#8a3a12',
+  // 暖纸底色略降饱和，避免整屏发黄；面板提亮到近白，让卡片真正“浮”起来。
+  bg: '#F5F1E7',
+  panel: '#FFFDF8',
+  soft: '#EBE5D8',
+  border: '#D7CEBC',
+  fg: '#1A2C25',
+  muted: '#58675F',
+  gold: '#8A5A18',
+  accent: '#2C5A4A',
+  accentFg: '#FBF8F0',
+  signal: '#A4472F',
+  goldOnLight: '#6B4410',
+  province: '#BFC6B8',
+  provinceEmissive: '#6F7F68',
+  provinceEdge: '#3B453D',
+  endangeredRing: '#9C3B22',
   /**
-   * 展台台面。比省块更深一档（对纸底 1.21，原 `#e6dcc4` 只有 1.16）：
-   * 浅色底上省块与台面本来就只差 1.5 左右，台面再浅就与画面底色糊在一起，
-   * 展台边界消失、整块版图看着浮在纸里。
+   * 展台台面。比省块更深一档：浅色底上省块与台面本来就只差 1.4 左右，
+   * 台面再浅就与画面底色糊在一起，展台边界消失、整块版图看着浮在纸里。
    */
-  floor: '#e2d7bb',
+  floor: '#E9E0D0',
   fogDensity: 0.008,
-  shadow: '#6b6252',
+  shadow: '#6B6252',
   beamBlending: 'normal',
   beamOpacity: 1,
-  stardust: '#9a8f79',
+  stardust: '#9A8F79',
   stardustOpacity: 0.18,
   stardustCount: 220,
 };
 
 /* ------------------------------------------------------------------ */
-/* 浅色底上的可读色：把亮色种类色压到与纸底/省块有足够对比                */
+/* 可读色：把亮色种类色压到与纸底/省块有足够对比；暗色底则反向提亮       */
 /* ------------------------------------------------------------------ */
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -135,6 +153,7 @@ export const contrastRatio = (a: string, b: string): number => {
 };
 
 const LIGHT_INK = '#123326';
+const DARK_INK = '#0B120F';
 
 const rgbToHsl = (hex: string): [number, number, number] => {
   const [r, g, b] = hexToRgb(hex).map((value) => value / 255);
@@ -166,15 +185,14 @@ const hslToHex = (hue: number, saturation: number, lightness: number): string =>
  *
  * 为什么不能用「往墨绿里掺」：类别色板有 15 个色（`categoryIcons.ts`），
  * 明度轴本来就承担了一半的区分度——猪 `#FF6B81` 比骆驼 `#8B4513` 亮得多。
- * 混色会把所有颜色压到同一条深绿线上，实测 15 色的最小两两 RGB 距离从深色底的
- * 31.7 掉到 5.1（鸡/蜂、鸽/其他 几乎重合），光图上剩下的就是一片灰绿。
- * 改成「只动 L、保留 H/S」并按原明度在达标线内线性留出行次后，
- * 15 色仍能读出彼此，且最弱一类对省块的对比还有 4.1（目标 3.6）。
+ * 混色会把所有颜色压到同一条深绿线上，15 色的最小两两 RGB 距离会大幅塌缩，
+ * 光图上剩下的就是一片灰绿。改成「只动 L、保留 H/S」并按原明度在达标线内
+ * 线性留出行次后，15 色仍能读出彼此。
  *
- * 深色模式下按原色返回，保持既有视觉；算法与阈值由
- * `src/lib/__tests__/stagePalette.test.ts` 对全部 15 类逐一断言。
+ * 深色模式走 `readableOnDark`：提升明度而不是保留原色——旧实现直接把品牌原色
+ * 画到近黑画布上，骆驼 #8B4513、鸽 #708090 这类深色点位几乎看不见。
  */
-export function readableOnLight(hex: string, target = 3.6): string {
+export function readableOnLight(hex: string, target = 3.2): string {
   const backdrops = [LIGHT_STAGE.province, LIGHT_STAGE.floor, LIGHT_STAGE.bg];
   const meets = (candidate: string) =>
     backdrops.every((backdrop) => contrastRatio(candidate, backdrop) >= target);
@@ -191,7 +209,7 @@ export function readableOnLight(hex: string, target = 3.6): string {
   }
   if (cap !== null) {
     // 明度下限压住「深色种类全糊成一团」，再按原明度在 [下限, cap] 里分出层次
-    const floor = 0.1;
+    const floor = 0.24;
     const scaled = Math.max(floor, Math.min(cap, floor + lightness * (cap - floor)));
     return hslToHex(hue, saturation, scaled);
   }
@@ -202,8 +220,28 @@ export function readableOnLight(hex: string, target = 3.6): string {
   return mix(hex, LIGHT_INK, 0.95);
 }
 
+/** 深色底可读化：保持色相，逐步提亮，直到两种暗背景都读得清。 */
+export function readableOnDark(hex: string, target = 3.2): string {
+  const backdrops = [DARK_STAGE.province, DARK_STAGE.panel];
+  const meets = (candidate: string) =>
+    backdrops.every((backdrop) => contrastRatio(candidate, backdrop) >= target);
+  if (meets(hex)) return hex;
+
+  const [hue, saturation, lightness] = rgbToHsl(hex);
+  for (let l = lightness; l <= 0.92; l += 0.005) {
+    const candidate = hslToHex(hue, Math.min(1, saturation), l);
+    if (meets(candidate)) return candidate;
+  }
+  for (let t = 0.05; t <= 0.95; t += 0.05) {
+    const candidate = mix(hex, DARK_INK, t);
+    if (meets(candidate)) return candidate;
+  }
+  return '#F2F6F0';
+}
+
 /** 按主题返回「能在该主题舞台上被看清」的种类色。 */
-export const beamColorFor = (hex: string, isDark: boolean): string => (isDark ? hex : readableOnLight(hex));
+export const beamColorFor = (hex: string, isDark: boolean): string =>
+  isDark ? readableOnDark(hex) : readableOnLight(hex);
 
 /** CSS 变量名 → 令牌键，供 SettingsProvider 注入与测试比对。 */
 export const STAGE_CSS_VARS: Array<[string, keyof StagePalette]> = [
@@ -214,6 +252,9 @@ export const STAGE_CSS_VARS: Array<[string, keyof StagePalette]> = [
   ['--stage-fg', 'fg'],
   ['--stage-muted', 'muted'],
   ['--stage-gold', 'gold'],
+  ['--stage-accent', 'accent'],
+  ['--stage-accent-fg', 'accentFg'],
+  ['--stage-signal', 'signal'],
 ];
 
 export const stagePaletteFor = (isDark: boolean): StagePalette => (isDark ? DARK_STAGE : LIGHT_STAGE);

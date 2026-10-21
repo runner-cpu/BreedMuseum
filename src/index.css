@@ -8,50 +8,30 @@
 @layer base {
   :root {
     --radius: 0.75rem;
-    /* 米白宣纸底 */
-    --background: 42 37% 94%;
-    --foreground: 0 0% 17%;
-    --card: 42 37% 96%;
-    --card-foreground: 0 0% 17%;
-    --popover: 42 37% 96%;
-    --popover-foreground: 0 0% 17%;
+    /* 暖纸底 + 墨绿文字：底色降饱和，避免整屏发黄 */
+    --background: 40 33% 95%;
+    --foreground: 160 24% 14%;
+    --card: 40 60% 99%;
+    --card-foreground: 160 24% 14%;
+    --popover: 40 60% 99%;
+    --popover-foreground: 160 24% 14%;
     /* 墨绿主色 */
-    --primary: 155 44% 16%;
-    --primary-foreground: 42 37% 94%;
-    --secondary: 42 30% 88%;
-    --secondary-foreground: 0 0% 17%;
-    --muted: 42 25% 90%;
-    --muted-foreground: 30 18% 35%;
-    /* 石绿强调 */
-    --accent: 120 16% 42%;
-    --accent-foreground: 42 37% 94%;
-    --destructive: 7 67% 46%;
-    /* 古棕褐边框 */
-    --border: 36 19% 76%;
-    --input: 36 19% 65%;
-    --ring: 155 44% 26%;
-    --chart-1: 91 56% 20%;
-    --chart-2: 120 16% 42%;
-    --chart-3: 7 67% 46%;
-    --chart-4: 30 30% 42%;
-    --chart-5: 42 30% 88%;
-    --sidebar-background: 42 37% 96%;
-    --sidebar-foreground: 0 0% 17%;
-    --sidebar-primary: 91 56% 20%;
-    --sidebar-primary-foreground: 42 37% 94%;
-    --sidebar-accent: 42 30% 88%;
-    --sidebar-accent-foreground: 0 0% 17%;
-    --sidebar-border: 30 30% 42%;
-    --sidebar-ring: 91 56% 20%;
-    --destructive-foreground: 42 37% 94%;
-    --success: 120 16% 42%;
-    --warning: 30 70% 45%;
-    --info: 120 16% 42%;
-    --gradient-primary: linear-gradient(135deg, hsl(91 56% 20%), hsl(120 16% 42%));
-    --gradient-card: linear-gradient(180deg, hsl(42 37% 96%), hsl(42 30% 92%));
-    --gradient-background: radial-gradient(ellipse at top, hsl(42 37% 96%), hsl(42 37% 94%));
-    --shadow-card: 0 1px 2px hsl(0 0% 17% / 0.06);
-    --shadow-hover: 0 4px 12px hsl(0 0% 17% / 0.1);
+    --primary: 160 32% 26%;
+    --primary-foreground: 40 33% 96%;
+    --secondary: 40 22% 91%;
+    --secondary-foreground: 160 24% 14%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 160 9% 37%;
+    /* 墨绿强调：交互主色固定为低饱和深绿，不再用大面积金色 */
+    --accent: 160 32% 26%;
+    --accent-foreground: 40 33% 96%;
+    --destructive: 14 55% 41%;
+    /* 暖灰边框 */
+    --border: 38 22% 79%;
+    --input: 38 18% 68%;
+    --ring: 160 32% 26%;
+    --destructive-foreground: 40 33% 96%;
+    --gradient-background: radial-gradient(ellipse at top, hsl(40 45% 97%), hsl(40 33% 94%));
 
     /*
      * 展厅令牌（stage）：DOM 舞台与 SVG 光图共用的唯一色彩源。
@@ -59,27 +39,33 @@
      * 由 `src/lib/__tests__/stagePalette.test.ts` 断言，改一处必改另一处。
      * 同时提供 `-rgb` 通道三元组，供 Tailwind 的 `<alpha-value>` 生成透明度变体。
      */
-    --stage: #f1ece0;
-    --stage-panel: #fbf8f0;
-    --stage-soft: #e9e2d2;
-    --stage-border: #d3c8ae;
-    --stage-fg: #173b2c;
-    --stage-muted: #5c6b60;
-    --stage-gold: #845c10;
-    --stage-rgb: 241 236 224;
-    --stage-panel-rgb: 251 248 240;
-    --stage-soft-rgb: 233 226 210;
-    --stage-border-rgb: 211 200 174;
-    --stage-fg-rgb: 23 59 44;
-    --stage-muted-rgb: 92 107 96;
-    --stage-gold-rgb: 132 92 16;
+    --stage: #f5f1e7;
+    --stage-panel: #fffdf8;
+    --stage-soft: #ebe5d8;
+    --stage-border: #d7cebc;
+    --stage-fg: #1a2c25;
+    --stage-muted: #58675f;
+    --stage-gold: #8a5a18;
+    --stage-accent: #2c5a4a;
+    --stage-accent-fg: #fbf8f0;
+    --stage-signal: #a4472f;
+    --stage-rgb: 245 241 231;
+    --stage-panel-rgb: 255 253 248;
+    --stage-soft-rgb: 235 229 216;
+    --stage-border-rgb: 215 206 188;
+    --stage-fg-rgb: 26 44 37;
+    --stage-muted-rgb: 88 103 95;
+    --stage-gold-rgb: 138 90 24;
+    --stage-accent-rgb: 44 90 74;
+    --stage-accent-fg-rgb: 251 248 240;
+    --stage-signal-rgb: 164 71 47;
 
-    --museum-bg: #f1ece0;
-    --museum-panel: #fbf8f0;
-    --museum-panel-raised: #f7f1e4;
-    --museum-line: #d3c8ae;
-    --museum-fg: #173b2c;
-    --museum-muted: #5c6b60;
+    --museum-bg: #f5f1e7;
+    --museum-panel: #fffdf8;
+    --museum-panel-raised: #faf5ea;
+    --museum-line: #d7cebc;
+    --museum-fg: #1a2c25;
+    --museum-muted: #58675f;
 
     /* 让浏览器原生 UI（滚动条、表单控件、canvas 底色）跟随主题，
        否则深色页面会拖出一条亮色滚动槽。 */
@@ -87,70 +73,57 @@
   }
 
   .dark {
-    /* 深色模式：深墨绿舞台 + 暖金强调，避免旧版偏蓝的海军蓝观感。 */
-    --background: 155 25% 10%;
-    --foreground: 0 0% 92%;
-    --card: 155 22% 14%;
-    --card-foreground: 0 0% 92%;
-    --popover: 155 22% 14%;
-    --popover-foreground: 0 0% 92%;
-    --primary: 91 42% 46%;
-    --primary-foreground: 155 25% 10%;
-    --secondary: 155 18% 22%;
-    --secondary-foreground: 0 0% 92%;
-    --muted: 155 18% 22%;
-    --muted-foreground: 0 0% 74%;
-    --accent: 120 22% 52%;
-    --accent-foreground: 0 0% 96%;
-    --destructive: 7 67% 55%;
+    /* 深色模式：近黑石墨绿舞台 + 冷金强调；正文与面板拉开明度，避免整屏发灰。 */
+    --background: 150 12% 7%;
+    --foreground: 120 8% 93%;
+    --card: 150 10% 11%;
+    --card-foreground: 120 8% 93%;
+    --popover: 150 10% 11%;
+    --popover-foreground: 120 8% 93%;
+    --primary: 152 40% 67%;
+    --primary-foreground: 150 20% 8%;
+    --secondary: 150 9% 17%;
+    --secondary-foreground: 120 8% 93%;
+    --muted: 150 9% 17%;
+    --muted-foreground: 140 7% 68%;
+    --accent: 152 40% 67%;
+    --accent-foreground: 150 20% 8%;
+    --destructive: 12 65% 65%;
     --destructive-foreground: 0 0% 96%;
-    --border: 155 14% 36%;
-    --input: 155 14% 36%;
-    --ring: 91 42% 46%;
-    --chart-1: 91 42% 46%;
-    --chart-2: 120 22% 52%;
-    --chart-3: 7 67% 55%;
-    --chart-4: 224 40% 55%;
-    --chart-5: 30 60% 55%;
-    --sidebar-background: 155 22% 14%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 91 42% 46%;
-    --sidebar-primary-foreground: 155 25% 10%;
-    --sidebar-accent: 155 18% 22%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 155 14% 36%;
-    --sidebar-ring: 91 42% 46%;
-    --success: 120 22% 52%;
-    --warning: 30 60% 55%;
-    --info: 120 22% 52%;
-    --gradient-primary: linear-gradient(135deg, hsl(91 42% 46%), hsl(120 22% 52%));
-    --gradient-card: linear-gradient(180deg, hsl(155 22% 14%), hsl(155 22% 18%));
-    --gradient-background: radial-gradient(ellipse at top, hsl(155 22% 14%), hsl(155 25% 10%));
-    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.3);
-    --shadow-hover: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --border: 150 8% 26%;
+    --input: 150 8% 26%;
+    --ring: 152 40% 67%;
+    --destructive-foreground: 0 0% 96%;
+    --gradient-background: radial-gradient(ellipse at top, hsl(150 10% 11%), hsl(150 12% 7%));
 
     /* 展厅令牌（深色）——与 stagePalette.ts 的 DARK_STAGE 逐字段对应 */
-    --stage: #0b1712;
-    --stage-panel: #12251c;
-    --stage-soft: #0f1f18;
-    --stage-border: #345244;
-    --stage-fg: #eff4ec;
-    --stage-muted: #afc1b3;
-    --stage-gold: #d4a853;
-    --stage-rgb: 11 23 18;
-    --stage-panel-rgb: 18 37 28;
-    --stage-soft-rgb: 15 31 24;
-    --stage-border-rgb: 52 82 68;
-    --stage-fg-rgb: 239 244 236;
-    --stage-muted-rgb: 175 193 179;
-    --stage-gold-rgb: 212 168 83;
+    --stage: #0f1512;
+    --stage-panel: #171f1b;
+    --stage-soft: #131a17;
+    --stage-border: #32403a;
+    --stage-fg: #edf2ec;
+    --stage-muted: #a3afa7;
+    --stage-gold: #d8b26a;
+    --stage-accent: #8fc7ac;
+    --stage-accent-fg: #0e1a14;
+    --stage-signal: #f0a184;
+    --stage-rgb: 15 21 18;
+    --stage-panel-rgb: 23 31 27;
+    --stage-soft-rgb: 19 26 23;
+    --stage-border-rgb: 50 64 58;
+    --stage-fg-rgb: 237 242 236;
+    --stage-muted-rgb: 163 175 167;
+    --stage-gold-rgb: 216 178 106;
+    --stage-accent-rgb: 143 199 172;
+    --stage-accent-fg-rgb: 14 26 20;
+    --stage-signal-rgb: 240 161 132;
 
-    --museum-bg: #0b1712;
-    --museum-panel: #12251c;
-    --museum-panel-raised: #1a3428;
-    --museum-line: #345244;
-    --museum-fg: #eff4ec;
-    --museum-muted: #afc1b3;
+    --museum-bg: #0f1512;
+    --museum-panel: #171f1b;
+    --museum-panel-raised: #1d2722;
+    --museum-line: #32403a;
+    --museum-fg: #edf2ec;
+    --museum-muted: #a3afa7;
 
     color-scheme: dark;
   }
@@ -171,21 +144,15 @@
     background-image: var(--gradient-background);
   }
 
-  /* 页面舞台：与三维场景共用同一底色，主题切换时一起变 */
-  .stage-surface {
-    background-color: var(--stage);
-    color: var(--stage-fg);
-  }
-
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     text-wrap: balance;
   }
-  :focus-visible { outline: 3px solid #A77722; outline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--stage-accent); outline-offset: 3px; }
   button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 }
 
-.skip-link { position: fixed; top: .5rem; left: .5rem; z-index: 100; padding: .75rem 1rem; color: #173B2C; background: #F4EFE3; border: 2px solid #C79A45; border-radius: .5rem; transform: translateY(-160%); }
+.skip-link { position: fixed; top: .5rem; left: .5rem; z-index: 100; padding: .75rem 1rem; color: #FBF8F0; background: #2C5A4A; border: 2px solid #8A5A18; border-radius: .5rem; transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -215,7 +182,6 @@
   /* 参考展厅的深墨绿信息架构：首页独立于详情抽屉的宣纸舞台，
      让地图、统计和互动模块形成一条连续的沉浸式叙事。 */
   .museum-home {
-    --museum-night: var(--museum-bg);
     background:
       radial-gradient(circle at 50% 8%, color-mix(in srgb, var(--museum-fg) 12%, transparent), transparent 26rem),
       radial-gradient(circle at 15% 42%, color-mix(in srgb, var(--stage-gold) 10%, transparent), transparent 24rem),
@@ -247,15 +213,6 @@
     padding: 5.5rem clamp(1rem, 4vw, 4rem);
   }
 
-  .museum-eyebrow {
-    /* 跟随主题令牌：浅色下用深金、深色下用亮金，两套底色都能读清。 */
-    color: var(--stage-gold);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
-
   .museum-panel {
     position: relative;
     overflow: hidden;
@@ -273,24 +230,10 @@
     background: radial-gradient(circle at 100% 0%, rgb(212 168 83 / 0.12), transparent 22rem);
   }
 
-  .museum-ghost-hover {
-    cursor: pointer;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-  }
-
-  .museum-ghost-hover:hover {
-    background-color: rgb(255 255 255 / 0.09);
-    color: #fff;
-  }
-
   /* SVG 地图的省份与产区簇可用键盘聚焦；金色描边让当前焦点在深色舞台上清晰可见。 */
   .museum-map-surface [role='button']:focus-visible {
     outline: none;
     filter: drop-shadow(0 0 5px rgb(244 201 108 / 0.95));
-  }
-
-  .museum-subtle-track {
-    background: color-mix(in srgb, var(--museum-muted) 24%, transparent);
   }
 
   /*
@@ -329,71 +272,6 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
-  .museum-map-category-tabs {
-    display: flex;
-    max-width: min(65vw, 48rem);
-    align-items: center;
-    gap: 0.25rem;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    padding-bottom: 0.15rem;
-  }
-
-  /* 原站式浮动筛选：控件叠在地图上方，地图本身保持连续完整。 */
-  .museum-map-filterbar {
-    position: absolute;
-    top: 0.85rem;
-    left: 1rem;
-    right: 1rem;
-    z-index: 12;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    pointer-events: none;
-  }
-
-  .museum-map-filterbar > * { pointer-events: auto; }
-
-  .museum-map-filterbar .museum-map-category-tabs {
-    max-width: min(78vw, 56rem);
-    padding: 0.3rem;
-    border: 1px solid color-mix(in srgb, var(--museum-line) 88%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--museum-panel) 88%, transparent);
-    box-shadow: 0 10px 28px rgb(0 0 0 / 0.18);
-    backdrop-filter: blur(12px);
-  }
-
-  .museum-map-filter {
-    min-height: 2rem;
-    flex: 0 0 auto;
-    border-radius: 999px;
-    padding: 0.25rem 0.75rem;
-    color: var(--museum-muted);
-    font-size: 0.72rem;
-    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
-  }
-
-  .museum-map-filter:hover { color: var(--museum-fg); background: color-mix(in srgb, var(--museum-fg) 8%, transparent); }
-  /*
-   * 激活态跟主题走：旧值 `#d4a853` 底 + `#1a2032` 字在两套主题里都只有约 1.9:1，
-   * 与类别侧栏同一处问题。改用 stage 令牌后浅色约 7.8、深色约 7.0。
-   */
-  .museum-map-filter.is-active { background: var(--stage-gold); color: var(--stage-panel); font-weight: 700; box-shadow: 0 3px 12px rgb(var(--stage-gold-rgb) / 0.25); }
-
-  .museum-map-filter-count {
-    flex: 0 0 auto;
-    border: 1px solid color-mix(in srgb, var(--museum-line) 88%, transparent);
-    border-radius: 999px;
-    padding: 0.45rem 0.7rem;
-    background: color-mix(in srgb, var(--museum-panel) 88%, transparent);
-    color: var(--museum-muted);
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 0.65rem;
-    box-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
-    backdrop-filter: blur(12px);
-  }
 
   .museum-breed-drawer {
     animation: museum-drawer-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -442,12 +320,11 @@
 
   .museum-category-sidebar-item:hover { color: var(--stage-fg); background: var(--stage-soft); }
   /*
-   * 选中项是「金色底 + 深色字」。旧实现用 `color: var(--stage-fg)`：
-   * 浅色模式下 #173b2c 压在 #845c10 上只有 1.8:1，深色模式下 #eff4ec
-   * 压在 #d4a853 上也只有 1.9:1——两套主题都读不清。改用 panel 令牌
-   * （浅色 #fbf8f0 / 深色 #12251c），对比分别约 7.8 与 7.0。
+   * 选中项是「墨绿底 + 纸白字」。旧实现用金色底配深字，
+   * 大面积芥末金会与地图省块抢眼；现在主交互统一走 accent，
+   * 金色只留作边框与眉题。对比约 9.3（浅）与 9.0（深）。
    */
-  .museum-category-sidebar-item.is-active { color: var(--stage-panel); background: var(--stage-gold); box-shadow: 0 0.35rem 0.9rem rgb(var(--stage-gold-rgb) / 0.16); }
+  .museum-category-sidebar-item.is-active { color: var(--stage-accent-fg); background: var(--stage-accent); box-shadow: 0 0.35rem 0.9rem rgb(var(--stage-accent-rgb) / 0.18); }
   .museum-category-sidebar-icon { display: inline-flex; color: currentColor; opacity: 0.8; }
   .museum-category-sidebar-item.is-active .museum-category-sidebar-icon { opacity: 1; }
   .museum-category-sidebar-item small { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.56rem; opacity: 0.72; }
@@ -487,17 +364,6 @@
 
   .museum-detail {
     padding: 1rem;
-  }
-
-  .museum-status {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid rgb(212 168 83 / 0.6);
-    border-radius: 0.45rem;
-    padding: 0.25rem 0.5rem;
-    color: #e6c678;
-    font-size: 0.7rem;
-    white-space: nowrap;
   }
 
   @media (min-width: 768px) {
@@ -588,8 +454,6 @@
       padding-block: 3.5rem;
     }
 
-    .museum-map-category-tabs { max-width: 100%; }
-
     .museum-encyclopedia-layout { display: block; }
     .museum-category-sidebar {
       flex-direction: row;
@@ -605,11 +469,6 @@
       min-height: 3.75rem;
       flex: 0 0 auto;
     }
-
-    .museum-map-filterbar { top: 0.65rem; left: 0.65rem; right: 0.65rem; align-items: flex-start; }
-    .museum-map-filterbar .museum-map-category-tabs { max-width: calc(100% - 5.6rem); }
-    .museum-map-filter { padding-inline: 0.6rem; }
-    .museum-map-filter-count { margin-top: 0.3rem; padding-inline: 0.55rem; }
 
     .museum-breed-drawer {
       height: min(88dvh, 46rem);
@@ -665,57 +524,6 @@
     .museum-encyclopedia-main {
       width: auto;
       flex-basis: auto;
-    }
-  }
-
-  .ink-card {
-    @apply bg-card border border-border rounded shadow-card;
-    background-image: var(--gradient-card);
-  }
-
-  .ink-stamp {
-    @apply inline-flex items-center justify-center rounded-sm border border-destructive/70 text-destructive px-2 py-0.5 text-xs font-semibold tracking-wider;
-  }
-
-  /* 跳转定位脉冲光晕动画 */
-  .pulse-glow {
-    animation: pulseGlow 1s ease-out infinite;
-  }
-
-  @keyframes pulseGlow {
-    0% {
-      transform: scale(1);
-      opacity: 0.7;
-    }
-    70% {
-      transform: scale(2.4);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(2.4);
-      opacity: 0;
-    }
-  }
-
-  /* 国家级保护品种常驻金色脉冲（3秒一圈，优雅呼吸感） */
-  .protected-pulse {
-    animation: protectedPulse 3s ease-out infinite;
-    transform-origin: center;
-    transform-box: fill-box;
-  }
-
-  @keyframes protectedPulse {
-    0% {
-      transform: scale(1);
-      opacity: 0.8;
-    }
-    70% {
-      transform: scale(2.8);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(2.8);
-      opacity: 0;
     }
   }
 

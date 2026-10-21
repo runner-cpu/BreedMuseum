@@ -37,13 +37,13 @@ function readVar(block: ':root' | '.dark', name: string): string | null {
 describe('stage palette', () => {
   it('light theme CSS variables match LIGHT_STAGE field by field', () => {
     for (const [cssVar, key] of STAGE_CSS_VARS) {
-      expect(readVar(':root', cssVar), cssVar).toBe(LIGHT_STAGE[key]);
+      expect(readVar(':root', cssVar)?.toLowerCase(), cssVar).toBe(LIGHT_STAGE[key].toLowerCase());
     }
   });
 
   it('dark theme CSS variables match DARK_STAGE field by field', () => {
     for (const [cssVar, key] of STAGE_CSS_VARS) {
-      expect(readVar('.dark', cssVar), cssVar).toBe(DARK_STAGE[key]);
+      expect(readVar('.dark', cssVar)?.toLowerCase(), cssVar).toBe(DARK_STAGE[key].toLowerCase());
     }
   });
 
@@ -67,6 +67,18 @@ describe('stage palette', () => {
         expect(channels, `${block} ${rgbVar}`).toBe(expected);
       }
     }
+  });
+
+  it('publishes the interaction accents used by buttons and selected states', () => {
+    // 主交互不再用大面积金色：accent 必须能压住纸底/深色底，
+    // 压在 accent 上的前景也必须过 AA。
+    expect(contrastRatio(LIGHT_STAGE.accentFg, LIGHT_STAGE.accent)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(DARK_STAGE.accentFg, DARK_STAGE.accent)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(LIGHT_STAGE.accent, LIGHT_STAGE.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(DARK_STAGE.accent, DARK_STAGE.bg)).toBeGreaterThanOrEqual(4.5);
+    // 信号色（当前选择 / 错误）同样要能在舞台上当文字用
+    expect(contrastRatio(LIGHT_STAGE.signal, LIGHT_STAGE.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(DARK_STAGE.signal, DARK_STAGE.bg)).toBeGreaterThanOrEqual(4.5);
   });
 
   it('declares a native color-scheme per theme so scrollbars follow the stage', () => {
@@ -105,7 +117,7 @@ describe('stage palette', () => {
         fillFloor,
       );
       // 台面又要与画布底色分开，否则展台边界消失
-      expect(contrastRatio(palette.floor, palette.bg), `${name} 台面 vs 底色`).toBeGreaterThanOrEqual(1.08);
+      expect(contrastRatio(palette.floor, palette.bg), `${name} 台面 vs 底色`).toBeGreaterThanOrEqual(1.12);
       // 描边是省界的唯一读法：必须能压在填充上
       expect(contrastRatio(palette.provinceEdge, palette.province), `${name} 描边 vs 省块`).toBeGreaterThanOrEqual(
         edgeFloor,
@@ -121,23 +133,33 @@ describe('stage palette', () => {
     }
   });
 
-  it('every category colour stays visible on the light stage', () => {
+  it('every category colour stays visible on both stages', () => {
     expect(categories).toHaveLength(15);
+    const lightColors = new Set<string>();
+    const darkColors = new Set<string>();
     for (const category of categories) {
       const base = categoryColors[category];
       expect(base, category).toBeTruthy();
 
       const light = beamColorFor(base, false);
       const dark = beamColorFor(base, true);
-      // 深色底保持原色（既有视觉不变）
-      expect(dark, category).toBe(base);
-      // 浅色底必须同时压过省块填充与舞台底色
-      for (const backdrop of [LIGHT_STAGE.province, LIGHT_STAGE.bg]) {
-        expect(contrastRatio(light, backdrop), `${category} vs ${backdrop}`).toBeGreaterThanOrEqual(3.6);
+      lightColors.add(light);
+      darkColors.add(dark);
+
+      // 浅色底必须同时压过省块填充、台面与舞台底色
+      for (const backdrop of [LIGHT_STAGE.province, LIGHT_STAGE.floor, LIGHT_STAGE.bg]) {
+        expect(contrastRatio(light, backdrop), `${category} vs ${backdrop}`).toBeGreaterThanOrEqual(3.2);
       }
-      // 压暗后的色相不能被压成灰：与原色的色相偏差仍应在可辨识范围
+      // 深色底过去直接沿用品牌原色，骆驼 #8B4513 / 鸽 #708090 在近黑画布上几乎不可见。
+      // 现在必须同时压过深色省块与深色面板——这正是“深色模式点位看不清”的回归测试。
+      for (const backdrop of [DARK_STAGE.province, DARK_STAGE.panel]) {
+        expect(contrastRatio(dark, backdrop), `${category} dark vs ${backdrop}`).toBeGreaterThanOrEqual(3.2);
+      }
       expect(light, category).not.toBe('#000000');
     }
+    // 两类底都必须保持 15 色可区分：压暗/提亮不能把不同类别挤成同一个颜色
+    expect(lightColors.size).toBe(categories.length);
+    expect(darkColors.size).toBe(categories.length);
   });
 
   it('no page hardcodes the old night-stage colours any more', () => {

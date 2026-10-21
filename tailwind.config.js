@@ -38,6 +38,9 @@ export default {
                     fg: 'rgb(var(--stage-fg-rgb) / <alpha-value>)',
                     muted: 'rgb(var(--stage-muted-rgb) / <alpha-value>)',
                     gold: 'rgb(var(--stage-gold-rgb) / <alpha-value>)',
+                    accent: 'rgb(var(--stage-accent-rgb) / <alpha-value>)',
+                    'accent-fg': 'rgb(var(--stage-accent-fg-rgb) / <alpha-value>)',
+                    signal: 'rgb(var(--stage-signal-rgb) / <alpha-value>)',
                 },
                 border: 'hsl(var(--border))',
                 borderColor: {

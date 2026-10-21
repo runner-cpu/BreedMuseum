@@ -1,5 +1,5 @@
-import { breeds as allBreeds, type Breed } from '@/data/breeds';
 import { getBreedMetadata } from '@/data/breedMetadata';
+import { breeds as allBreeds, type Breed } from '@/data/breeds';
 import { hasVerifiedCoordinates } from '@/data/catalog';
 import { mapViewBox, projectCoordinate } from '@/data/chinaMap';
 import { compareText } from '@/lib/compareText';
@@ -34,8 +34,15 @@ const projectMap = (longitude: number, latitude: number): [number, number] => {
  * - 簇中心与实际坐标的最大偏移有上限，可被审计。
  */
 
-/** 空间聚合半径（世界单位）。地图整体约 10 × 8，0.22 ≈ 240 km，是「同一产区」的量级。 */
-export const SITE_CLUSTER_RADIUS = 0.22;
+/**
+ * 空间聚合半径（世界单位）。地图整体约 10 × 8。
+ *
+ * 0.22（≈240 km）会把同一地级市周边所有产区压成一个点：667 条记录只剩 154 个点，
+ * 观众第一眼会以为「数据很少」。0.14（≈150 km）仍属于「同一产区」的量级，
+ * 但能拆出 202 个点，既保留聚合语义，也让分布密度真实可见；
+ * 全量口径同时从 161 变为 217。
+ */
+export const SITE_CLUSTER_RADIUS = 0.14;
 
 export interface ClusterMember {
   id: string;

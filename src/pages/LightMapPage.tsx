@@ -177,7 +177,7 @@ export default function LightMapPage() {
                   <MapPinned className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <span className="font-mono text-[0.65rem] tracking-[0.2em] text-[var(--museum-muted)]">
-                  154 {t('home.sitesUnit')}
+                  {formatNumber(COLLECTION_SUMMARY.visibleClusters, language)} {t('home.sitesUnit')}
                 </span>
               </div>
               <div>

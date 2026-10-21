@@ -19,10 +19,14 @@ import { mapViewBox, provincePaths } from '@/data/chinaMap';
  * 首屏看起来就是一块空黑。现在白描边 + 12% 填充让中国轮廓静态可读，
  * 聚光仍负责把经过的区域提成金色。
  */
-const HERO_BASE_FILL = 'rgba(180, 200, 186, 0.12)';
-const HERO_BASE_STROKE = 'rgba(206, 222, 210, 0.46)';
-const HERO_REVEAL_FILL = '#c79a45';
-const HERO_REVEAL_STROKE = 'rgba(247, 235, 205, 0.55)';
+const HERO_BASE_FILL = 'rgba(198, 214, 203, 0.10)';
+const HERO_BASE_STROKE = 'rgba(214, 228, 218, 0.40)';
+/**
+ * 首屏地图改用「青铜—鼠尾草」双色，而不是通体金黄：
+ * 旧实现整块 #c79a45 在金与绿之间摇摆，既压不住标题，也和站内 accent 脱节。
+ */
+const HERO_REVEAL_FILL = '#B0894E';
+const HERO_REVEAL_STROKE = 'rgba(246, 238, 220, 0.50)';
 
 interface SpotlightHeroProps {
   titleTop: string;
@@ -98,10 +102,10 @@ const SpotlightHero = ({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className="spotlight-hero relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
-      style={{ background: '#08130e' }}
+      style={{ background: '#080D0B' }}
     >
       {/* 深墨绿地图舞台：让中国轮廓成为首屏主角。 */}
-      <div aria-hidden="true" className="absolute inset-0" style={{ background: 'radial-gradient(circle at 52% 45%,rgba(75,135,103,.30),transparent 34%),radial-gradient(circle at 80% 18%,rgba(199,154,69,.18),transparent 24%),linear-gradient(180deg,#15392b,#0a1a13 60%,#08130e)' }} />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: 'radial-gradient(circle at 52% 45%,rgba(64,118,92,.34),transparent 36%),radial-gradient(circle at 80% 18%,rgba(176,137,78,.16),transparent 26%),linear-gradient(180deg,#14251d,#0b1512 62%,#080d0b)' }} />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
@@ -149,7 +153,7 @@ const SpotlightHero = ({
           transition={{ delay: 0.1 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white/80 mb-6"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#d4a853]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D8B26A]" />
           {badge}
         </motion.div>
 
@@ -166,7 +170,7 @@ const SpotlightHero = ({
             style={{
               // 渐变文字在部分浏览器里会连同 text-shadow 一起被裁掉；
               // 这里改用纯金色 + 深色投影，保证小屏也不发灰。
-              backgroundImage: 'linear-gradient(92deg,#c08a2c,#f0d397 48%,#c08a2c)',
+              backgroundImage: 'linear-gradient(92deg,#b8873f,#f2ddb0 48%,#b8873f)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               color: 'transparent',
@@ -201,7 +205,7 @@ const SpotlightHero = ({
           <Button
             type="submit"
             size="sm"
-            className="min-h-11 bg-[#d4a853] text-[#1a3a2a] hover:bg-[#d4a853]/90 rounded-full shrink-0"
+            className="min-h-11 bg-[#D8B26A] text-[#14251d] hover:bg-[#E6C486] rounded-full shrink-0"
           >
             {searchBtn}
           </Button>
@@ -216,7 +220,7 @@ const SpotlightHero = ({
           <Button
             size="lg"
             onClick={onExplore}
-            className="bg-[#d4a853] text-[#1a3a2a] hover:bg-[#d4a853]/90 font-medium px-7"
+            className="bg-[#D8B26A] text-[#14251d] hover:bg-[#E6C486] font-medium px-7"
           >
             {cta}
             <ArrowRight className="w-4 h-4 ml-1.5" />

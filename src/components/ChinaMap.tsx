@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSettings } from '@/contexts/AppSettings';
 import type { Breed } from '@/data/breeds';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
-import { categoryColors } from '@/lib/categoryIcons';
+import { categoryColors, readableOn } from '@/lib/categoryIcons';
 import { compareText } from '@/lib/compareText';
 import { categoryLabel, fill as interpolate, provinceLabel } from '@/lib/displayLabels';
 import {
@@ -20,13 +20,22 @@ import { beamColorFor } from '@/lib/stagePalette';
  * 兔/鹿/驴/骆驼/蜂全部并入「马」或「其他」，同一个类别在不同页面颜色不一致，
  * 图例也读不出真实类别。
  *
- * 查色时未知类别回落到「其他」。
+ * 深浅两套主题都会经过 `beamColorFor`：浅色底压暗、深色底提亮，
+ * 保证点位在任意一档省块上都读得出来。查色时未知类别回落到「其他」。
  */
 const markerColorForCategory = (category: string, isDark: boolean): string =>
   beamColorFor(categoryColors[category] ?? categoryColors.其他, isDark);
 
-/** 选中/悬停的金色：浅色舞台上用压深的金，深色舞台上用亮金。 */
-const selectedGold = (isDark: boolean): string => (isDark ? '#d4a853' : '#5e4108');
+/**
+ * 选中/悬停信号色：浅色舞台用朱砂，深色舞台用暖珊瑚。
+ *
+ * 旧实现用金色做选中色，而金色同时也是省份分档里最亮的一档，
+ * 选中点常常与背景融为一体。改用 signal 令牌后，两套主题都能从任何省块上跳出来。
+ */
+const selectedSignal = (isDark: boolean): string => (isDark ? '#f0a184' : '#a4472f');
+
+/** 点位统一描边：让点在任意一档省块上都有清晰边界，而不是靠放大来存在感。 */
+const markerStroke = (isDark: boolean): string => (isDark ? '#0f1512' : '#fffdf8');
 
 /**
  * 图例必须列全 15 个类别。
@@ -264,7 +273,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
               </filter>
             </defs>
             <rect x={0} y={0} width={mapViewBox.width} height={mapViewBox.height} fill="url(#mapHalo)" />
-            <ellipse cx={mapViewBox.width * 0.52} cy={mapViewBox.height * 0.48} rx="280" ry="190" fill="#d4a853" opacity="0.08" filter="url(#mapGlow)" />
+            <ellipse cx={mapViewBox.width * 0.52} cy={mapViewBox.height * 0.48} rx="280" ry="190" fill="var(--stage-accent)" opacity="0.06" filter="url(#mapGlow)" />
           </>
         )}
 
@@ -277,12 +286,10 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           const isDimmed = Boolean(activeProvince) && !isSelected;
           const isRevealed = prefersReducedMotion || !hasData || revealedProvinces.has(name);
           const fill = hasData
-            ? darkSurface
-              ? 'var(--museum-panel-raised)'
-              : mapIsDark
-                ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
-                : choropleth.colorFor(count)
-            : darkSurface ? 'var(--museum-panel)' : 'hsl(var(--muted))';
+            ? mapIsDark
+              ? CHOROPLETH_DARK_COLORS[choropleth.binFor(count)]
+              : choropleth.colorFor(count)
+            : mapIsDark ? 'var(--museum-panel-raised)' : 'hsl(var(--muted))';
           /**
            * 没有可见记录的省份是纯地理底图，不注册为按钮。
            *
@@ -301,8 +308,8 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 aria-label={hasData ? interpolate(t('map.provinceAria'), { name: provinceLabel(name, language) }) : undefined}
                 aria-pressed={hasData ? isSelected : undefined}
                 fill={fill}
-                stroke={isHovered || isSelected ? selectedGold(mapIsDark) : darkSurface ? 'var(--museum-line)' : 'hsl(var(--border))'}
-                strokeWidth={isHovered || isSelected ? 2.5 : darkSurface ? 1.2 : 1}
+                stroke={isHovered || isSelected ? selectedSignal(mapIsDark) : darkSurface ? 'var(--museum-line)' : 'hsl(var(--border))'}
+                strokeWidth={isHovered || isSelected ? 2.2 : darkSurface ? 1.1 : 1}
                 className={hasData ? 'cursor-pointer transition-[opacity,stroke,filter] duration-200' : 'transition-[opacity,stroke,filter] duration-200'}
                 opacity={(hasData && !isRevealed ? 0.34 : hasData ? 1 : 0.52) * (isDimmed ? 0.35 : 1)}
                 style={{ filter: isHovered ? 'brightness(1.28)' : undefined }}
@@ -376,11 +383,19 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           const x = cluster.position[0] * 100 + mapViewBox.width / 2;
           const y = mapViewBox.height / 2 - cluster.position[1] * 100;
           const isSelected = selectedCluster?.id === cluster.id;
-          // Keep every point visually equal. Counts remain available in the
-          // tooltip and detail card; radius is reserved for the active point.
-          const r = isSelected ? 8 : 5.2;
+          /**
+           * 点位尺寸按簇内记录数分三档，而不是全部 5.2。
+           *
+           * 旧实现为了「视觉秩序」把所有点画成同一大小，结果 154 个点在地图上
+           * 看起来既稀疏又毫无轻重——观众无法判断哪里是主产区。现在：
+           * - 单条记录的产区 4.2，2–4 条 5.2，5 条以上 6.4；
+           * - 每点加一圈 1.2px 的纸张色描边，深色省块上也不会糊掉；
+           * - 选中点 8.6 并换成 signal 色。
+           * 半径只编码「记录数区间」，不编码连续数值，避免读者误读成精确比例。
+           */
+          const r = isSelected ? 8.6 : cluster.total >= 5 ? 6.4 : cluster.total >= 2 ? 5.2 : 4.2;
           const primaryCategory = cluster.slices[0]?.category ?? '其他';
-          const color = isSelected ? selectedGold(mapIsDark) : markerColorForCategory(primaryCategory, mapIsDark);
+          const color = isSelected ? selectedSignal(mapIsDark) : markerColorForCategory(primaryCategory, mapIsDark);
           const title = interpolate(t('map.clusterTitle'), { province: provinceLabel(cluster.province, language), count: cluster.total });
           const detail = cluster.slices.map((slice) => `${categoryLabel(slice.category, language)} ${slice.count}`).join(' / ');
           const activeProvince = focusedProvince ?? selectedProvince;
@@ -431,7 +446,22 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
                 }
               }}
             >
-              <circle cx={x} cy={y} r={r} fill={color} stroke={isSelected ? 'var(--stage-panel)' : 'none'} strokeWidth={isSelected ? 1.5 : 0} />
+              <circle cx={x} cy={y} r={r} fill={color} stroke={markerStroke(mapIsDark)} strokeWidth={1.3} />
+              {cluster.total >= 5 && (
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  pointerEvents="none"
+                  aria-hidden="true"
+                  fontSize={5.6}
+                  fontWeight={700}
+                  fill={isSelected ? '#fffdf8' : readableOn(color)}
+                >
+                  {cluster.total}
+                </text>
+              )}
             </g>
           );
         })}
@@ -455,7 +485,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           ))}
         </div>
         <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}`}>
-          <span className="inline-block h-3 w-3 rounded-full bg-stage-gold" aria-hidden="true" />
+          <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: selectedSignal(mapIsDark) }} aria-hidden="true" />
           <span>{t('map.legendSelectedGold')}</span>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px]" aria-label={t('map.legendCategories')}>
