@@ -725,6 +725,12 @@ const dictionary: Record<string, { zh: string; en: string }> = {
     zh: '三台装置各练一件事：在地图上找产区、看真实照片认畜种、读名录常识。一次只玩一台，题目全部由馆藏数据生成，答完可直接打开品种资料核对。',
     en: 'Three exhibits, three skills: find a production site on the map, recognise a category from a real photo, and read the catalog. One exhibit at a time; every question is generated from the collection and links back to the record.',
   },
+  'arcade.hallPointMap': { zh: '真实省界上点产区，错点报公里数', en: 'Click the real map; a miss reports the distance' },
+  'arcade.hallPointPhoto': { zh: '馆藏照片认类别，答完给同类', en: 'Name the category from a real photo' },
+  'arcade.hallPointQuiz': { zh: '类别 · 产区 · 保护身份轮转出题', en: 'Rotating category, site and protection questions' },
+  'arcade.previewQuizA': { zh: '国家级保护品种', en: 'National protected breed' },
+  'arcade.previewQuizB': { zh: '地方选育品种', en: 'Locally bred variety' },
+  'arcade.previewQuizC': { zh: '引入品种', en: 'Introduced breed' },
   'arcade.redLineTitle': { zh: '出题红线', en: 'Question rules' },
   'arcade.redLine': {
     zh: '题目与选项只取自已核验字段（类别 / 产区 / 940 号公告保护状态）；产区待核验的记录不出题，也不作干扰项。识图挑战使用馆藏真实照片，只问类别不问品种级身份；答错找家题会给出距真实产区的公里数。',
