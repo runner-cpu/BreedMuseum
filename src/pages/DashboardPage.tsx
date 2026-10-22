@@ -217,7 +217,7 @@ export default function DashboardPage() {
       subtitle: t('dash.kpiBrowsable'),
       handle: fill(t('dash.kpiBrowsableDetail'), { percent: fullVisiblePercent }),
       borderColor: '#9AD6E2',
-      gradient: 'linear-gradient(148deg, #1B3330, #0B1714 70%)',
+      gradient: 'linear-gradient(148deg, #1B2B4A, #0A0A1A 72%)',
       icon: <BookOpen className="h-4 w-4" aria-hidden="true" />,
       countUp: true,
       format: formatNumber,
@@ -226,8 +226,8 @@ export default function DashboardPage() {
       title: String(visibleDigest.provinces.filter((item) => item.province !== '待核验').length),
       subtitle: t('dash.kpiProvinces'),
       handle: fill(t('dash.kpiProvincesDetail'), { n: formatNumber(visibleDigest.mappable) }),
-      borderColor: '#8FC7AC',
-      gradient: 'linear-gradient(148deg, #1A3029, #0B1714 70%)',
+      borderColor: '#A9C77E',
+      gradient: 'linear-gradient(148deg, #17294A, #0A0A1A 72%)',
       icon: <MapPinned className="h-4 w-4" aria-hidden="true" />,
       countUp: true,
       format: formatNumber,
@@ -237,7 +237,7 @@ export default function DashboardPage() {
       subtitle: t('dash.kpiProtected'),
       handle: fill(t('dash.kpiProtectedDetail'), { percent: protectedPercentOfVisible }),
       borderColor: '#EBCA86',
-      gradient: 'linear-gradient(148deg, #33291A, #0B1714 70%)',
+      gradient: 'linear-gradient(148deg, #33294A, #0A0A1A 72%)',
       icon: <ShieldCheck className="h-4 w-4" aria-hidden="true" />,
       countUp: true,
       format: formatNumber,
@@ -247,7 +247,7 @@ export default function DashboardPage() {
       subtitle: t('dash.kpiEndangered'),
       handle: fill(t('dash.kpiEndangeredDetail'), { percent: endangeredPercentOfVisible }),
       borderColor: '#F3B18A',
-      gradient: 'linear-gradient(148deg, #33231C, #0B1714 70%)',
+      gradient: 'linear-gradient(148deg, #33223C, #0A0A1A 72%)',
       icon: <Sparkles className="h-4 w-4" aria-hidden="true" />,
       countUp: true,
       format: formatNumber,
@@ -294,13 +294,15 @@ export default function DashboardPage() {
           这样看板既与首页的夜空连续，又不会在浅色模式下把整页压黑。 */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[24rem] overflow-hidden">
         <Galaxy
-          density={1.2}
-          speed={1.05}
-          starSpeed={0.6}
-          hueShift={140}
-          glowIntensity={0.3}
-          twinkleIntensity={0.4}
-          rotationSpeed={0.1}
+          density={1.3}
+          speed={1.1}
+          starSpeed={0.65}
+          hueShift={205}
+          saturation={0.3}
+          glowIntensity={0.34}
+          twinkleIntensity={0.45}
+          rotationSpeed={0.12}
+          mouseInteraction
         />
         <div className="absolute inset-0 dashboard-night-fade" />
       </div>
@@ -312,7 +314,7 @@ export default function DashboardPage() {
             <ScrollFloat
               as="h1"
               once
-              containerClassName="font-serif text-3xl font-semibold leading-tight tracking-tight text-[#F4F7F1] sm:text-4xl"
+              containerClassName="font-serif text-3xl font-semibold leading-tight tracking-tight text-[#F7F2E6] sm:text-4xl"
               stagger={0.022}
               animationDuration={0.8}
             >
@@ -329,7 +331,7 @@ export default function DashboardPage() {
             </span>
             <Link
               to="/explore"
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-3 py-2 text-[#F4F7F1] transition-colors hover:border-[#E4C384]"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-3 py-2 text-[#F7F2E6] transition-colors hover:border-[#E4C384]"
             >
               <MapPinned className="h-3.5 w-3.5" aria-hidden="true" />
               {t('dash.openMap')}

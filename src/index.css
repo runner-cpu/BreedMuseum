@@ -39,33 +39,33 @@
      * 由 `src/lib/__tests__/stagePalette.test.ts` 断言，改一处必改另一处。
      * 同时提供 `-rgb` 通道三元组，供 Tailwind 的 `<alpha-value>` 生成透明度变体。
      */
-    --stage: #f5f1e7;
-    --stage-panel: #fffdf8;
-    --stage-soft: #ebe5d8;
-    --stage-border: #d7cebc;
-    --stage-fg: #1a2c25;
-    --stage-muted: #58675f;
+    --stage: #f5f0e8;
+    --stage-panel: #fbf7ef;
+    --stage-soft: #ede4d3;
+    --stage-border: #d3c6ae;
+    --stage-fg: #232323;
+    --stage-muted: #5b5343;
     --stage-gold: #8a5a18;
-    --stage-accent: #2c5a4a;
-    --stage-accent-fg: #fbf8f0;
+    --stage-accent: #325016;
+    --stage-accent-fg: #f7f2e6;
     --stage-signal: #a4472f;
-    --stage-rgb: 245 241 231;
-    --stage-panel-rgb: 255 253 248;
-    --stage-soft-rgb: 235 229 216;
-    --stage-border-rgb: 215 206 188;
-    --stage-fg-rgb: 26 44 37;
-    --stage-muted-rgb: 88 103 95;
+    --stage-rgb: 245 240 232;
+    --stage-panel-rgb: 251 247 239;
+    --stage-soft-rgb: 237 228 211;
+    --stage-border-rgb: 211 198 174;
+    --stage-fg-rgb: 35 35 35;
+    --stage-muted-rgb: 91 83 67;
     --stage-gold-rgb: 138 90 24;
-    --stage-accent-rgb: 44 90 74;
-    --stage-accent-fg-rgb: 251 248 240;
+    --stage-accent-rgb: 50 80 22;
+    --stage-accent-fg-rgb: 247 242 230;
     --stage-signal-rgb: 164 71 47;
 
-    --museum-bg: #f5f1e7;
-    --museum-panel: #fffdf8;
-    --museum-panel-raised: #faf5ea;
-    --museum-line: #d7cebc;
-    --museum-fg: #1a2c25;
-    --museum-muted: #58675f;
+    --museum-bg: #f5f0e8;
+    --museum-panel: #fbf7ef;
+    --museum-panel-raised: #f3ebdc;
+    --museum-line: #d3c6ae;
+    --museum-fg: #232323;
+    --museum-muted: #5b5343;
 
     /* 让浏览器原生 UI（滚动条、表单控件、canvas 底色）跟随主题，
        否则深色页面会拖出一条亮色滚动槽。 */
@@ -73,57 +73,57 @@
   }
 
   .dark {
-    /* 深色模式：近黑石墨绿舞台 + 冷金强调；正文与面板拉开明度，避免整屏发灰。 */
-    --background: 150 12% 7%;
-    --foreground: 120 8% 93%;
-    --card: 150 10% 11%;
-    --card-foreground: 120 8% 93%;
-    --popover: 150 10% 11%;
-    --popover-foreground: 120 8% 93%;
-    --primary: 152 40% 67%;
-    --primary-foreground: 150 20% 8%;
-    --secondary: 150 9% 17%;
-    --secondary-foreground: 120 8% 93%;
-    --muted: 150 9% 17%;
-    --muted-foreground: 140 7% 68%;
-    --accent: 152 40% 67%;
-    --accent-foreground: 150 20% 8%;
+    /* 深色模式：午夜藏蓝舞台 + 黄铜金强调；正文与面板拉开明度，避免整屏发灰。 */
+    --background: 240 44% 7%;
+    --foreground: 40 33% 92%;
+    --card: 224 44% 16%;
+    --card-foreground: 40 33% 92%;
+    --popover: 224 44% 16%;
+    --popover-foreground: 40 33% 92%;
+    --primary: 85 45% 60%;
+    --primary-foreground: 224 44% 10%;
+    --secondary: 224 30% 22%;
+    --secondary-foreground: 40 33% 92%;
+    --muted: 224 30% 22%;
+    --muted-foreground: 218 20% 74%;
+    --accent: 85 45% 60%;
+    --accent-foreground: 224 44% 10%;
     --destructive: 12 65% 65%;
     --destructive-foreground: 0 0% 96%;
-    --border: 150 8% 26%;
-    --input: 150 8% 26%;
-    --ring: 152 40% 67%;
+    --border: 224 28% 30%;
+    --input: 224 28% 30%;
+    --ring: 85 45% 60%;
     --destructive-foreground: 0 0% 96%;
-    --gradient-background: radial-gradient(ellipse at top, hsl(150 10% 11%), hsl(150 12% 7%));
+    --gradient-background: radial-gradient(ellipse at top, hsl(224 44% 16%), hsl(240 44% 7%));
 
     /* 展厅令牌（深色）——与 stagePalette.ts 的 DARK_STAGE 逐字段对应 */
-    --stage: #0f1512;
-    --stage-panel: #171f1b;
-    --stage-soft: #131a17;
-    --stage-border: #32403a;
-    --stage-fg: #edf2ec;
-    --stage-muted: #a3afa7;
-    --stage-gold: #d8b26a;
-    --stage-accent: #8fc7ac;
-    --stage-accent-fg: #0e1a14;
+    --stage: #0a0a1a;
+    --stage-panel: #15203c;
+    --stage-soft: #101827;
+    --stage-border: #2e3c5c;
+    --stage-fg: #f2eee3;
+    --stage-muted: #aeb8c8;
+    --stage-gold: #d4a853;
+    --stage-accent: #9cc97a;
+    --stage-accent-fg: #0b1524;
     --stage-signal: #f0a184;
-    --stage-rgb: 15 21 18;
-    --stage-panel-rgb: 23 31 27;
-    --stage-soft-rgb: 19 26 23;
-    --stage-border-rgb: 50 64 58;
-    --stage-fg-rgb: 237 242 236;
-    --stage-muted-rgb: 163 175 167;
-    --stage-gold-rgb: 216 178 106;
-    --stage-accent-rgb: 143 199 172;
-    --stage-accent-fg-rgb: 14 26 20;
+    --stage-rgb: 10 10 26;
+    --stage-panel-rgb: 21 32 60;
+    --stage-soft-rgb: 16 24 39;
+    --stage-border-rgb: 46 60 92;
+    --stage-fg-rgb: 242 238 227;
+    --stage-muted-rgb: 174 184 200;
+    --stage-gold-rgb: 212 168 83;
+    --stage-accent-rgb: 156 201 122;
+    --stage-accent-fg-rgb: 11 21 36;
     --stage-signal-rgb: 240 161 132;
 
-    --museum-bg: #0f1512;
-    --museum-panel: #171f1b;
-    --museum-panel-raised: #1d2722;
-    --museum-line: #32403a;
-    --museum-fg: #edf2ec;
-    --museum-muted: #a3afa7;
+    --museum-bg: #0a0a1a;
+    --museum-panel: #15203c;
+    --museum-panel-raised: #1b2a4a;
+    --museum-line: #2e3c5c;
+    --museum-fg: #f2eee3;
+    --museum-muted: #aeb8c8;
 
     color-scheme: dark;
   }

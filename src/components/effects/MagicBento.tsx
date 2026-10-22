@@ -169,10 +169,10 @@ const MagicBento = ({
   };
 
   const isDark = tone === 'dark';
-  const panel = isDark ? 'rgba(12, 25, 20, 0.7)' : 'var(--museum-panel)';
-  const line = isDark ? 'rgba(167, 196, 178, 0.16)' : 'var(--museum-line)';
-  const foreground = isDark ? '#F2F5EF' : 'var(--museum-fg)';
-  const muted = isDark ? 'rgba(212, 226, 216, 0.68)' : 'var(--museum-muted)';
+  const panel = isDark ? 'rgba(21, 32, 60, 0.72)' : 'var(--museum-panel)';
+  const line = isDark ? 'rgba(147, 172, 207, 0.2)' : 'var(--museum-line)';
+  const foreground = isDark ? '#F2EEE3' : 'var(--museum-fg)';
+  const muted = isDark ? 'rgba(174, 184, 200, 0.72)' : 'var(--museum-muted)';
 
   return (
     <div
@@ -209,7 +209,7 @@ const MagicBento = ({
           onClick={(event) => onCardClick(event, card, index)}
           className={`magic-bento-card group relative flex h-full flex-col overflow-hidden rounded-2xl border p-4 text-left transition-[background-color,border-color] duration-300 sm:p-5 ${
             card.feature ? 'col-span-2 min-h-[13rem] md:col-span-2 md:min-h-[15rem]' : 'min-h-[10.5rem]'
-          } ${isDark ? 'hover:bg-[rgba(19,38,30,0.9)]' : 'hover:bg-[var(--museum-panel-raised)]'}`}
+          } ${isDark ? 'hover:bg-[rgba(27,42,74,0.9)]' : 'hover:bg-[var(--museum-panel-raised)]'}`}
           style={
             {
               borderColor: line,

@@ -13,21 +13,33 @@ import { Button } from '@/components/ui/button';
 import { useSettings } from '@/contexts/AppSettings';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
 
-// 序厅暗场用馆藏品牌墨绿，聚光层只揭示一种含义：金色版图 = 馆藏覆盖省域。
-// 旧实现按省份下标轮换十种颜色，既不编码任何字段，也和站内墨绿/宣纸/金色令牌脱节。
+// 序厅暗场沿用参考站的午夜藏蓝，聚光层与参考站一致：按省份下标轮换十色版图。
 /*
  * 底层轮廓不能太淡：指针未进入英雄区时没有任何聚光，若填充只有 7% 不透明度，
- * 首屏看起来就是一块空黑。现在白描边 + 12% 填充让中国轮廓静态可读，
- * 聚光仍负责把经过的区域提成金色。
+ * 首屏看起来就是一块空黑。这里沿用参考站的蓝灰白描边 + 7% 填充，
+ * 让中国轮廓在星空上静态可读，聚光再负责把经过的区域点亮。
  */
-const HERO_BASE_FILL = 'rgba(198, 214, 203, 0.10)';
-const HERO_BASE_STROKE = 'rgba(214, 228, 218, 0.40)';
+const HERO_BASE_FILL = 'rgba(150, 175, 220, 0.07)';
+const HERO_BASE_STROKE = 'rgba(150, 175, 220, 0.5)';
+
 /**
- * 首屏地图改用「青铜—鼠尾草」双色，而不是通体金黄：
- * 旧实现整块 #c79a45 在金与绿之间摇摆，既压不住标题，也和站内 accent 脱节。
+ * 聚光层用参考站的十色版图，而不是通体一色：
+ * 原站 `AT` 组件正是按省份下标轮换这十种颜色（金 / 赭 / 砖红 / 紫 / 蓝 / 青 / 绿），
+ * 既保留了“版图”的识别度，也让首页在纯黑星空里有一块彩色视觉重心。
  */
-const HERO_REVEAL_FILL = '#B0894E';
-const HERO_REVEAL_STROKE = 'rgba(246, 238, 220, 0.50)';
+const HERO_REVEAL_FILLS = [
+  '#D4A853',
+  '#E08A4A',
+  '#C97B63',
+  '#A85C7A',
+  '#6B5B95',
+  '#4A7A9A',
+  '#3A8A7A',
+  '#5A9A5A',
+  '#8AA050',
+  '#B09040',
+] as const;
+const HERO_REVEAL_STROKE = 'rgba(255, 255, 255, 0.55)';
 
 interface SpotlightHeroProps {
   titleTop: string;
@@ -103,11 +115,14 @@ const SpotlightHero = ({
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className="spotlight-hero relative h-[calc(100dvh-7rem)] min-h-[600px] w-full overflow-hidden"
-      style={{ background: '#080D0B' }}
     >
-      {/* 深墨绿地图舞台：让中国轮廓成为首屏主角。 */}
-      <div aria-hidden="true" className="absolute inset-0" style={{ background: 'radial-gradient(circle at 52% 45%,rgba(64,118,92,.34),transparent 36%),radial-gradient(circle at 80% 18%,rgba(176,137,78,.16),transparent 26%),linear-gradient(180deg,#14251d,#0b1512 62%,#080d0b)' }} />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
+      {/*
+       * 首屏不再自铺一层实色底：首页的 Galaxy 是 `fixed inset-0`，
+       * 英雄区一旦有背景色，星空就被整块盖住（这正是「首页地图背景没有星空」的原因）。
+       * 这里只留两层低透明度极光 + 网格，让星点从版图缝隙里透出来。
+       */}
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: 'radial-gradient(circle at 72% 28%,rgba(90,70,160,.14),transparent 46%),radial-gradient(circle at 20% 78%,rgba(40,120,140,.1),transparent 42%),linear-gradient(180deg,rgba(10,10,26,.35),rgba(10,10,26,.18) 55%,rgba(10,10,26,.55))' }} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-25 [background-image:radial-gradient(circle,rgb(var(--stage-fg-rgb)/.28)_0_1px,transparent_1.5px)] [background-size:84px_84px]" />
 
       {/* 基础图：中国地图淡色轮廓（完整显示，含海南等省份） */}
       <motion.div
@@ -126,7 +141,7 @@ const SpotlightHero = ({
         </svg>
       </motion.div>
 
-      {/* 聚光图：金色版图，随光标揭示 */}
+      {/* 聚光图：彩色版图，随光标揭示 */}
       <motion.div
         aria-hidden="true"
         className="spotlight-reveal absolute inset-0 flex items-center justify-center"
@@ -138,7 +153,14 @@ const SpotlightHero = ({
           preserveAspectRatio="xMidYMid meet"
         >
           {Object.values(provincePaths).map((d, i) => (
-            <path key={i} d={d} fill={HERO_REVEAL_FILL} stroke={HERO_REVEAL_STROKE} strokeWidth="0.5" opacity="0.92" />
+            <path
+              key={i}
+              d={d}
+              fill={HERO_REVEAL_FILLS[i % HERO_REVEAL_FILLS.length]}
+              stroke={HERO_REVEAL_STROKE}
+              strokeWidth="0.5"
+              opacity="0.92"
+            />
           ))}
         </svg>
       </motion.div>

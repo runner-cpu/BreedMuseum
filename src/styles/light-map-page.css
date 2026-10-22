@@ -9,12 +9,12 @@
   contain: layout paint;
 }
 
-/* 首页夜空叠加层：绿雾 + 暖金余光 + 向下压暗，避免星星直接怼在正文后面。 */
+/* 首页夜空叠加层：午夜藏蓝 + 一点紫/青极光 + 向下压暗，避免星星直接怼在正文后面。 */
 .home-night-vignette {
   background:
-    radial-gradient(ellipse at 50% -10%, rgb(58 104 82 / 0.34), transparent 58%),
-    radial-gradient(ellipse at 12% 68%, rgb(176 137 78 / 0.12), transparent 38%),
-    linear-gradient(180deg, rgb(5 10 8 / 0.42), rgb(5 10 8 / 0.72) 55%, rgb(4 8 7 / 0.94));
+    radial-gradient(ellipse at 50% -10%, rgb(50 74 128 / 0.36), transparent 58%),
+    radial-gradient(ellipse at 12% 68%, rgb(90 70 160 / 0.12), transparent 40%),
+    linear-gradient(180deg, rgb(10 10 26 / 0.42), rgb(10 10 26 / 0.7) 55%, rgb(8 8 20 / 0.94));
 }
 
 /* 首页标题第二行的青铜金：渐变只作用于整行文字，逐字 span 继承透明色。

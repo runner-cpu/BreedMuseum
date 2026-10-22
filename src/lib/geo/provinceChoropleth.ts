@@ -6,28 +6,27 @@
  * This keeps the colour promise honest when a lens changes: the darkest
  * province is always the province with the most records in that view.
  *
- * 2026-10 配色修订：旧色阶最高档是 `#1d3a2d`（近墨黑），深色省份上的
- * 深色类别点几乎完全看不见；浅色档又偏黄，整块版图像一张旧报纸。
- * 现在两套色阶都收在「鼠尾草绿」中段：最高档对纸底约 4.6:1，
- * 足够读出层级，又不会把点位吞掉；深色模式用同一色相反向排列，
- * 最亮档也只到 #6B956E，亮度不再反超文字。
+ * 2026-10 配色二次修订：原先的两套色阶都是「鼠尾草绿」，与参考站的金色版图
+ * 完全不在一个色温里。现在浅色走「宣纸 → 黄铜」沙金阶，深色走「午夜藏蓝」
+ * 蓝阶，正好对上原站的 `#f5f0e8 / #d4a853` 与 `#0a0a1a / #15203c`；
+ * 最高档仍与纸底/夜色保持可读层级，同时不和类别点位的暖色抢眼。
  */
 
 export const CHOROPLETH_LIGHT_COLORS = [
-  '#e7e9da',
-  '#cfd8bf',
-  '#aabf9c',
-  '#7e9e7c',
-  '#4c735c',
+  '#ece3d1',
+  '#ddcba8',
+  '#cbb383',
+  '#b6975f',
+  '#8f6d34',
 ] as const;
 
 /** Dark mode reverses the ramp so a high value remains visually prominent. */
 export const CHOROPLETH_DARK_COLORS = [
-  '#22322a',
-  '#2c4434',
-  '#3a5a43',
-  '#4e7455',
-  '#6b956e',
+  '#1a2a45',
+  '#22375c',
+  '#2c4874',
+  '#3a5f92',
+  '#4d7cb5',
 ] as const;
 
 export type ProvinceValues =

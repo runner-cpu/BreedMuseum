@@ -1,8 +1,8 @@
 import { ArrowRight, BarChart3, BookOpen, GitCompare, Map as MapIcon, Search, Sparkles } from 'lucide-react';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import CircularGallery from '@/components/effects/CircularGallery';
 import ChromaGrid from '@/components/effects/ChromaGrid';
+import FeaturedRail from '@/components/effects/FeaturedRail';
 import Galaxy from '@/components/effects/Galaxy';
 import MagicBento, { type BentoCard } from '@/components/effects/MagicBento';
 import ScrollFloat from '@/components/effects/ScrollFloat';
@@ -10,6 +10,8 @@ import SpotlightHero from '@/components/effects/SpotlightHero';
 import { useSettings } from '@/contexts/AppSettings';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION } from '@/data/collectionSummary';
 import { HOME_CATEGORY_COUNTS, HOME_FEATURED } from '@/data/homeHighlights';
+import { categoryColors } from '@/lib/categoryIcons';
+import { getCategorySvgIcon } from '@/lib/categorySvgIcons';
 import { categoryLabel, fill, provinceLabel } from '@/lib/displayLabels';
 import '@/styles/light-map-page.css';
 
@@ -24,11 +26,11 @@ const formatNumber = (value: number, language: 'zh' | 'en') =>
  *   3. 我可以从哪进去（五种入口）
  *   4. 先看几条具体的（精选品种）
  *
- * 视觉层：整页固定在黑色夜空中（`Galaxy` WebGL 星场），浅色/深色主题
- * 只影响顶栏与子页面，首页始终保持同一块暗场——粒子的对比度、
- * 卡片的玻璃层明度因此不需要跟随主题重算。标题统一由 `ScrollFloat`
- * 逐字浮现，五种入口用 `MagicBento`，核心数字用 `ChromaGrid`，
- * 精选品种用可拖拽的 `CircularGallery`。
+ * 视觉层对齐参考站：`#0a0a1a` 午夜藏蓝夜空 + `#d4a853` 黄铜金，
+ * 首页在浅色/深色主题下都保持同一块夜空（`Galaxy` WebGL 星场），
+ * 星点跟随指针轻微偏移与排斥，不做「一进页面就静止」的假背景。
+ * 标题统一由 `ScrollFloat` 逐字浮现，五种入口用 `MagicBento`，
+ * 核心数字用 `ChromaGrid`，精选品种用横向吸附滑动栏 `FeaturedRail`。
  *
  * 所有数字读自 `COLLECTION_SUMMARY` 与 `homeHighlights`：前者是审计过的小常量，
  * 后者是首屏专用的轻量摘要（类别计数 + 8 条精选记录），避免首页为了渲染
@@ -45,25 +47,25 @@ export default function LightMapPage() {
       label: t('home.statTotalLabel'),
       value: COLLECTION_SUMMARY.total,
       note: t('home.statTotalSub'),
-      color: '#8FC7AC',
+      color: '#D4A853',
     },
     {
       label: t('home.statVisibleLabel'),
       value: COLLECTION_SUMMARY.visibleTotal,
       note: t('home.statVisibleSub'),
-      color: '#D8B26A',
+      color: '#E8C98A',
     },
     {
       label: t('home.statProvincesLabel'),
       value: COLLECTION_SUMMARY.visibleProvinces,
       note: t('home.statProvincesSub'),
-      color: '#7AB6C6',
+      color: '#7FB2D8',
     },
     {
       label: t('home.statCategoriesLabel'),
       value: COLLECTION_SUMMARY.visibleCategories,
       note: t('home.statCategoriesSub'),
-      color: '#F0A184',
+      color: '#E08A4A',
     },
   ];
 
@@ -93,7 +95,7 @@ export default function LightMapPage() {
     subtitle: stat.label,
     handle: stat.note,
     borderColor: stat.color,
-    gradient: 'linear-gradient(150deg, rgba(255,255,255,.09), rgba(8,16,13,.62) 62%)',
+    gradient: 'linear-gradient(150deg, rgba(147,172,207,.14), rgba(10,10,26,.72) 64%)',
     countUp: true,
     format: (value: number) => formatNumber(value, language),
   }));
@@ -102,9 +104,9 @@ export default function LightMapPage() {
     image: breed.image,
     alt: breed.name,
     text: language === 'en' ? breed.englishName : breed.name,
-    sub: `${categoryLabel(breed.category, language)} · ${provinceLabel(breed.province, language)}`,
+    sub: `${provinceLabel(breed.province, language)} · ${categoryLabel(breed.category, language)}`,
     meta: categoryLabel(breed.category, language),
-    color: '#173B2C',
+    color: '#16233C',
   }));
 
   const openBreed = useCallback(
@@ -118,17 +120,21 @@ export default function LightMapPage() {
   const maxCategory = Math.max(...HOME_CATEGORY_COUNTS.map((item) => item.count));
 
   return (
-    <div className="relative isolate min-h-full overflow-hidden bg-[#050A08] text-[#EDF2EC]">
-      {/* 固定夜空：首页在任何主题下都是同一块黑场 */}
+    <div className="relative isolate min-h-full overflow-hidden bg-[#0A0A1A] text-[#F2EEE3]">
+      {/* 固定夜空：首页在任何主题下都是同一块午夜藏蓝，星点可跟随指针互动 */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
         <Galaxy
-          density={1.75}
-          speed={1.45}
-          starSpeed={0.85}
-          hueShift={140}
-          glowIntensity={0.4}
-          twinkleIntensity={0.5}
-          rotationSpeed={0.14}
+          density={1.8}
+          speed={1.5}
+          starSpeed={0.9}
+          hueShift={205}
+          saturation={0.35}
+          glowIntensity={0.42}
+          twinkleIntensity={0.55}
+          rotationSpeed={0.16}
+          mouseInteraction
+          mouseRepulsion
+          repulsionStrength={3.2}
         />
         <div className="absolute inset-0 home-night-vignette" />
       </div>
@@ -152,25 +158,25 @@ export default function LightMapPage() {
           <section className="border-t border-white/[0.1] py-16 sm:py-20" aria-labelledby="home-stats-title">
             <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#8FC7AC]">01 / COLLECTION</p>
+                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#D4A853]">01 / COLLECTION</p>
                 <ScrollFloat
                   id="home-stats-title"
                   as="h2"
-                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F4F7F1] sm:text-3xl"
+                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F7F2E6] sm:text-3xl"
                   stagger={0.026}
                 >
                   {t('home.statsTitle')}
                 </ScrollFloat>
-                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C8BD]">{t('home.statsIntro')}</p>
+                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C3D6]">{t('home.statsIntro')}</p>
               </div>
-              <span className="rounded-full border border-white/[0.15] bg-white/[0.05] px-3 py-1.5 font-mono text-[0.62rem] tracking-[0.16em] text-[#A9B8AC]">
+              <span className="rounded-full border border-[#D4A853]/30 bg-[#D4A853]/10 px-3 py-1.5 font-mono text-[0.62rem] tracking-[0.16em] text-[#E8C98A]">
                 {COLLECTION_VERSION}
               </span>
             </div>
 
             <ChromaGrid items={chromaItems} columns={4} />
 
-            <p className="mt-4 text-xs leading-6 text-[#93A398]">
+            <p className="mt-4 text-xs leading-6 text-[#98A5BC]">
               {fill(t('home.statsSummary'), {
                 total: formatNumber(COLLECTION_SUMMARY.total, language),
                 visible: formatNumber(COLLECTION_SUMMARY.visibleTotal, language),
@@ -179,20 +185,20 @@ export default function LightMapPage() {
             </p>
           </section>
 
-          {/* 02 类别速览：把“有哪些畜种”变成可点击的入口，而不是一排标签 */}
+          {/* 02 类别速览：图标化的类别入口，不再是纯文字标签 */}
           <section className="border-t border-white/[0.1] py-16 sm:py-20" aria-labelledby="home-category-title">
             <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#8FC7AC]">02 / TAXONOMY</p>
+                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#D4A853]">02 / TAXONOMY</p>
                 <ScrollFloat
                   id="home-category-title"
                   as="h2"
-                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F4F7F1] sm:text-3xl"
+                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F7F2E6] sm:text-3xl"
                   stagger={0.026}
                 >
                   {t('home.categoryOverview')}
                 </ScrollFloat>
-                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C8BD]">{t('home.categoryIntro')}</p>
+                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C3D6]">{t('home.categoryIntro')}</p>
               </div>
               <Link
                 to="/encyclopedia"
@@ -203,61 +209,79 @@ export default function LightMapPage() {
               </Link>
             </div>
 
-            <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-7" aria-label={t('home.categoryOverview')}>
-              {HOME_CATEGORY_COUNTS.map((item) => (
-                <li key={item.category}>
-                  <Link
-                    to={`/encyclopedia?category=${encodeURIComponent(item.category)}`}
-                    className="group flex h-full min-h-[6.5rem] flex-col justify-between rounded-xl border border-white/[0.1] bg-white/[0.035] p-3 transition duration-300 hover:-translate-y-0.5 hover:border-[#D8B26A]/55 hover:bg-white/[0.07]"
-                  >
-                    <span className="text-sm font-medium text-[#EDF2EC]">{categoryLabel(item.category, language)}</span>
-                    <span className="mt-1 font-mono text-[0.66rem] text-[#9FAFA5]">
-                      {formatNumber(item.count, language)} {t('home.categoryUnit')}
-                    </span>
-                    <span aria-hidden="true" className="mt-2 block h-1 rounded-full bg-white/[0.1]">
+            <ul
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7"
+              aria-label={t('home.categoryOverview')}
+            >
+              {HOME_CATEGORY_COUNTS.map((item) => {
+                const CategoryIcon = getCategorySvgIcon(item.category);
+                const accent = categoryColors[item.category] ?? categoryColors.其他;
+                return (
+                  <li key={item.category}>
+                    <Link
+                      to={`/encyclopedia?category=${encodeURIComponent(item.category)}`}
+                      className="group flex h-full min-h-[8.2rem] flex-col items-start justify-between rounded-xl border border-white/[0.1] bg-white/[0.035] p-3 transition duration-300 hover:-translate-y-0.5 hover:border-[#D4A853]/60 hover:bg-white/[0.07]"
+                    >
                       <span
-                        className="block h-full rounded-full bg-[#D8B26A]"
-                        style={{ width: `${Math.max(10, Math.round((item.count / maxCategory) * 100))}%` }}
-                      />
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                        className="flex h-11 w-11 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105"
+                        style={{ color: accent, background: `${accent}1F`, boxShadow: `inset 0 0 0 1px ${accent}3D` }}
+                      >
+                        <CategoryIcon style={{ width: 24, height: 24 }} />
+                      </span>
+                      <span className="mt-3 block text-sm font-medium text-[#F7F2E6]">
+                        {categoryLabel(item.category, language)}
+                      </span>
+                      <span className="mt-1 font-mono text-[0.66rem] text-[#A8B3C6]">
+                        {formatNumber(item.count, language)} {t('home.categoryUnit')}
+                      </span>
+                      <span aria-hidden="true" className="mt-2 block h-1 w-full rounded-full bg-white/[0.1]">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{
+                            width: `${Math.max(10, Math.round((item.count / maxCategory) * 100))}%`,
+                            background: accent,
+                          }}
+                        />
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </section>
 
           {/* 03 五种入口：MagicBento 便当盒，主入口占两格 */}
           <section className="border-t border-white/[0.1] py-16 sm:py-20" aria-labelledby="home-entries-title">
             <div className="mb-7 max-w-2xl">
-              <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#8FC7AC]">03 / ENTRANCES</p>
+              <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#D4A853]">03 / ENTRANCES</p>
               <ScrollFloat
                 id="home-entries-title"
                 as="h2"
-                containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F4F7F1] sm:text-3xl"
+                containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F7F2E6] sm:text-3xl"
                 stagger={0.026}
               >
                 {t('home.entriesTitle')}
               </ScrollFloat>
-              <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C8BD]">{t('home.entriesIntro')}</p>
+              <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C3D6]">{t('home.entriesIntro')}</p>
             </div>
 
             <MagicBento cards={bentoCards} tone="dark" onNavigate={navigate} />
           </section>
 
-          {/* 04 精选品种：弧形画廊，拖拽或自动缓慢旋转 */}
+          {/* 04 精选品种：横向吸附滑动栏（参考原站），拖拽/箭头/触屏都能翻 */}
           <section className="border-t border-white/[0.1] py-16 sm:py-20" aria-labelledby="home-featured-title">
             <div className="mb-2 flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#8FC7AC]">04 / HIGHLIGHTS</p>
+                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#D4A853]">04 / HIGHLIGHTS</p>
                 <ScrollFloat
                   id="home-featured-title"
                   as="h2"
-                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F4F7F1] sm:text-3xl"
+                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F7F2E6] sm:text-3xl"
                   stagger={0.026}
                 >
                   {t('home.featuredTitle')}
                 </ScrollFloat>
-                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C8BD]">{t('home.featuredIntro')}</p>
+                <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[#B9C3D6]">{t('home.featuredIntro')}</p>
               </div>
               <button
                 type="button"
@@ -269,17 +293,17 @@ export default function LightMapPage() {
               </button>
             </div>
 
-            <CircularGallery items={galleryItems} onSelect={openBreed} autoSpeed={8} className="mt-4" />
+            <FeaturedRail items={galleryItems} onSelect={openBreed} label={t('home.featuredTitle')} />
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.7rem] text-[#8FA096]">
+            <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.7rem] text-[#98A5BC]">
               <span className="inline-flex items-center gap-1.5">
-                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[#D8B26A]" />
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[#D4A853]" />
                 {language === 'en'
-                  ? 'Drag horizontally · click a card to open the record'
-                  : '横向拖拽浏览 · 点击卡片打开馆藏记录'}
+                  ? 'Drag, scroll or use the arrows · click a card to open the record'
+                  : '横向拖拽 / 滚动 / 箭头浏览 · 点击卡片打开馆藏记录'}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[#8FC7AC]" />
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[#7FB2D8]" />
                 {formatNumber(HOME_FEATURED.length, language)} {language === 'en' ? 'featured records' : '条精选记录'}
               </span>
             </div>
@@ -289,17 +313,17 @@ export default function LightMapPage() {
           <section className="border-t border-white/[0.1] pt-16 sm:pt-20" aria-labelledby="home-about-title">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
               <div>
-                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#8FC7AC]">05 / ABOUT</p>
+                <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-[#D4A853]">05 / ABOUT</p>
                 <ScrollFloat
                   id="home-about-title"
                   as="h2"
-                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F4F7F1] sm:text-3xl"
+                  containerClassName="font-serif text-2xl font-semibold tracking-tight text-[#F7F2E6] sm:text-3xl"
                   stagger={0.026}
                 >
                   {t('home.aboutTitle')}
                 </ScrollFloat>
-                <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[#B9C8BD]">{t('home.aboutIntroText')}</p>
-                <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[#B9C8BD]">{t('home.aboutContactText')}</p>
+                <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[#B9C3D6]">{t('home.aboutIntroText')}</p>
+                <p className="mt-3 max-w-[64ch] text-sm leading-7 text-[#B9C3D6]">{t('home.aboutContactText')}</p>
               </div>
 
               <dl className="space-y-3">
@@ -313,10 +337,10 @@ export default function LightMapPage() {
                 ].map((item) => (
                   <div
                     key={item.term}
-                    className="rounded-xl border border-white/[0.1] bg-white/[0.035] p-4 transition-colors hover:border-[#D8B26A]/40"
+                    className="rounded-xl border border-white/[0.1] bg-white/[0.035] p-4 transition-colors hover:border-[#D4A853]/40"
                   >
                     <dt className="text-xs font-medium text-[#E4C384]">{item.term}</dt>
-                    <dd className="mt-1 text-sm leading-6 text-[#B9C8BD]">{item.detail}</dd>
+                    <dd className="mt-1 text-sm leading-6 text-[#B9C3D6]">{item.detail}</dd>
                   </div>
                 ))}
               </dl>

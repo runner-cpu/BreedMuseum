@@ -62,55 +62,61 @@ export interface StagePalette {
 }
 
 export const DARK_STAGE: StagePalette = {
-  // 近黑石墨绿：比旧版 #0b1712 更中性，屏幕上的暗部不再泛脏绿；
-  // 面板之间靠 4–6 个明度点分层，地图省块与画布能分开。
-  bg: '#0F1512',
-  panel: '#171F1B',
-  soft: '#131A17',
-  border: '#32403A',
-  fg: '#EDF2EC',
-  muted: '#A3AFA7',
-  gold: '#D8B26A',
-  accent: '#8FC7AC',
-  accentFg: '#0E1A14',
+  /**
+   * 午夜藏蓝：参考原站的 `#0a0a1a` 夜空与 `#15203c` 卡片，
+   * 把过去偏灰的墨绿换成更冷的蓝调，金色 `#D4A853` 才压得住。
+   * 面板之间靠 4–6 个明度点分层，地图省块与画布能分开。
+   */
+  bg: '#0A0A1A',
+  panel: '#15203C',
+  soft: '#101827',
+  border: '#2E3C5C',
+  fg: '#F2EEE3',
+  muted: '#AEB8C8',
+  gold: '#D4A853',
+  accent: '#9CC97A',
+  accentFg: '#0B1524',
   signal: '#F0A184',
   goldOnLight: '#D8B26A',
-  province: '#26402F',
-  provinceEmissive: '#3F6B54',
-  provinceEdge: '#8FB79C',
+  province: '#203354',
+  provinceEmissive: '#3E5B84',
+  provinceEdge: '#93ACCF',
   endangeredRing: '#E0925F',
-  floor: '#17251D',
+  floor: '#131E33',
   fogDensity: 0.032,
-  shadow: '#050807',
+  shadow: '#05070F',
   beamBlending: 'additive',
   beamOpacity: 0.95,
-  stardust: '#9FB8A8',
+  stardust: '#AEBBD4',
   stardustOpacity: 0.5,
   stardustCount: 600,
 };
 
 export const LIGHT_STAGE: StagePalette = {
-  // 暖纸底色略降饱和，避免整屏发黄；面板提亮到近白，让卡片真正“浮”起来。
-  bg: '#F5F1E7',
-  panel: '#FFFDF8',
-  soft: '#EBE5D8',
-  border: '#D7CEBC',
-  fg: '#1A2C25',
-  muted: '#58675F',
+  /**
+   * 宣纸暖米 + 黄铜：取自原站的 `#f5f0e8` 纸底与 `#d4a853` 金，
+   * 省块用沙金而不是橄榄绿，地图与金色标题终于同一套色温。
+   */
+  bg: '#F5F0E8',
+  panel: '#FBF7EF',
+  soft: '#EDE4D3',
+  border: '#D3C6AE',
+  fg: '#232323',
+  muted: '#5B5343',
   gold: '#8A5A18',
-  accent: '#2C5A4A',
-  accentFg: '#FBF8F0',
+  accent: '#325016',
+  accentFg: '#F7F2E6',
   signal: '#A4472F',
   goldOnLight: '#6B4410',
-  province: '#BFC6B8',
-  provinceEmissive: '#6F7F68',
-  provinceEdge: '#3B453D',
+  province: '#D5C29B',
+  provinceEmissive: '#8C7A4E',
+  provinceEdge: '#5E4C2B',
   endangeredRing: '#9C3B22',
   /**
-   * 展台台面。比省块更深一档：浅色底上省块与台面本来就只差 1.4 左右，
+   * 展台台面。比省块更深一档：浅色底上省块与台面本来就只差 1.3 左右，
    * 台面再浅就与画面底色糊在一起，展台边界消失、整块版图看着浮在纸里。
    */
-  floor: '#E9E0D0',
+  floor: '#E8DCC4',
   fogDensity: 0.008,
   shadow: '#6B6252',
   beamBlending: 'normal',

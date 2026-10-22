@@ -325,6 +325,11 @@ export default function Galaxy({
     if (!disableAnimation && !reduceMotion) animateId = requestAnimationFrame(update);
     container.appendChild(gl.canvas);
 
+    /**
+     * 星空挂在 `pointer-events: none` 的装饰层里，容器本身收不到 mousemove；
+     * 旧实现监听 container，导致首页与看板的星空永远是静止的。
+     * 现在监听 window 并按容器矩形换算，装饰层既能透传点击，也能跟着指针走。
+     */
     const handleMouseMove = (event: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
@@ -336,8 +341,8 @@ export default function Galaxy({
       targetActive = 0;
     };
     if (mouseInteraction) {
-      container.addEventListener('mousemove', handleMouseMove);
-      container.addEventListener('mouseleave', handleMouseLeave);
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+      window.addEventListener('mouseleave', handleMouseLeave);
     }
 
     const handleContextLost = (event: Event) => {
@@ -352,8 +357,8 @@ export default function Galaxy({
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
       if (mouseInteraction) {
-        container.removeEventListener('mousemove', handleMouseMove);
-        container.removeEventListener('mouseleave', handleMouseLeave);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseleave', handleMouseLeave);
       }
       gl.canvas.removeEventListener('webglcontextlost', handleContextLost);
       if (gl.canvas.parentNode === container) container.removeChild(gl.canvas);
