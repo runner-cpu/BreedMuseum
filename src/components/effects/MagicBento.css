@@ -1,0 +1,12 @@
+/* 卡片悬停描边：颜色来自 --bento-glow，避免在 JSX 里拼接 Tailwind 任意值类名
+   （运行时拼接的类名不会被 Tailwind 扫描到，悬停描边会静默失效）。 */
+.magic-bento-card:hover,
+.magic-bento-card:focus-visible {
+    border-color: rgba(var(--bento-glow, 216, 178, 106), 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .magic-bento-card {
+        transform: none !important;
+    }
+}

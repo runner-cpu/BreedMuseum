@@ -1,29 +1,31 @@
 /*
- * 首页专用的两段样式：横向卡片轨的窄屏行为，以及序厅聚光英雄区。
- * 其余首页布局（.museum-section / .museum-panel / 类别与精选网格）
- * 已在 index.css 定义，这里不再重复一份带硬编码金色的旧规则。
+ * 首页专用样式：序厅聚光英雄区 + 金色标题行。
+ * 首页卡片网格、便当盒与画廊的布局都在各自组件内用 Tailwind 表达，
+ * 这里只保留无法用工具类稳定描述的遮罩与渐变。
  */
-
-@media (max-width: 767px) {
-  .museum-featured-rail,
-  .museum-category-rail {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    padding-bottom: 0.35rem;
-  }
-
-  .museum-featured-rail::-webkit-scrollbar,
-  .museum-category-rail::-webkit-scrollbar { display: none; }
-
-  .museum-featured-rail > * { min-width: min(72vw, 18rem); scroll-snap-align: start; }
-  .museum-category-rail > * { min-width: 8.5rem; scroll-snap-align: start; }
-}
 
 .spotlight-hero {
   isolation: isolate;
   contain: layout paint;
+}
+
+/* 首页夜空叠加层：绿雾 + 暖金余光 + 向下压暗，避免星星直接怼在正文后面。 */
+.home-night-vignette {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgb(58 104 82 / 0.34), transparent 58%),
+    radial-gradient(ellipse at 12% 68%, rgb(176 137 78 / 0.12), transparent 38%),
+    linear-gradient(180deg, rgb(5 10 8 / 0.42), rgb(5 10 8 / 0.72) 55%, rgb(4 8 7 / 0.94));
+}
+
+/* 首页标题第二行的青铜金：渐变只作用于整行文字，逐字 span 继承透明色。
+   `textClassName` 直接落在 `.scroll-float-text` 上，而不是它的祖先，
+   因此这里必须用复合选择器；写成后代选择器时金色渐变不会生效。 */
+.scroll-float-text.hero-title-gold {
+  background-image: linear-gradient(92deg, #b8873f, #f2ddb0 48%, #b8873f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.55));
 }
 
 .spotlight-hero::after {

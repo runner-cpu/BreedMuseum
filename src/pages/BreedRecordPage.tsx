@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, MapPin, ShieldCheck, Tag } from 'lucide-react';
 import BreedDetail from '@/components/BreedDetail';
 import { VerificationBadge } from '@/components/common/VerificationBadge';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { getBreedById } from '@/data/breedLookup';
 import { getBreedMetadata } from '@/data/breedMetadata';
 import { protectionLabel } from '@/data/verification';
@@ -59,7 +60,9 @@ export default function BreedRecordPage() {
             <VerificationBadge breed={breed} />
           </div>
           <div className="space-y-1">
-            <h1 className="font-serif text-2xl">{breed.name}</h1>
+          <ScrollFloat as="h1" once containerClassName="font-serif text-2xl" stagger={0.04} animationDuration={0.75}>
+            {breed.name}
+          </ScrollFloat>
             <p className="text-sm text-stage-muted">{breed.englishName}</p>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-stage-muted">

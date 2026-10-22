@@ -8,6 +8,7 @@ import {
   useTransform,
 } from 'motion/react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/contexts/AppSettings';
 import { mapViewBox, provincePaths } from '@/data/chinaMap';
@@ -161,24 +162,31 @@ const SpotlightHero = ({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          aria-label={`${titleTop}${titleBottom}`}
           className="font-serif font-bold text-balance leading-tight"
           style={{ color: '#f5f4ee', textShadow: '0 2px 24px rgba(0,0,0,.65)' }}
         >
-          <span className="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]">{titleTop}</span>
-          <span
-            className="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]"
-            style={{
-              // 渐变文字在部分浏览器里会连同 text-shadow 一起被裁掉；
-              // 这里改用纯金色 + 深色投影，保证小屏也不发灰。
-              backgroundImage: 'linear-gradient(92deg,#b8873f,#f2ddb0 48%,#b8873f)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-              filter: 'drop-shadow(0 2px 10px rgba(0,0,0,.55))',
-            }}
+          <ScrollFloat
+            as="span"
+            decorative
+            once
+            containerClassName="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]"
+            stagger={0.035}
+            animationDuration={0.75}
+          >
+            {titleTop}
+          </ScrollFloat>
+          <ScrollFloat
+            as="span"
+            decorative
+            once
+            containerClassName="block whitespace-nowrap text-[clamp(1.55rem,7.2vw,3.75rem)]"
+            textClassName="hero-title-gold"
+            stagger={0.035}
+            animationDuration={0.75}
           >
             {titleBottom}
-          </span>
+          </ScrollFloat>
         </motion.h1>
 
         <motion.form

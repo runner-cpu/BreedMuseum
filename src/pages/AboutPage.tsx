@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AboutOverview } from '@/components/about/AboutOverview';
 import { SILHOUETTE_CATEGORIES } from '@/components/arcade/CategorySilhouette';
 import { VerificationLegend } from '@/components/common/VerificationBadge';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { breedSources } from '@/data/breedSources';
 import { COLLECTION_SUMMARY, COLLECTION_VERSION, QUALITY_SUMMARY } from '@/data/collectionSummary';
 
@@ -78,7 +79,9 @@ export default function AboutPage() {
             <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
             ABOUT THE MUSEUM
           </p>
-          <h1 className="font-serif text-3xl">馆史与库房</h1>
+          <ScrollFloat as="h1" once containerClassName="font-serif text-3xl" stagger={0.04} animationDuration={0.8}>
+            馆史与库房
+          </ScrollFloat>
           <p className="max-w-3xl text-sm leading-relaxed text-stage-fg/85">
             「畜种光图」是一座纯前端数字博物馆：馆藏 {COLLECTION_SUMMARY.total} 条地方畜禽品种记录，
             其中 {COLLECTION_SUMMARY.mappable} 条产区已核验并落在光图上，

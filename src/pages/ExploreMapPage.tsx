@@ -5,6 +5,7 @@ import { ChinaMap, type LensId } from '@/components/ChinaMap';
 import { BreedImage, hasBreedImage } from '@/components/common/BreedImage';
 import { CategorySidebar } from '@/components/common/CategorySidebar';
 import { VerificationLegend } from '@/components/common/VerificationBadge';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { getBreedById } from '@/data/breedLookup';
 import { type Breed } from '@/data/breeds';
@@ -203,7 +204,16 @@ export default function ExploreMapPage() {
           <section className="museum-map-card museum-map-card--focus" aria-labelledby="explore-map-title">
             <div className="museum-map-heading">
               <div>
-                <h2 id="explore-map-title" className="font-serif text-xl text-[var(--museum-fg)] sm:text-2xl">{t('explore.mapHeading')}</h2>
+                <ScrollFloat
+                  as="h2"
+                  id="explore-map-title"
+                  once
+                  containerClassName="font-serif text-xl text-[var(--museum-fg)] sm:text-2xl"
+                  stagger={0.03}
+                  animationDuration={0.75}
+                >
+                  {t('explore.mapHeading')}
+                </ScrollFloat>
               </div>
               <span className="museum-map-total">
                 {fill(t('explore.summary'), {

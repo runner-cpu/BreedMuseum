@@ -1,0 +1,23 @@
+.scroll-float {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.scroll-float-text {
+  display: inline-block;
+}
+
+.scroll-float-char {
+  display: inline-block;
+  white-space: pre;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-float-char {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}

@@ -1,0 +1,22 @@
+.galaxy-container {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.galaxy-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* WebGL 不可用时保留一层静态夜空，避免首屏出现纯黑空洞 */
+.galaxy-container[data-webgl='unavailable'] {
+  background:
+    radial-gradient(circle at 24% 22%, rgb(214 226 219 / 0.16) 0 1px, transparent 1.6px) 0 0 / 130px 130px,
+    radial-gradient(circle at 74% 64%, rgb(214 226 219 / 0.12) 0 1px, transparent 1.6px) 0 0 / 190px 190px,
+    radial-gradient(circle at 50% 120%, rgb(64 118 92 / 0.5), transparent 62%),
+    #070b09;
+}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Info } from 'lucide-react';
 import { ARCADE_GAMES, arcadeGameById } from '@/lib/arcade/games';
 import { ARCADE_GAME_COMPONENTS } from '@/components/arcade/ArcadeGames';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { useSettings } from '@/contexts/AppSettings';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +35,9 @@ export default function ArcadeGamePage() {
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
             {t('arcade.backToHall')}
           </Link>
-          <h1 className="font-serif text-3xl">{t(active.titleKey)}</h1>
+          <ScrollFloat as="h1" once containerClassName="font-serif text-3xl" stagger={0.035} animationDuration={0.8}>
+            {t(active.titleKey)}
+          </ScrollFloat>
           <p className="max-w-2xl text-sm leading-relaxed text-stage-muted">
             {t(active.summaryKey)}（{t(active.roundsKey)}）
           </p>

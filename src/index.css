@@ -213,23 +213,6 @@
     padding: 5.5rem clamp(1rem, 4vw, 4rem);
   }
 
-  .museum-panel {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--museum-line);
-    border-radius: 0.85rem;
-    background: linear-gradient(145deg, color-mix(in srgb, var(--museum-panel-raised) 96%, transparent), color-mix(in srgb, var(--museum-panel) 98%, transparent));
-    box-shadow: 0 18px 48px color-mix(in srgb, var(--museum-fg) 12%, transparent);
-  }
-
-  .museum-panel::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at 100% 0%, rgb(212 168 83 / 0.12), transparent 22rem);
-  }
-
   /* SVG 地图的省份与产区簇可用键盘聚焦；金色描边让当前焦点在深色舞台上清晰可见。 */
   .museum-map-surface [role='button']:focus-visible {
     outline: none;
@@ -260,18 +243,6 @@
   .dark .museum-link:hover {
     color: #f4d790;
   }
-
-  .museum-featured-rail,
-  .museum-category-rail {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .museum-category-rail {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
 
   .museum-breed-drawer {
     animation: museum-drawer-in 240ms cubic-bezier(0.22, 1, 0.36, 1);

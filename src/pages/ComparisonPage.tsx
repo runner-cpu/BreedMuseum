@@ -1,6 +1,7 @@
 import { ArrowLeft, Check, GitCompare, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BreedImage } from '@/components/common/BreedImage';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { useMuseum } from '@/contexts/MuseumContext';
 import { useSettings } from '@/contexts/AppSettings';
 import { visibleBreeds } from '@/data/visibleBreeds';
@@ -38,7 +39,15 @@ export default function ComparisonPage() {
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               {t('compare.backToEnc')}
             </Link>
-            <h1 className="font-serif text-3xl sm:text-4xl">{t('compare.headline')}</h1>
+            <ScrollFloat
+              as="h1"
+              once
+              containerClassName="font-serif text-3xl sm:text-4xl"
+              stagger={0.028}
+              animationDuration={0.8}
+            >
+              {t('compare.headline')}
+            </ScrollFloat>
             <p className="mt-2 text-sm text-stage-muted">{t('compare.intro')}</p>
           </div>
           {selected.length > 0 && (

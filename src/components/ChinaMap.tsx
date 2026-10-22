@@ -71,6 +71,13 @@ export interface ChinaMapProps {
   showProvinceLabels?: boolean;
   /** Coordinate aggregation is explained elsewhere when the detail matters. */
   showCoordinateNote?: boolean;
+  /**
+   * 图例位置。
+   *
+   * - `overlay`（默认）：浮在地图左下角，适合整屏地图；
+   * - `below`：图例排在地图下方，不再压住省块与点位，适合嵌在数据看板卡片里。
+   */
+  legendPosition?: 'overlay' | 'below';
   className?: string;
 }
 
@@ -126,6 +133,7 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   darkSurface = false,
   showProvinceLabels = true,
   showCoordinateNote = true,
+  legendPosition = 'overlay',
   className,
 }) => {
   const { t, isDark, language } = useSettings();
@@ -227,20 +235,86 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
   }, [prefersReducedMotion, revealOrder]);
 
   const mapClassName = [
-    'relative flex h-full w-full items-center justify-center p-2',
+    legendPosition === 'below'
+      ? 'relative flex min-h-0 w-full flex-1 items-center justify-center p-2'
+      : 'relative flex h-full w-full items-center justify-center p-2',
     darkSurface ? 'museum-map-surface' : '',
     className,
   ]
     .filter(Boolean)
     .join(' ');
 
-  return (
+  /**
+   * 图例内容。
+   *
+   * 旧实现把「省份分档 + 当前选择 + 15 个类别」全部堆在左下角的浮层里，
+   * 在数据看板 23rem 高的卡片中直接盖住了半张地图。现在它可以在两处渲染：
+   * 整屏地图仍浮在角上；嵌在卡片里的地图改为落到画布下方，省块与点位不再被遮挡。
+   */
+  const legend = (
     <div
-      className={mapClassName}
-      data-lens={lens}
-      data-focused-province={focusedProvince ?? selectedProvince ?? ''}
-      data-reduced-motion={prefersReducedMotion ? 'true' : 'false'}
+      className={`${
+        legendPosition === 'overlay' ? 'absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)]' : 'w-full'
+      } rounded-lg border px-3 py-2 text-xs shadow-lg backdrop-blur ${
+        darkSurface
+          ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-fg)]'
+          : 'border-border bg-card/90'
+      }`}
+      role="group"
+      aria-label={t('map.legendProvinceTitle')}
     >
+      <div
+        className={`mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] font-medium ${
+          darkSurface ? 'text-[var(--museum-fg)]' : 'text-foreground'
+        }`}
+      >
+        <span>{t('map.legendProvinceCount')}</span>
+        <span className={darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}>
+          {lens === 'all' ? t('map.legendAllRecords') : t('map.legendCurrentLens')}
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5" aria-label={t('map.legendProvinceScale')}>
+        {choropleth.legend.map((item) => (
+          <span key={item.bin} className="flex items-center gap-1" title={formatRange(item.from, item.to)}>
+            <span
+              className="h-3 w-5 rounded-sm border border-black/10"
+              style={{ backgroundColor: mapIsDark ? CHOROPLETH_DARK_COLORS[item.bin] : item.color }}
+            />
+            <span className="sr-only">{formatRange(item.from, item.to)}</span>
+          </span>
+        ))}
+        <span className={`ml-1 inline-flex items-center gap-1.5 text-[10px] ${darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}`}>
+          <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: selectedSignal(mapIsDark) }} aria-hidden="true" />
+          {t('map.legendSelectedGold')}
+        </span>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px]" aria-label={t('map.legendCategories')}>
+        {LEGEND_CATEGORIES.map((category) => (
+          <span
+            key={category}
+            className="inline-flex items-center gap-1"
+            title={interpolate(t('map.legendCategoryPoint'), { category: categoryLabel(category, language) })}
+          >
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: markerColorForCategory(category, mapIsDark) }}
+              aria-hidden="true"
+            />
+            {categoryLabel(category, language)}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="relative flex h-full w-full flex-col gap-2">
+      <div
+        className={mapClassName}
+        data-lens={lens}
+        data-focused-province={focusedProvince ?? selectedProvince ?? ''}
+        data-reduced-motion={prefersReducedMotion ? 'true' : 'false'}
+      >
       <svg
         ref={svgRef}
         viewBox={`0 0 ${mapViewBox.width} ${mapViewBox.height}`}
@@ -467,32 +541,6 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
         })}
       </svg>
 
-      <div
-        className={`absolute bottom-3 left-3 z-10 max-w-[min(90%,340px)] rounded-lg border px-3 py-2 text-xs shadow-lg backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-fg)]' : 'border-border bg-card/90'}`}
-        role="group"
-        aria-label={t('map.legendProvinceTitle')}
-      >
-        <div className={`mb-1 flex items-center justify-between gap-3 text-[11px] font-medium ${darkSurface ? 'text-[var(--museum-fg)]' : 'text-foreground'}`}>
-          <span>{t('map.legendProvinceCount')}</span>
-          <span className={darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}>{lens === 'all' ? t('map.legendAllRecords') : t('map.legendCurrentLens')}</span>
-        </div>
-        <div className="flex items-center gap-1.5" aria-label={t('map.legendProvinceScale')}>
-          {choropleth.legend.map((item) => (
-            <span key={item.bin} className="flex items-center gap-1" title={formatRange(item.from, item.to)}>
-              <span className="h-3 w-5 rounded-sm border border-black/10" style={{ backgroundColor: mapIsDark ? CHOROPLETH_DARK_COLORS[item.bin] : item.color }} />
-              <span className="sr-only">{formatRange(item.from, item.to)}</span>
-            </span>
-          ))}
-        </div>
-        <div className={`mt-1 flex items-center gap-2 text-[10px] ${darkSurface ? 'text-[var(--museum-muted)]' : 'text-muted-foreground'}`}>
-          <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: selectedSignal(mapIsDark) }} aria-hidden="true" />
-          <span>{t('map.legendSelectedGold')}</span>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px]" aria-label={t('map.legendCategories')}>
-          {LEGEND_CATEGORIES.map((category) => <span key={category} className="inline-flex items-center gap-1" title={interpolate(t('map.legendCategoryPoint'), { category: categoryLabel(category, language) })}><span className="h-2 w-2 rounded-full" style={{ backgroundColor: markerColorForCategory(category, mapIsDark) }} aria-hidden="true" />{categoryLabel(category, language)}</span>)}
-        </div>
-      </div>
-
       {showCoordinateNote && <div className={`museum-map-coordinate-note absolute right-3 z-10 rounded-md border px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur ${darkSurface ? 'border-[var(--museum-line)] bg-[var(--museum-panel)] text-[var(--museum-muted)]' : 'border-border bg-card/90 text-muted-foreground'}`}>
         {t('map.coordNote')}
       </div>}
@@ -513,6 +561,9 @@ export const ChinaMap: React.FC<ChinaMapProps> = ({
           <p className={darkSurface ? 'max-w-[220px] text-[var(--museum-muted)]' : 'max-w-[220px] text-muted-foreground'}>{tooltip.detail}</p>
         </div>
       )}
+      </div>
+
+      {legendPosition === 'below' ? <div className="shrink-0 px-1">{legend}</div> : legend}
     </div>
   );
 };

@@ -5,6 +5,8 @@ interface CountUpProps {
   end: number;
   /** 计数动画时长（毫秒）；<=0 或系统偏好减少动画时直接显示终值 */
   duration?: number;
+  /** 展示格式化（千分位等）；只影响渲染，不参与动画计时 */
+  format?: (value: number) => string;
 }
 
 const prefersReducedMotion = (): boolean =>
@@ -20,7 +22,7 @@ const prefersReducedMotion = (): boolean =>
  * 且带 setTimeout 兜底：无论 rAF 是否被浏览器暂停（后台标签页等），
  * duration + 150ms 后一定落到真实终值。系统开启"减少动画"时直接显示终值。
  */
-const CountUp: React.FC<CountUpProps> = ({ end, duration = 900 }) => {
+const CountUp: React.FC<CountUpProps> = ({ end, duration = 900, format }) => {
   const reduced = useRef(prefersReducedMotion());
   const [value, setValue] = useState(end);
 
@@ -63,7 +65,7 @@ const CountUp: React.FC<CountUpProps> = ({ end, duration = 900 }) => {
     if (value !== end && (reduced.current || duration <= 0)) setValue(end);
   }, [end, duration, value]);
 
-  return <span className="tabular-nums">{value}</span>;
+  return <span className="tabular-nums">{format ? format(value) : value}</span>;
 };
 
 export default CountUp;

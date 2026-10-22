@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Gamepad2, Info } from 'lucide-react';
 import { useSettings } from '@/contexts/AppSettings';
+import ScrollFloat from '@/components/effects/ScrollFloat';
 import { ARCADE_GAMES } from '@/lib/arcade/games';
 import { ExhibitCard } from '@/components/home/ExhibitCard';
 
@@ -15,7 +16,9 @@ export default function ArcadePage() {
             <Gamepad2 className="h-4 w-4" aria-hidden="true" />
             {t('arcade.eyebrow')}
           </p>
-          <h1 className="font-serif text-3xl">{t('arcade.title')}</h1>
+          <ScrollFloat as="h1" once containerClassName="font-serif text-3xl" stagger={0.035} animationDuration={0.8}>
+            {t('arcade.title')}
+          </ScrollFloat>
           <p className="max-w-3xl text-sm leading-relaxed text-stage-muted">{t('arcade.intro')}</p>
         </header>
 

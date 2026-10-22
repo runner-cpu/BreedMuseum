@@ -4,10 +4,26 @@ import intersect from 'tailwindcss-intersect';
 
 export default {
     darkMode: ['class'],
-    content: [
-        './index.html',
-        './src/**/*.{ts,tsx}'
-    ],
+    content: {
+        relative: true,
+        files: [
+            './index.html',
+            './src/**/*.{ts,tsx}',
+            // 只保留真正被引用的 shadcn 基础件；其余未接入的控件仅提供源码，
+            // 不应把它们用到的类名（日历、面板拖拽等）一并打进首屏 CSS。
+            '!./src/components/ui/calendar.tsx',
+            '!./src/components/ui/carousel.tsx',
+            '!./src/components/ui/chart.tsx',
+            '!./src/components/ui/command.tsx',
+            '!./src/components/ui/context-menu.tsx',
+            '!./src/components/ui/form.tsx',
+            '!./src/components/ui/menubar.tsx',
+            '!./src/components/ui/navigation-menu.tsx',
+            '!./src/components/ui/pagination.tsx',
+            '!./src/components/ui/resizable.tsx',
+            '!./src/components/ui/table.tsx',
+        ],
+    },
     safelist: ['border', 'border-border'],
     prefix: '',
     theme: {
